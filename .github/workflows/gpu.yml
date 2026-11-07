@@ -1,0 +1,40 @@
+name: GPU runtime qualification
+# Hardware jobs are explicit; ordinary PR jobs never execute on a self-hosted GPU.
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  hardware:
+    runs-on: [self-hosted, linux, x64, gpu]
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        backend: [wgpu, cuda]
+        fusion: [false, true]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.95.0
+      - uses: Swatinem/rust-cache@v2
+      - run: bash scripts/run_examples.sh cpu
+      - name: Execute hardware tests and examples
+        env:
+          QUANTUM_BACKEND: ${{ matrix.backend }}
+          QUANTUM_FUSION: ${{ matrix.fusion }}
+        run: |
+          fusion=()
+          suffix=""
+          if [[ "$QUANTUM_FUSION" == "true" ]]; then
+            fusion=(--fusion)
+            suffix="-fusion"
+          fi
+          bash scripts/validate_backend.sh "$QUANTUM_BACKEND" "${fusion[@]}"
+          python3 scripts/compare_backends.py artifacts/examples/cpu "artifacts/examples/$QUANTUM_BACKEND$suffix" > artifacts/validation/comparison.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: quantum-${{ matrix.backend }}-fusion-${{ matrix.fusion }}
+          path: artifacts/

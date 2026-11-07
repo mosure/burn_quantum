@@ -1,0 +1,65 @@
+[workspace]
+members = ["crates/burn_quantum_example"]
+default-members = [".", "crates/burn_quantum_example"]
+resolver = "3"
+
+[package]
+name = "burn_quantum"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95"
+description = "Differentiable qubit and qudit simulation with Burn's native tensor and module APIs"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/mosure/burn_quantum"
+readme = "README.md"
+keywords = ["quantum", "qudit", "machine-learning", "burn", "autodiff"]
+categories = ["science", "simulation"]
+include = ["src/**", "examples/**", "tests/**", "support/**", "docs/**", "scripts/**", "Cargo.toml", "Cargo.lock", "README.md", "LICENSE-*", "rust-toolchain.toml"]
+
+[features]
+default = ["flex", "autodiff"]
+flex = ["burn/flex"]
+autodiff = ["burn/autodiff"]
+wgpu = ["burn/wgpu"]
+cuda = ["burn/cuda"]
+fusion = ["burn/fusion"]
+
+[dependencies]
+burn = { version = "~0.22.1", default-features = false, features = ["std"] }
+num-complex = { version = "0.4.6", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "2.0"
+rand = "0.9"
+rand_chacha = "0.9"
+
+[dev-dependencies]
+burn = { version = "~0.22.1", default-features = false, features = ["std", "flex", "autodiff", "optim"] }
+serde_json = "1.0"
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+
+[[example]]
+name = "bell"
+required-features = ["flex"]
+
+[[example]]
+name = "qudit"
+required-features = ["flex"]
+
+[[example]]
+name = "train"
+required-features = ["flex", "autodiff"]
+
+[[example]]
+name = "profile"
+required-features = ["flex"]
+
+[[example]]
+name = "hybrid"
+required-features = ["flex", "autodiff"]
+
+[[example]]
+name = "wgpu_smoke"
+required-features = ["wgpu", "autodiff"]

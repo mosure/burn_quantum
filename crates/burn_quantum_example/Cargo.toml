@@ -1,0 +1,26 @@
+[package]
+name = "burn_quantum_example"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95"
+publish = false
+license = "MIT OR Apache-2.0"
+description = "Executable canonical quantum ML examples built on burn_quantum"
+readme = "README.md"
+
+[features]
+wgpu = ["burn_quantum/wgpu", "burn/wgpu"]
+cuda = ["burn_quantum/cuda", "burn/cuda"]
+fusion = ["burn_quantum/fusion", "burn/fusion"]
+
+[dependencies]
+burn_quantum = { path = "../.." }
+burn = { version = "~0.22.1", default-features = false, features = ["std", "flex", "autodiff", "optim"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rand = "0.9"
+rand_chacha = "0.9"
+
+[lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"

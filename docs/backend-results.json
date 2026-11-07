@@ -1,0 +1,736 @@
+{
+  "date": "2026-11-07",
+  "scope": "Local working-tree F32 hardware qualification; original CPU reference tests also cover F64. No remote CI or other GPU vendor claim.",
+  "burn": "0.22.1",
+  "cubecl": "0.11.3",
+  "rust": "1.95.0",
+  "gpu": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+  "driver": "610.43.02",
+  "cuda_toolkit": "13.3",
+  "cargo_lock_sha256": "d76f402bf6a68464bf7546c32a61c45493da5c7e0cc1ad90527c254418ce8788",
+  "cpu_tests": 51,
+  "doctests": 1,
+  "gpu_tests_per_configuration": 16,
+  "canonical_executables_per_configuration": 7,
+  "basic_demos_per_gpu_configuration": [
+    "bell",
+    "qudit",
+    "train",
+    "hybrid",
+    "profile"
+  ],
+  "comparisons": {
+    "wgpu": {
+      "vqe": {
+        "max_absolute_metric_difference": 1.9073486328125e-06,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      },
+      "qaoa_maxcut": {
+        "max_absolute_metric_difference": 2.6226043701171875e-06,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      },
+      "variational_classifier": {
+        "max_absolute_metric_difference": 5.960464477539063e-08,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      },
+      "quantum_kernel": {
+        "max_absolute_metric_difference": 3.5762786865234375e-07,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      },
+      "born_machine": {
+        "max_absolute_metric_difference": 1.6689300537109375e-06,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      },
+      "hybrid_regression": {
+        "max_absolute_metric_difference": 2.7418136596679688e-06,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      },
+      "qudit_classifier": {
+        "max_absolute_metric_difference": 4.172325134277344e-07,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      }
+    },
+    "wgpu-fusion": {
+      "vqe": {
+        "max_absolute_metric_difference": 1.9073486328125e-06,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      },
+      "qaoa_maxcut": {
+        "max_absolute_metric_difference": 2.6226043701171875e-06,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      },
+      "variational_classifier": {
+        "max_absolute_metric_difference": 5.960464477539063e-08,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      },
+      "quantum_kernel": {
+        "max_absolute_metric_difference": 3.5762786865234375e-07,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      },
+      "born_machine": {
+        "max_absolute_metric_difference": 1.430511474609375e-06,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      },
+      "hybrid_regression": {
+        "max_absolute_metric_difference": 2.4139881134033203e-06,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      },
+      "qudit_classifier": {
+        "max_absolute_metric_difference": 4.172325134277344e-07,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      }
+    },
+    "cuda": {
+      "vqe": {
+        "max_absolute_metric_difference": 1.430511474609375e-06,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      },
+      "qaoa_maxcut": {
+        "max_absolute_metric_difference": 1.1920928955078125e-07,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      },
+      "variational_classifier": {
+        "max_absolute_metric_difference": 0.0,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      },
+      "quantum_kernel": {
+        "max_absolute_metric_difference": 0.0,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      },
+      "born_machine": {
+        "max_absolute_metric_difference": 2.384185791015625e-07,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      },
+      "hybrid_regression": {
+        "max_absolute_metric_difference": 0.0013845562934875488,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      },
+      "qudit_classifier": {
+        "max_absolute_metric_difference": 0.0,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      }
+    },
+    "cuda-fusion": {
+      "vqe": {
+        "max_absolute_metric_difference": 1.1920928955078125e-06,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      },
+      "qaoa_maxcut": {
+        "max_absolute_metric_difference": 1.1920928955078125e-07,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      },
+      "variational_classifier": {
+        "max_absolute_metric_difference": 0.0,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      },
+      "quantum_kernel": {
+        "max_absolute_metric_difference": 0.0,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      },
+      "born_machine": {
+        "max_absolute_metric_difference": 4.76837158203125e-07,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      },
+      "hybrid_regression": {
+        "max_absolute_metric_difference": 0.0014154314994812012,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      },
+      "qudit_classifier": {
+        "max_absolute_metric_difference": 0.0,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      }
+    }
+  },
+  "configurations": [
+    {
+      "configuration": "cpu",
+      "reports": [
+        {
+          "example": "born_machine",
+          "seed": 19,
+          "steps": 250,
+          "backend": "cpu",
+          "adapter": "Flex CPU",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "initial_kl_divergence": 2.0268000330444162,
+            "kl_divergence": 1.1582334691340179e-07,
+            "sample_total_variation": 0.011767578124999997,
+            "shots": 4096.0,
+            "total_variation": 1.1380761861801147e-06
+          }
+        },
+        {
+          "example": "hybrid_regression",
+          "seed": 0,
+          "steps": 120,
+          "backend": "cpu",
+          "adapter": "Flex CPU",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "encoder_parameter_change": 1.1939144730567932,
+            "head_parameter_change": 0.5330054610967636,
+            "initial_train_mse": 0.13606639206409454,
+            "quantum_parameter_change": 0.32824430614709854,
+            "test_mse": 9.460920409765095e-05,
+            "train_mse": 0.00012017238623229787
+          }
+        },
+        {
+          "example": "qaoa_maxcut",
+          "seed": 11,
+          "steps": 140,
+          "backend": "cpu",
+          "adapter": "Flex CPU",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "best_sampled_cut": 2.0,
+            "exact_optimal_cut": 2.0,
+            "expected_cut": 1.9999995231628418,
+            "initial_expected_cut": 1.8514546155929565,
+            "optimal_probability": 0.9999997615814209
+          }
+        },
+        {
+          "example": "quantum_kernel",
+          "seed": 0,
+          "steps": 0,
+          "backend": "cpu",
+          "adapter": "Flex CPU",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "gram_diagonal_error": 2.384185791015625e-07,
+            "gram_symmetry_error": 0.0,
+            "majority_baseline_accuracy": 0.5,
+            "ridge": 0.001,
+            "test_accuracy": 1.0,
+            "train_accuracy": 1.0
+          }
+        },
+        {
+          "example": "qudit_classifier",
+          "seed": 0,
+          "steps": 120,
+          "backend": "cpu",
+          "adapter": "Flex CPU",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "cross_entropy": 0.011130043305456638,
+            "initial_cross_entropy": 0.2041456401348114,
+            "majority_baseline_accuracy": 0.3333333333333333,
+            "test_accuracy": 1.0,
+            "train_accuracy": 1.0
+          }
+        },
+        {
+          "example": "variational_classifier",
+          "seed": 0,
+          "steps": 120,
+          "backend": "cpu",
+          "adapter": "Flex CPU",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "cross_entropy": 0.2700399160385132,
+            "initial_cross_entropy": 0.4722198247909546,
+            "majority_baseline_accuracy": 0.5,
+            "test_accuracy": 1.0,
+            "train_accuracy": 1.0
+          }
+        },
+        {
+          "example": "vqe",
+          "seed": 7,
+          "steps": 160,
+          "backend": "cpu",
+          "adapter": "Flex CPU",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "energy": -2.999999523162842,
+            "exact_ground_energy": -3.0,
+            "ground_state_fidelity": 0.9999997615814209,
+            "initial_energy": 0.9088529348373413
+          }
+        }
+      ]
+    },
+    {
+      "configuration": "wgpu",
+      "reports": [
+        {
+          "example": "born_machine",
+          "seed": 19,
+          "steps": 250,
+          "backend": "wgpu",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "initial_kl_divergence": 2.0268005098815745,
+            "kl_divergence": 1.7847534006243393e-06,
+            "sample_total_variation": 0.011767578124999997,
+            "shots": 4096.0,
+            "total_variation": 1.1645257473047455e-06
+          }
+        },
+        {
+          "example": "hybrid_regression",
+          "seed": 0,
+          "steps": 120,
+          "backend": "wgpu",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "encoder_parameter_change": 1.1939172148704529,
+            "head_parameter_change": 0.5330055505037308,
+            "initial_train_mse": 0.13606643676757812,
+            "quantum_parameter_change": 0.3282446637749672,
+            "test_mse": 9.460884757572785e-05,
+            "train_mse": 0.00012017154949717224
+          }
+        },
+        {
+          "example": "qaoa_maxcut",
+          "seed": 11,
+          "steps": 140,
+          "backend": "wgpu",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "best_sampled_cut": 2.0,
+            "exact_optimal_cut": 2.0,
+            "expected_cut": 1.9999969005584717,
+            "initial_expected_cut": 1.8514535427093506,
+            "optimal_probability": 0.9999984800815582
+          }
+        },
+        {
+          "example": "quantum_kernel",
+          "seed": 0,
+          "steps": 0,
+          "backend": "wgpu",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "gram_diagonal_error": 5.960464477539062e-07,
+            "gram_symmetry_error": 0.0,
+            "majority_baseline_accuracy": 0.5,
+            "ridge": 0.001,
+            "test_accuracy": 1.0,
+            "train_accuracy": 1.0
+          }
+        },
+        {
+          "example": "qudit_classifier",
+          "seed": 0,
+          "steps": 120,
+          "backend": "wgpu",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "cross_entropy": 0.011130374856293201,
+            "initial_cross_entropy": 0.20414605736732483,
+            "majority_baseline_accuracy": 0.3333333333333333,
+            "test_accuracy": 1.0,
+            "train_accuracy": 1.0
+          }
+        },
+        {
+          "example": "variational_classifier",
+          "seed": 0,
+          "steps": 120,
+          "backend": "wgpu",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "cross_entropy": 0.27003997564315796,
+            "initial_cross_entropy": 0.4722198247909546,
+            "majority_baseline_accuracy": 0.5,
+            "test_accuracy": 1.0,
+            "train_accuracy": 1.0
+          }
+        },
+        {
+          "example": "vqe",
+          "seed": 7,
+          "steps": 160,
+          "backend": "wgpu",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "energy": -2.999997615814209,
+            "exact_ground_energy": -3.0,
+            "ground_state_fidelity": 0.9999992847442627,
+            "initial_energy": 0.9088525176048279
+          }
+        }
+      ]
+    },
+    {
+      "configuration": "wgpu-fusion",
+      "reports": [
+        {
+          "example": "born_machine",
+          "seed": 19,
+          "steps": 250,
+          "backend": "wgpu",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+          "dtype": "f32",
+          "fusion": true,
+          "metrics": {
+            "initial_kl_divergence": 2.0268005098815745,
+            "kl_divergence": 1.5463348215227768e-06,
+            "sample_total_variation": 0.011767578124999997,
+            "shots": 4096.0,
+            "total_variation": 1.2371689081247528e-06
+          }
+        },
+        {
+          "example": "hybrid_regression",
+          "seed": 0,
+          "steps": 120,
+          "backend": "wgpu",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+          "dtype": "f32",
+          "fusion": true,
+          "metrics": {
+            "encoder_parameter_change": 1.1939168870449066,
+            "head_parameter_change": 0.5330055505037308,
+            "initial_train_mse": 0.13606643676757812,
+            "quantum_parameter_change": 0.3282446637749672,
+            "test_mse": 9.460897126700729e-05,
+            "train_mse": 0.00012017242261208594
+          }
+        },
+        {
+          "example": "qaoa_maxcut",
+          "seed": 11,
+          "steps": 140,
+          "backend": "wgpu",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+          "dtype": "f32",
+          "fusion": true,
+          "metrics": {
+            "best_sampled_cut": 2.0,
+            "exact_optimal_cut": 2.0,
+            "expected_cut": 1.9999969005584717,
+            "initial_expected_cut": 1.8514535427093506,
+            "optimal_probability": 0.9999984502792358
+          }
+        },
+        {
+          "example": "quantum_kernel",
+          "seed": 0,
+          "steps": 0,
+          "backend": "wgpu",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+          "dtype": "f32",
+          "fusion": true,
+          "metrics": {
+            "gram_diagonal_error": 5.960464477539062e-07,
+            "gram_symmetry_error": 0.0,
+            "majority_baseline_accuracy": 0.5,
+            "ridge": 0.001,
+            "test_accuracy": 1.0,
+            "train_accuracy": 1.0
+          }
+        },
+        {
+          "example": "qudit_classifier",
+          "seed": 0,
+          "steps": 120,
+          "backend": "wgpu",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+          "dtype": "f32",
+          "fusion": true,
+          "metrics": {
+            "cross_entropy": 0.011130374856293201,
+            "initial_cross_entropy": 0.20414605736732483,
+            "majority_baseline_accuracy": 0.3333333333333333,
+            "test_accuracy": 1.0,
+            "train_accuracy": 1.0
+          }
+        },
+        {
+          "example": "variational_classifier",
+          "seed": 0,
+          "steps": 120,
+          "backend": "wgpu",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+          "dtype": "f32",
+          "fusion": true,
+          "metrics": {
+            "cross_entropy": 0.27003997564315796,
+            "initial_cross_entropy": 0.4722198247909546,
+            "majority_baseline_accuracy": 0.5,
+            "test_accuracy": 1.0,
+            "train_accuracy": 1.0
+          }
+        },
+        {
+          "example": "vqe",
+          "seed": 7,
+          "steps": 160,
+          "backend": "wgpu",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+          "dtype": "f32",
+          "fusion": true,
+          "metrics": {
+            "energy": -2.999997615814209,
+            "exact_ground_energy": -3.0,
+            "ground_state_fidelity": 0.9999992847442627,
+            "initial_energy": 0.9088525176048279
+          }
+        }
+      ]
+    },
+    {
+      "configuration": "cuda",
+      "reports": [
+        {
+          "example": "born_machine",
+          "seed": 19,
+          "steps": 250,
+          "backend": "cuda",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "initial_kl_divergence": 2.0268000330444162,
+            "kl_divergence": -1.225952321881607e-07,
+            "sample_total_variation": 0.011767578124999997,
+            "shots": 4096.0,
+            "total_variation": 1.0989606380462646e-06
+          }
+        },
+        {
+          "example": "hybrid_regression",
+          "seed": 0,
+          "steps": 120,
+          "backend": "cuda",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "encoder_parameter_change": 1.1925299167633057,
+            "head_parameter_change": 0.5331192761659622,
+            "initial_train_mse": 0.13606153428554535,
+            "quantum_parameter_change": 0.328565277159214,
+            "test_mse": 9.725028212415054e-05,
+            "train_mse": 0.00012028995115542784
+          }
+        },
+        {
+          "example": "qaoa_maxcut",
+          "seed": 11,
+          "steps": 140,
+          "backend": "cuda",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "best_sampled_cut": 2.0,
+            "exact_optimal_cut": 2.0,
+            "expected_cut": 1.9999995231628418,
+            "initial_expected_cut": 1.851454734802246,
+            "optimal_probability": 0.9999997615814209
+          }
+        },
+        {
+          "example": "quantum_kernel",
+          "seed": 0,
+          "steps": 0,
+          "backend": "cuda",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "gram_diagonal_error": 2.384185791015625e-07,
+            "gram_symmetry_error": 0.0,
+            "majority_baseline_accuracy": 0.5,
+            "ridge": 0.001,
+            "test_accuracy": 1.0,
+            "train_accuracy": 1.0
+          }
+        },
+        {
+          "example": "qudit_classifier",
+          "seed": 0,
+          "steps": 120,
+          "backend": "cuda",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "cross_entropy": 0.011130043305456638,
+            "initial_cross_entropy": 0.2041456401348114,
+            "majority_baseline_accuracy": 0.3333333333333333,
+            "test_accuracy": 1.0,
+            "train_accuracy": 1.0
+          }
+        },
+        {
+          "example": "variational_classifier",
+          "seed": 0,
+          "steps": 120,
+          "backend": "cuda",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "cross_entropy": 0.2700399160385132,
+            "initial_cross_entropy": 0.4722198247909546,
+            "majority_baseline_accuracy": 0.5,
+            "test_accuracy": 1.0,
+            "train_accuracy": 1.0
+          }
+        },
+        {
+          "example": "vqe",
+          "seed": 7,
+          "steps": 160,
+          "backend": "cuda",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "dtype": "f32",
+          "fusion": false,
+          "metrics": {
+            "energy": -3.0000009536743164,
+            "exact_ground_energy": -3.0,
+            "ground_state_fidelity": 1.000000238418579,
+            "initial_energy": 0.9088529348373413
+          }
+        }
+      ]
+    },
+    {
+      "configuration": "cuda-fusion",
+      "reports": [
+        {
+          "example": "born_machine",
+          "seed": 19,
+          "steps": 250,
+          "backend": "cuda",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "dtype": "f32",
+          "fusion": true,
+          "metrics": {
+            "initial_kl_divergence": 2.0268000330444162,
+            "kl_divergence": -3.610138112897232e-07,
+            "sample_total_variation": 0.011767578124999997,
+            "shots": 4096.0,
+            "total_variation": 1.0326504707447448e-06
+          }
+        },
+        {
+          "example": "hybrid_regression",
+          "seed": 0,
+          "steps": 120,
+          "backend": "cuda",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "dtype": "f32",
+          "fusion": true,
+          "metrics": {
+            "encoder_parameter_change": 1.192499041557312,
+            "head_parameter_change": 0.5328580290079117,
+            "initial_train_mse": 0.13606153428554535,
+            "quantum_parameter_change": 0.32849548012018204,
+            "test_mse": 9.773302735993639e-05,
+            "train_mse": 0.00012041292939102277
+          }
+        },
+        {
+          "example": "qaoa_maxcut",
+          "seed": 11,
+          "steps": 140,
+          "backend": "cuda",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "dtype": "f32",
+          "fusion": true,
+          "metrics": {
+            "best_sampled_cut": 2.0,
+            "exact_optimal_cut": 2.0,
+            "expected_cut": 1.9999995231628418,
+            "initial_expected_cut": 1.851454734802246,
+            "optimal_probability": 0.9999997913837433
+          }
+        },
+        {
+          "example": "quantum_kernel",
+          "seed": 0,
+          "steps": 0,
+          "backend": "cuda",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "dtype": "f32",
+          "fusion": true,
+          "metrics": {
+            "gram_diagonal_error": 2.384185791015625e-07,
+            "gram_symmetry_error": 0.0,
+            "majority_baseline_accuracy": 0.5,
+            "ridge": 0.001,
+            "test_accuracy": 1.0,
+            "train_accuracy": 1.0
+          }
+        },
+        {
+          "example": "qudit_classifier",
+          "seed": 0,
+          "steps": 120,
+          "backend": "cuda",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "dtype": "f32",
+          "fusion": true,
+          "metrics": {
+            "cross_entropy": 0.011130043305456638,
+            "initial_cross_entropy": 0.2041456401348114,
+            "majority_baseline_accuracy": 0.3333333333333333,
+            "test_accuracy": 1.0,
+            "train_accuracy": 1.0
+          }
+        },
+        {
+          "example": "variational_classifier",
+          "seed": 0,
+          "steps": 120,
+          "backend": "cuda",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "dtype": "f32",
+          "fusion": true,
+          "metrics": {
+            "cross_entropy": 0.2700399160385132,
+            "initial_cross_entropy": 0.4722198247909546,
+            "majority_baseline_accuracy": 0.5,
+            "test_accuracy": 1.0,
+            "train_accuracy": 1.0
+          }
+        },
+        {
+          "example": "vqe",
+          "seed": 7,
+          "steps": 160,
+          "backend": "cuda",
+          "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+          "dtype": "f32",
+          "fusion": true,
+          "metrics": {
+            "energy": -3.0000007152557373,
+            "exact_ground_energy": -3.0,
+            "ground_state_fidelity": 1.000000238418579,
+            "initial_energy": 0.9088529348373413
+          }
+        }
+      ]
+    }
+  ]
+}
