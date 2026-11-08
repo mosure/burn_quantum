@@ -1,7 +1,7 @@
 # burn_quantum_example
 
-Seven small, executable quantum AI/ML implementations using Burn's native
-optimizers and the `burn_quantum` simulator. Every algorithm is a single file
+Nine small, executable quantum AI/ML and search implementations using Burn's native
+tensors, optimizers, and the `burn_quantum` simulator. Every algorithm is a single file
 under `src/bin/`, containing its circuit, data/problem definition, training or
 fit procedure, evaluation, `main`, and a test. The package is a local workspace
 member and is not published.
@@ -17,6 +17,8 @@ member and is not published.
 | [`born_machine`](src/bin/born_machine.rs) | Three-qubit Born machine, soft-target cross-entropy, Adam | KL divergence, total variation and seeded sampled frequencies |
 | [`hybrid_regression`](src/bin/hybrid_regression.rs) | Burn linear encoder, entangled quantum layer, linear head | Disjoint regression test grid and parameter updates in all three stages |
 | [`qudit_classifier`](src/bin/qudit_classifier.rs) | Single-qutrit three-class model using explicit two-level rotations and Born readout | Disjoint angle-cluster test data and multiclass majority baseline |
+| [`grover_sat`](src/bin/grover_sat.rs) | Reversible CNF oracle, Grover amplification, bounded search with unknown solution count; optional DIMACS file | Analytic success probability, clean work qubits, verified witness |
+| [`qnspsa_vqe`](src/bin/qnspsa_vqe.rs) | Fidelity-based quantum natural SPSA, two-qubit RY/CNOT/RZ ansatz, Heisenberg energy | Analytic -3 ground energy, singlet fidelity, normalization and evaluator-call budget |
 
 The implementations use established algorithm families on intentionally small
 problems, with explicit models and objectives. VQE and QAOA cover variational
@@ -37,17 +39,25 @@ cargo run --locked -p burn_quantum_example --bin quantum_kernel
 cargo run --locked -p burn_quantum_example --bin born_machine
 cargo run --locked -p burn_quantum_example --bin hybrid_regression
 cargo run --locked -p burn_quantum_example --bin qudit_classifier
+cargo run --locked -p burn_quantum_example --bin grover_sat
+cargo run --locked -p burn_quantum_example --bin grover_sat -- problem.cnf
+cargo run --locked -p burn_quantum_example --bin qnspsa_vqe
 ```
+
+Runner and comparison scripts discover the binary targets through Cargo metadata
+using [`example_catalog.py`](../../scripts/example_catalog.py); adding an example
+does not require maintaining separate executable lists.
 
 Each command prints a JSON report and returns an error if its stated numerical
 acceptance criteria fail. Counts, learning rates, and seeds are visible in the
 single source file. `seed = 0` denotes an explicitly initialized deterministic
 run with no random data. VQE/Born use local ChaCha8 initialization; QAOA/Born
-sampling uses an explicit seed. No datasets are downloaded.
+sampling uses an explicit seed. QN-SPSA uses a local seed for its perturbation
+directions. No datasets are downloaded.
 
 ```sh
 bash scripts/run_examples.sh cpu                   # artifacts/examples/cpu/*.json
-cargo test --locked -p burn_quantum_example --bins  # runs all seven checks
+cargo test --locked -p burn_quantum_example --bins  # runs all nine checks
 cargo test --locked --workspace --all-targets       # core and example regressions
 bash scripts/validate.sh                           # full workspace qualification
 ```
@@ -82,8 +92,10 @@ variables. The original F64 CPU oracle tests retain their strict tolerances;
 [`backend_parity.rs`](../../tests/backend_parity.rs) compares portable F32
 execution and derivatives against CPU/scalar/analytic references.
 
-Training uses exact simulator gradients/expectations. Terminal shot sampling is
-shown in QAOA and the Born machine. These tests do not establish shot-based QPU
+Training uses exact simulator gradients/expectations. QN-SPSA instead estimates
+its updates from perturbed energies and state fidelities, without backpropagation;
+see the [algorithm and validation guide](../../docs/qnspsa.md). Terminal shot sampling is
+shown in QAOA, the Born machine and SAT search. These tests do not establish shot-based QPU
 training, large-scale performance, or quantum advantage. See the
 [hardware validation record](../../docs/backend-validation.md) for actual runtime
 coverage and the [manual GPU CI workflow](../../.github/workflows/gpu.yml).
@@ -105,6 +117,17 @@ state-based objectives; use `state` for energies/probabilities and `forward` for
 configured Hermitian readouts. Calling `forward` without readouts returns an
 error. Existing weight-record parameter paths remain unchanged.
 
+[`burn_quantum::sat`](../../src/sat/mod.rs) contains CNF parsing, reversible oracle
+compilation and bounded search. Controlled gates and circuit continuation also
+live in the core. The SAT example contains only its problem, analytic evaluation
+and command-line reporting.
+
+[`burn_quantum::optim`](../../src/optim/mod.rs) contains the reusable QN-SPSA
+estimator, schedules, metric regularization/solve, blocking and checkpoints.
+The example supplies its ansatz, loss/fidelity callbacks and independent
+evaluation. Quantum evaluations stay on the selected device; the dense metric
+is processed in host F64.
+
 Quantum tensor helpers validate shapes, layouts, dtypes, contexts and relevant
 budgets. They do not synchronously validate probability values: callers provide
 normalized states/distributions, and the examples explicitly validate states at
@@ -124,10 +147,11 @@ implementations here are original educational implementations, not reproductions
 of the referenced experiments.
 
 - VQE: [Peruzzo et al., A variational eigenvalue solver on a quantum processor](https://arxiv.org/abs/1304.3061).
+- QN-SPSA: [Gacon et al., Simultaneous Perturbation Stochastic Approximation of the Quantum Fisher Information](https://arxiv.org/abs/2103.09232).
 - QAOA: [Farhi, Goldstone and Gutmann, A Quantum Approximate Optimization Algorithm](https://arxiv.org/abs/1411.4028).
 - Variational classification: [PennyLane's variational classifier tutorial](https://pennylane.ai/demos/tutorial_variational_classifier).
 - Fidelity kernels: [Qiskit's fidelity-kernel definition](https://qiskit-community.github.io/qiskit-machine-learning/stubs/qiskit_machine_learning.kernels.TrainableFidelityQuantumKernel.html).
 - Born machines: [PennyLane's quantum circuit Born-machine tutorial](https://pennylane.ai/demos/tutorial_qcbm).
 
-See [current example validation](../../docs/examples-validation.md) for recorded
-outcomes and limitations.
+See [the original seven-example validation](../../docs/examples-validation.md)
+and [the SAT guide](../../docs/sat.md) for recorded outcomes and limitations.

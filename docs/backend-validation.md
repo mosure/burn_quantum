@@ -3,6 +3,10 @@
 Hardware execution recorded on **2026-11-07**, with Rust 1.95.0, Burn 0.22.1,
 CubeCL 0.11.3, and the repository's locked dependency graph.
 
+This is the original seven-example qualification snapshot. Subsequent additions
+have separate records: [Grover SAT](sat.md) and [quantum natural SPSA](qnspsa.md),
+including their CPU counts and targeted hardware checks.
+
 ## Device selection and reproducibility
 
 All seven `burn_quantum_example` binaries and the basic simulator demos select

@@ -21,6 +21,7 @@ fi
 export BURN_QUANTUM_DEVICE="$backend"
 output="artifacts/examples/$backend$suffix"
 mkdir -p "$output"
-for example in vqe qaoa_maxcut variational_classifier quantum_kernel born_machine hybrid_regression qudit_classifier; do
+example_catalog="$(python3 scripts/example_catalog.py)"
+while IFS= read -r example; do
     cargo run --locked --quiet -p burn_quantum_example "${features[@]}" --bin "$example" | tee "$output/$example.json"
-done
+done <<< "$example_catalog"

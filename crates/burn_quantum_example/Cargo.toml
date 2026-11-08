@@ -1,10 +1,11 @@
 [package]
 name = "burn_quantum_example"
-version = "0.1.0"
-edition = "2024"
-rust-version = "1.95"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 publish = false
-license = "MIT OR Apache-2.0"
+license.workspace = true
+repository.workspace = true
 description = "Executable canonical quantum ML examples built on burn_quantum"
 readme = "README.md"
 
@@ -15,12 +16,11 @@ fusion = ["burn_quantum/fusion", "burn/fusion"]
 
 [dependencies]
 burn_quantum = { path = "../.." }
-burn = { version = "~0.22.1", default-features = false, features = ["std", "flex", "autodiff", "optim"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-rand = "0.9"
-rand_chacha = "0.9"
+burn = { workspace = true, features = ["flex", "autodiff", "optim"] }
+serde.workspace = true
+serde_json.workspace = true
+rand.workspace = true
+rand_chacha.workspace = true
 
-[lints.rust]
-unsafe_code = "forbid"
-missing_docs = "warn"
+[lints]
+workspace = true

@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
 """Compare CPU and accelerator reports; per-example acceptance also runs in Rust."""
+import argparse
 import json
 import math
 from pathlib import Path
-import sys
-
-EXAMPLES = (
-    "vqe", "qaoa_maxcut", "variational_classifier", "quantum_kernel",
-    "born_machine", "hybrid_regression", "qudit_classifier",
-)
+from example_catalog import example_names
 
 
 def require(condition, message):
@@ -16,11 +12,13 @@ def require(condition, message):
         raise ValueError(message)
 
 
-def compare(reference, candidate):
+def compare(reference, candidate, examples=None):
     results = {}
     backend = candidate.name.removesuffix("-fusion")
     fusion = candidate.name.endswith("-fusion")
-    for name in EXAMPLES:
+    names = example_names() if examples is None else tuple(examples)
+    require(names, "no examples selected for comparison")
+    for name in names:
         cpu = json.loads((reference / f"{name}.json").read_text())
         other = json.loads((candidate / f"{name}.json").read_text())
         require(cpu["backend"] == "cpu", "reference must be a CPU execution")
@@ -49,7 +47,12 @@ def compare(reference, candidate):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        sys.exit("Usage: python3 scripts/compare_backends.py CPU_REPORT_DIR GPU_REPORT_DIR [...]")
-    print(json.dumps({path.name: compare(Path(sys.argv[1]), path)
-                      for path in map(Path, sys.argv[2:])}, indent=2))
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("reference", type=Path, help="CPU report directory")
+    parser.add_argument("candidates", type=Path, nargs="+", help="GPU report directories")
+    parser.add_argument("--example", action="append", dest="examples",
+                        help="Compare only this binary (repeatable); defaults to all Cargo binaries")
+    args = parser.parse_args()
+    names = example_names() if args.examples is None else args.examples
+    print(json.dumps({directory.name: compare(args.reference, directory, names)
+                      for directory in args.candidates}, indent=2))

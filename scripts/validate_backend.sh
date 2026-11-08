@@ -21,7 +21,7 @@ fi
 export BURN_QUANTUM_DEVICE="$backend"
 output="artifacts/validation/$backend$suffix"
 mkdir -p "$output"
-cargo test --locked -p burn_quantum "${features[@]}" --test backend_parity -- --test-threads=1 --nocapture 2>&1 | tee "$output/parity.log"
+cargo test --locked -p burn_quantum "${features[@]}" --test backend_parity --test sat --test qnspsa -- --test-threads=1 --nocapture 2>&1 | tee "$output/parity.log"
 cargo test --locked -p burn_quantum_example "${features[@]}" --bins -- --test-threads=1 --nocapture 2>&1 | tee "$output/example-tests.log"
 bash scripts/run_examples.sh "$@" 2>&1 | tee "$output/examples.log"
 for example in bell qudit train hybrid profile; do

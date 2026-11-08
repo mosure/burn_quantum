@@ -20,16 +20,19 @@
 pub mod backend;
 pub mod circuit;
 pub mod complex;
+mod control;
 pub mod error;
 pub mod gate;
 pub mod gradient;
 pub mod layout;
 pub mod noise;
 pub mod observable;
+pub mod optim;
 mod precision;
 pub mod qml;
 pub mod quantum_module;
 pub mod sampling;
+pub mod sat;
 pub mod state;
 
 pub use backend::{Capabilities, DenseSimulator, QuantumBackend, ResourceLimits};

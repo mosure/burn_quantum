@@ -3,18 +3,41 @@ members = ["crates/burn_quantum_example"]
 default-members = [".", "crates/burn_quantum_example"]
 resolver = "3"
 
-[package]
-name = "burn_quantum"
-version = "0.1.0"
+[workspace.package]
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.95"
-description = "Differentiable qubit and qudit simulation with Burn's native tensor and module APIs"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/mosure/burn_quantum"
+
+[workspace.dependencies]
+burn = { version = "~0.22.1", default-features = false, features = ["std"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rand = "0.9"
+rand_chacha = "0.9"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_docs = "warn"
+
+[package]
+name = "burn_quantum"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "Differentiable qubit and qudit simulation with Burn's native tensor and module APIs"
+license.workspace = true
+repository.workspace = true
 readme = "README.md"
 keywords = ["quantum", "qudit", "machine-learning", "burn", "autodiff"]
 categories = ["science", "simulation"]
-include = ["src/**", "examples/**", "tests/**", "support/**", "docs/**", "scripts/**", "Cargo.toml", "Cargo.lock", "README.md", "LICENSE-*", "rust-toolchain.toml"]
+include = [
+    "src/**", "examples/**", "tests/**", "support/**", "docs/**",
+    "scripts/*.sh", "scripts/*.py",
+    "Cargo.toml", "Cargo.lock", "README.md", "CHANGELOG.md", "CONTRIBUTING.md",
+    "LICENSE-*", "rust-toolchain.toml",
+]
 
 [features]
 default = ["flex", "autodiff"]
@@ -25,20 +48,20 @@ cuda = ["burn/cuda"]
 fusion = ["burn/fusion"]
 
 [dependencies]
-burn = { version = "~0.22.1", default-features = false, features = ["std"] }
+burn.workspace = true
 num-complex = { version = "0.4.6", features = ["serde"] }
-serde = { version = "1.0", features = ["derive"] }
+serde.workspace = true
 thiserror = "2.0"
-rand = "0.9"
-rand_chacha = "0.9"
+rand.workspace = true
+rand_chacha.workspace = true
+nalgebra = { version = "0.34.2", default-features = false, features = ["std"] }
 
 [dev-dependencies]
-burn = { version = "~0.22.1", default-features = false, features = ["std", "flex", "autodiff", "optim"] }
-serde_json = "1.0"
+burn = { workspace = true, features = ["flex", "autodiff", "optim"] }
+serde_json.workspace = true
 
-[lints.rust]
-unsafe_code = "forbid"
-missing_docs = "warn"
+[lints]
+workspace = true
 
 [[example]]
 name = "bell"

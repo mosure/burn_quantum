@@ -15,11 +15,13 @@ already implemented. Priority is driven by measured application requirements.
 | Parameters | Affine shared parameter / input references; analytic X/Y/Z level rotations | No expression DAG or dynamic control |
 | Training | Burn first-order autodiff, `Module`, `Config`, `Param`, optimizers | Retained graph grows with circuit depth |
 | Gradient oracle | Occurrence-wise 2/4-term shifts | Implemented rotation generators only |
+| Quantum natural optimization | Fidelity-based QN-SPSA, spectral regularization, blocking, seeded schedules/checkpoints | Pure-state geometry; dense host O(d²) storage / O(d³) solve; synchronous callbacks |
 | Readouts | Local Hermitian operators, variance, local Hamiltonian sums, marginals | Exact analytic values |
 | Noise | Arbitrary checked Kraus operators, three qubit channel factories | Constant channel parameters; density path |
 | Sampling | Seeded terminal computational-basis shots | Host synchronization; no gradient / collapse |
 | Persistence | Versioned circuit JSON, validated deserialization, Burn weights | Config and weight record stored together by caller |
 | Runtime | Native Burn device dispatch; optional WGPU/CUDA features | Each device requires separate qualification |
+| Boolean SAT | Reversible CNF oracles, Grover amplification, bounded unknown-count search | Exponential dense simulation; failed search is inconclusive |
 
 ## 1. Prepared execution and accelerator kernels
 
@@ -37,8 +39,9 @@ never retains a stale autodiff graph. A prepared plan should expose a resource
 estimate and reject unsupported kernels before execution. Cache eviction must
 account for all simultaneously retained plans, not just one tensor.
 
-Then implement strided one/two-site kernels and diagonal/permutation fast paths
-using Burn backend extensions. Require independent CPU-reference agreement,
+Structured controlled X and phase flips now have portable gather/diagonal paths
+for [SAT search](sat.md). Next implement strided one/two-site and specialized
+diagonal/permutation kernels using Burn backend extensions. Require independent CPU-reference agreement,
 forward/backward GPU parity, fusion-on/off parity, mixed-radix correctness,
 batch isolation, and measured improvements including readout costs. A custom
 forward kernel needs a real VJP and checkpoint recomputation implementation;
@@ -57,6 +60,12 @@ Acceptance: gradients agree with finite differences and independent shifts;
 every shared occurrence contributes; all unused parameters have explicit zero
 Jacobian columns; memory vs depth and runtime vs parameter count are measured.
 Do not advertise higher-order derivatives through Burn's first-order engine.
+
+[Quantum natural SPSA](qnspsa.md) now estimates pure-state geometry with constant
+loss/fidelity callback count per resampling and needs no backward pass. The
+classical metric remains dense. Future block or low-rank metrics, batched probe
+execution, and shot-allocation policies must preserve tested metric conventions
+and report accuracy, estimator variance, synchronization and full solve costs.
 
 ## 3. Additional simulation representations
 
@@ -93,7 +102,8 @@ not a claim that a remote measurement is an ordinary differentiable tensor.
 
 The `burn_quantum_example` workspace crate now provides small, reproducible VQE,
 QAOA MaxCut, variational classification, fidelity-kernel classification,
-Born-machine, hybrid-regression and qutrit-classification implementations, each
+Born-machine, hybrid-regression, qutrit-classification, Grover SAT search, and
+quantum-natural-SPSA VQE implementations, each
 in one file with numerical acceptance checks. Shared encoding, ansatz, readout,
 loss and fidelity operations live in the core crate's `qml` module. These are
 integration prototypes on small problems; broader application benchmarks and

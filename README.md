@@ -26,19 +26,25 @@ See [Burn's migration guide](https://burn.dev/books/burn/migrating-to-0.22.html)
 - Reproducible terminal measurement with a local seeded RNG and allocation budgets.
 - Reusable QML encoding/circuit templates, probability losses, pure-state fidelity
   and differentiable fidelity kernels in `burn_quantum::qml`.
+- Fidelity-based quantum natural SPSA with a regularized Fubini–Study metric,
+  seeded perturbations, loss blocking, schedules, and portable checkpoints.
+- Boolean CNF/DIMACS SAT search with reversible clause oracles, Grover amplification,
+  bounded unknown-solution-count search, and verified candidate assignments.
 
 ## Canonical quantum AI/ML examples
 
 The workspace includes [`burn_quantum_example`](crates/burn_quantum_example/README.md),
 with one complete source file per implementation: **VQE**, **QAOA MaxCut**,
 **variational classification**, **quantum-kernel classification**, a **Born
-machine**, **hybrid regression**, and **qutrit multiclass classification**.
+machine**, **hybrid regression**, **qutrit multiclass classification**,
+**Grover SAT search**, and **quantum natural SPSA VQE**.
 Each has a deterministic problem, training/fitting procedure, numerical
 acceptance criteria, a test, and a JSON result report.
 
 ```sh
 cargo run --locked -p burn_quantum_example --bin vqe
 cargo run --locked -p burn_quantum_example --bin born_machine
+cargo run --locked -p burn_quantum_example --bin qnspsa_vqe
 bash scripts/run_examples.sh
 bash scripts/validate_backend.sh wgpu
 bash scripts/validate_backend.sh cuda --fusion
@@ -50,16 +56,50 @@ training logic remain in each example. See the [suite guide](crates/burn_quantum
 and [example validation record](docs/examples-validation.md). The original
 `examples/` directory retains basic simulator demonstrations and device probes.
 
+## Quantum natural SPSA
+
+`burn_quantum::optim::QnSpsaConfig` initializes a quantum natural optimizer for
+native Burn parameter tensors. Loss and pure-state fidelity callbacks provide
+fresh evaluations on the selected device; no backward pass is needed. Each
+resampling uses two loss and four fidelity calls to estimate the gradient and
+Fubini–Study metric (QFI/4). Optional blocking, positive spectral regularization,
+decay schedules and versioned checkpoints support reproducible training.
+
+The dense metric and solve run in host F64 with O(d²) storage and O(d³) work for
+d parameters. See the [algorithm, API, numerical limits and validation](docs/qnspsa.md)
+and the [single-file example](crates/burn_quantum_example/src/bin/qnspsa_vqe.rs).
+The optimizer is included in version 0.2.0; run the example from a repository checkout.
+
+## Boolean satisfiability
+
+Version 0.2.0 adds `burn_quantum::sat::{Cnf, GroverSat, SearchConfig, SatOutcome}`
+and a single-file `grover_sat` example. Run the example from a repository checkout:
+
+```sh
+cargo run --locked -p burn_quantum_example --bin grover_sat
+cargo run --locked -p burn_quantum_example --bin grover_sat -- problem.cnf
+BURN_QUANTUM_DEVICE=wgpu cargo run --locked -p burn_quantum_example --features wgpu --bin grover_sat
+BURN_QUANTUM_DEVICE=cuda cargo run --locked -p burn_quantum_example --features cuda,fusion --bin grover_sat
+```
+
+The solver compiles clause logic without precomputing satisfying assignments,
+uncomputes its work qubits, and checks every sampled candidate. A failed bounded
+search returns `Inconclusive`; only an explicit empty clause produces a proven
+`Unsatisfiable` result. Dense simulation uses exponentially many amplitudes and
+does not establish quantum advantage. See the [SAT API and algorithm guide](docs/sat.md).
+
 ## Quick start
 
 ```toml
 [dependencies]
-burn_quantum = "0.1.0"
+burn_quantum = "0.2.0"
 burn = { version = "~0.22.1", default-features = false, features = ["std", "flex"] }
 ```
 
 The core crate is available on [crates.io](https://crates.io/crates/burn_quantum).
 The `burn_quantum_example` workspace package is run from a repository checkout.
+See the [changelog](CHANGELOG.md) for the 0.2 migration notes, including the new
+`Operation` variants and circuit schema v2.
 
 ```rust
 use burn::tensor::Device;
@@ -194,6 +234,17 @@ extensions without pretending they are implemented.
 Read the [architecture and initial plan](docs/architecture.md),
 [engineering and research roadmap](docs/roadmap.md), and
 [validation record](docs/validation.md).
+
+## Repository organization
+
+The root package contains the public library; `crates/burn_quantum_example`
+contains one executable source file per application. Circuit, SAT, and QN-SPSA
+internals are split by responsibility behind stable public exports. Shared
+dependency versions and lints live in the workspace manifest; runner and
+comparison scripts discover example binaries through Cargo metadata.
+
+See the [repository map](docs/organization.md), [contributing guide](CONTRIBUTING.md),
+and [documentation index](docs/README.md) for module ownership and validation workflows.
 
 ## License
 

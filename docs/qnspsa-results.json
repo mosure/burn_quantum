@@ -1,0 +1,165 @@
+{
+  "date": "2026-11-08",
+  "qualification": "Local working tree; no publication or remote CI run for this addition.",
+  "base_commit": "498d9debb19bd87dc7d00c67a1843bf8e6d22a7e",
+  "burn": "0.22.1",
+  "rust": "1.95.0",
+  "cargo_lock_sha256": "091a7b1aea51857ab91bfddc8562a19f526557ff9d40f76a33bc6ee11e9a1c57",
+  "hardware": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 610.43.02",
+  "metric_convention": "Pure-state Fubini-Study metric = QFI / 4; spectral absolute value plus positive ridge.",
+  "cpu_tests": 80,
+  "cpu_doctests": 1,
+  "targeted_checks_per_gpu_configuration": 26,
+  "gpu_scope": "16 QN-SPSA tests (12 host analytic/reference/control cases, 4 selected-device tensor/geometry/trajectory cases), 9 existing selected-device backend-parity tests, 1 new VQE example acceptance test, and the QN-SPSA VQE executable. GPU tensors use F32; F64 references and the seeded finite-shot fixture run on Flex CPU. The other eight example executables were not rerun on GPU for this addition.",
+  "checks": {
+    "format": "passed",
+    "clippy_workspace_all_targets_all_features_deny_warnings": "passed",
+    "docs_workspace_all_features_deny_warnings": "passed",
+    "no_execution_backend_compile": "passed",
+    "flex_without_autodiff_compile": "passed",
+    "shell_syntax": "passed",
+    "diff_whitespace": "passed"
+  },
+  "commands": {
+    "cpu_tests": "cargo test --locked --workspace --all-targets",
+    "doctests": "cargo test --locked --workspace --doc",
+    "clippy": "cargo clippy --locked --workspace --all-targets --features wgpu,cuda,fusion -- -D warnings",
+    "docs": "RUSTDOCFLAGS='-D warnings' cargo doc --locked --workspace --all-features --no-deps",
+    "gpu_features": {
+      "wgpu": "wgpu",
+      "wgpu-fusion": "wgpu,fusion",
+      "cuda": "cuda",
+      "cuda-fusion": "cuda,fusion"
+    },
+    "gpu_core_template": "BURN_QUANTUM_DEVICE=<wgpu|cuda> cargo test --locked -p burn_quantum --features <features> --test backend_parity --test qnspsa -- --test-threads=1 --nocapture",
+    "gpu_example_test_template": "BURN_QUANTUM_DEVICE=<wgpu|cuda> cargo test --locked -p burn_quantum_example --features <features> --bin qnspsa_vqe -- --test-threads=1 --nocapture",
+    "gpu_example_template": "BURN_QUANTUM_DEVICE=<wgpu|cuda> cargo run --locked -p burn_quantum_example --features <features> --bin qnspsa_vqe",
+    "comparison": "scripts/compare_backends.py compare() with EXAMPLES=(qnspsa_vqe,); all existing metric tolerances unchanged",
+    "logs": "artifacts/qnspsa/<configuration>/ (ignored local artifacts)"
+  },
+  "reports": {
+    "cpu": {
+      "example": "qnspsa_vqe",
+      "seed": 17,
+      "steps": 80,
+      "backend": "cpu",
+      "adapter": "Flex CPU",
+      "dtype": "f32",
+      "fusion": false,
+      "metrics": {
+        "analytic_ground_energy": -3.0,
+        "energy": -3.000000476837158,
+        "fidelity_evaluations": 640.0,
+        "initial_energy": -1.7003509998321533,
+        "loss_evaluations": 480.0,
+        "singlet_fidelity": 1.0000000500651556
+      }
+    },
+    "wgpu": {
+      "example": "qnspsa_vqe",
+      "seed": 17,
+      "steps": 80,
+      "backend": "wgpu",
+      "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+      "dtype": "f32",
+      "fusion": false,
+      "metrics": {
+        "analytic_ground_energy": -3.0,
+        "energy": -2.999999761581421,
+        "fidelity_evaluations": 640.0,
+        "initial_energy": -1.700350284576416,
+        "loss_evaluations": 480.0,
+        "singlet_fidelity": 0.9999998814777644
+      }
+    },
+    "wgpu-fusion": {
+      "example": "qnspsa_vqe",
+      "seed": 17,
+      "steps": 80,
+      "backend": "wgpu",
+      "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+      "dtype": "f32",
+      "fusion": true,
+      "metrics": {
+        "analytic_ground_energy": -3.0,
+        "energy": -2.999999761581421,
+        "fidelity_evaluations": 640.0,
+        "initial_energy": -1.700350284576416,
+        "loss_evaluations": 480.0,
+        "singlet_fidelity": 0.9999998814777644
+      }
+    },
+    "cuda": {
+      "example": "qnspsa_vqe",
+      "seed": 17,
+      "steps": 80,
+      "backend": "cuda",
+      "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+      "dtype": "f32",
+      "fusion": false,
+      "metrics": {
+        "analytic_ground_energy": -3.0,
+        "energy": -3.000000476837158,
+        "fidelity_evaluations": 640.0,
+        "initial_energy": -1.7003512382507324,
+        "loss_evaluations": 480.0,
+        "singlet_fidelity": 1.0000001343588565
+      }
+    },
+    "cuda-fusion": {
+      "example": "qnspsa_vqe",
+      "seed": 17,
+      "steps": 80,
+      "backend": "cuda",
+      "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+      "dtype": "f32",
+      "fusion": true,
+      "metrics": {
+        "analytic_ground_energy": -3.0,
+        "energy": -3.000000476837158,
+        "fidelity_evaluations": 640.0,
+        "initial_energy": -1.7003512382507324,
+        "loss_evaluations": 480.0,
+        "singlet_fidelity": 1.0000001343588565
+      }
+    }
+  },
+  "comparisons": {
+    "wgpu": {
+      "qnspsa_vqe": {
+        "max_absolute_metric_difference": 7.152557373046875e-07,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      }
+    },
+    "wgpu-fusion": {
+      "qnspsa_vqe": {
+        "max_absolute_metric_difference": 7.152557373046875e-07,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      }
+    },
+    "cuda": {
+      "qnspsa_vqe": {
+        "max_absolute_metric_difference": 2.384185791015625e-07,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      }
+    },
+    "cuda-fusion": {
+      "qnspsa_vqe": {
+        "max_absolute_metric_difference": 2.384185791015625e-07,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      }
+    }
+  },
+  "source_sha256": {
+    "Cargo.toml": "f55337e183e19f5b721afb47b534499d514f50335fc3f514a1179f892c739b11",
+    "Cargo.lock": "091a7b1aea51857ab91bfddc8562a19f526557ff9d40f76a33bc6ee11e9a1c57",
+    "src/lib.rs": "daa329190cb2b2bdf8910ea233602dee76a7ee294b6b1f5d105bc5c3a16fb3af",
+    "src/optim/mod.rs": "8eb7abcaf9219c224e3c270c54d4e45eab317315339cc1a19dd75c3e997878a2",
+    "src/optim/qnspsa.rs": "c2e31c4c51b67850216cd9c2689d7f47a4a5ad660892cb5264482edfe736f0f9",
+    "tests/qnspsa.rs": "634f5d70feca0a31fd35d493772b288a67bd83b0833b3640ab0d8e8c7ece2108",
+    "crates/burn_quantum_example/src/bin/qnspsa_vqe.rs": "ea240218762770738dff4eae7349268b7dea730ec6c4c676e6c4a65688f37827",
+    "scripts/run_examples.sh": "33ba3a767642e000c990f5acdb37f29fa0d18105b7ced69816b115217d5bcf65",
+    "scripts/validate_backend.sh": "5f35c48c811077931e59d0b8bab6e9d61930228af59080c37d351d6ad728cc12",
+    "scripts/compare_backends.py": "0b53adb4dc20ee1bbde2ebf26f6035d8676d1ff2299c240a935d672868620dc3"
+  }
+}

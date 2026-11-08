@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-08",
+  "base_commit": "498d9debb19bd87dc7d00c67a1843bf8e6d22a7e",
+  "burn": "0.22.1",
+  "rust": "1.95.0",
+  "hardware": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 610.43.02",
+  "cpu_tests": 63,
+  "cpu_doctests": 1,
+  "targeted_checks_per_gpu_configuration": 21,
+  "gpu_scope": "11 SAT tests (includes a Flex-only F64 continuation check and host parser/metadata cases), 9 pre-existing backend-parity tests, 1 new example test, and the SAT executable. The seven older QML executables were not rerun on GPU for this change.",
+  "reports": {
+    "cpu": {
+      "example": "grover_sat",
+      "seed": 7,
+      "steps": 2,
+      "backend": "cpu",
+      "adapter": "Flex CPU",
+      "dtype": "f32",
+      "fusion": false,
+      "metrics": {
+        "analytic_success_probability": 0.9453125,
+        "clean_ancilla_probability": 0.9999994039535522,
+        "initial_success_probability": 0.12499997764825821,
+        "search_oracle_calls": 1.0,
+        "search_trials": 4.0,
+        "simulated_qubits": 7.0,
+        "success_probability": 0.945311963558197,
+        "variables": 3.0,
+        "verified_witness": 1.0
+      }
+    },
+    "wgpu": {
+      "example": "grover_sat",
+      "seed": 7,
+      "steps": 2,
+      "backend": "wgpu",
+      "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+      "dtype": "f32",
+      "fusion": false,
+      "metrics": {
+        "analytic_success_probability": 0.9453125,
+        "clean_ancilla_probability": 0.9999994039535522,
+        "initial_success_probability": 0.12499997764825821,
+        "search_oracle_calls": 1.0,
+        "search_trials": 4.0,
+        "simulated_qubits": 7.0,
+        "success_probability": 0.945311963558197,
+        "variables": 3.0,
+        "verified_witness": 1.0
+      }
+    },
+    "wgpu-fusion": {
+      "example": "grover_sat",
+      "seed": 7,
+      "steps": 2,
+      "backend": "wgpu",
+      "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+      "dtype": "f32",
+      "fusion": true,
+      "metrics": {
+        "analytic_success_probability": 0.9453125,
+        "clean_ancilla_probability": 0.9999994039535522,
+        "initial_success_probability": 0.12499997764825821,
+        "search_oracle_calls": 1.0,
+        "search_trials": 4.0,
+        "simulated_qubits": 7.0,
+        "success_probability": 0.945311963558197,
+        "variables": 3.0,
+        "verified_witness": 1.0
+      }
+    },
+    "cuda": {
+      "example": "grover_sat",
+      "seed": 7,
+      "steps": 2,
+      "backend": "cuda",
+      "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+      "dtype": "f32",
+      "fusion": false,
+      "metrics": {
+        "analytic_success_probability": 0.9453125,
+        "clean_ancilla_probability": 0.9999994039535522,
+        "initial_success_probability": 0.12499997764825821,
+        "search_oracle_calls": 1.0,
+        "search_trials": 4.0,
+        "simulated_qubits": 7.0,
+        "success_probability": 0.945311963558197,
+        "variables": 3.0,
+        "verified_witness": 1.0
+      }
+    },
+    "cuda-fusion": {
+      "example": "grover_sat",
+      "seed": 7,
+      "steps": 2,
+      "backend": "cuda",
+      "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+      "dtype": "f32",
+      "fusion": true,
+      "metrics": {
+        "analytic_success_probability": 0.9453125,
+        "clean_ancilla_probability": 0.9999994039535522,
+        "initial_success_probability": 0.12499997764825821,
+        "search_oracle_calls": 1.0,
+        "search_trials": 4.0,
+        "simulated_qubits": 7.0,
+        "success_probability": 0.945311963558197,
+        "variables": 3.0,
+        "verified_witness": 1.0
+      }
+    }
+  },
+  "comparisons": {
+    "wgpu": {
+      "grover_sat": {
+        "max_absolute_metric_difference": 0.0,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      }
+    },
+    "wgpu-fusion": {
+      "grover_sat": {
+        "max_absolute_metric_difference": 0.0,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      }
+    },
+    "cuda": {
+      "grover_sat": {
+        "max_absolute_metric_difference": 0.0,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      }
+    },
+    "cuda-fusion": {
+      "grover_sat": {
+        "max_absolute_metric_difference": 0.0,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      }
+    }
+  },
+  "source_sha256": {
+    "src/control.rs": "74ee53961adfe850497a229de77797fc91fb0babc83c8f001f8cc6585d14fe2c",
+    "src/circuit.rs": "ee40c3706e3da10607efe5644a53c7d006aa6a9008696f74358be42b5c82173f",
+    "src/sat.rs": "92daec4b64115006604716afdca1cc3c40e1408bae9e3a52cf875451bb27f40e",
+    "tests/sat.rs": "1baa0eba4c161625e131351a02e758b2ca61a3986e15ee8aa9a4d957718f3d62",
+    "crates/burn_quantum_example/src/bin/grover_sat.rs": "f05051aca81f5ca1fdfdf2d84ecd9c12659a3cadc116be85538e3aa35c9e94f6"
+  }
+}

@@ -1,5 +1,8 @@
 # burn_quantum architecture and implementation plan
 
+See [repository organization](organization.md) for the current source-module map
+and the distinction between public exports and private implementation files.
+
 ## Scope and invariant
 
 Build a finite-dimensional quantum execution layer for Burn 0.22.1, with a
@@ -15,6 +18,13 @@ execution contract; `DenseSimulator` composes native tensor operations on any
 enabled compatible Burn device. This is not a fabricated `burn::Backend` impl.
 New fused primitives can later use Burn's `#[backend_extension]` routing with
 explicit forward, autodiff, and fusion implementations.
+
+The [Boolean SAT extension](sat.md) compiles reversible CNF oracles into reusable
+structured `ControlledX` and `PhaseFlip` instructions. These use native tensor
+gathers/sign multiplication with linear state-sized plans. `Circuit::run_from`
+supports repeated execution on existing states without duplicating instruction
+lists. Circuits using these instructions have schema v2; legacy-only circuits
+retain v1 serialization. Readback remains explicit at terminal measurement.
 
 Sources checked 2026-10-29:
 
@@ -38,6 +48,9 @@ flowchart TD
   A --> G[Optional WGPU / CUDA]
   S --> R[Exact readouts and terminal samples]
   R --> L[Classical layers and losses]
+  O[QN-SPSA: host metric and solve] --> M
+  S --> O
+  L --> O
 ```
 
 1. Validated register, matrix, unitary, observable, and Kraus-channel types.
@@ -66,6 +79,14 @@ flowchart TD
    datasets and evaluation, with each algorithm in one executable source file.
    State-based objectives use `QuantumLayer::state`; configured Hermitian
    readouts use `forward`.
+8. `optim` provides evaluation-based quantum natural SPSA using ordinary Burn
+   parameter tensors and scalar loss/fidelity callbacks. Quantum evaluations
+   use the caller's device; the running Fubini–Study metric and regularized solve
+   use host F64. This explicit synchronization boundary avoids misrepresenting
+   a fresh-evaluation optimizer as a consumer of backpropagated gradients.
+   `Param::map` preserves model identity and weight-record structure. See the
+   [QN-SPSA design and validation](qnspsa.md) for schedules, checkpoint semantics,
+   constant evaluator counts, and dense classical scaling limits.
 
 ## Numerical contracts
 
