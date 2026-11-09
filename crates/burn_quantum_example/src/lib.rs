@@ -8,7 +8,7 @@ use rand_chacha::ChaCha8Rng;
 use serde::Serialize;
 use std::collections::BTreeMap;
 
-#[path = "../../../support/device.rs"]
+#[path = "../../burn_quantum/support/device.rs"]
 mod runtime;
 
 /// Explicit device selection shared by all examples, controlled by BURN_QUANTUM_DEVICE.

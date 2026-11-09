@@ -11,7 +11,7 @@ cargo check --locked -p burn_quantum --no-default-features 2>&1 | tee artifacts/
 cargo check --locked -p burn_quantum --no-default-features --features flex 2>&1 | tee artifacts/validation/inference.log
 cargo check --locked -p burn_quantum --features wgpu,fusion --all-targets 2>&1 | tee artifacts/validation/wgpu-compile.log
 RUSTDOCFLAGS='-D warnings' cargo doc --locked --workspace --no-deps 2>&1 | tee artifacts/validation/docs.log
-cargo run --locked --example bell 2>&1 | tee artifacts/validation/bell.log
-cargo run --locked --example qudit 2>&1 | tee artifacts/validation/qudit.log
-cargo run --locked --example train 2>&1 | tee artifacts/validation/train.log
-cargo run --locked --example hybrid 2>&1 | tee artifacts/validation/hybrid.log
+cargo run --locked -p burn_quantum --example bell 2>&1 | tee artifacts/validation/bell.log
+cargo run --locked -p burn_quantum --example qudit 2>&1 | tee artifacts/validation/qudit.log
+cargo run --locked -p burn_quantum --example train 2>&1 | tee artifacts/validation/train.log
+cargo run --locked -p burn_quantum --example hybrid 2>&1 | tee artifacts/validation/hybrid.log

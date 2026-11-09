@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- The repository root is now a virtual workspace. The library, integration
+  tests, basic demos and their device helper live in `crates/burn_quantum`,
+  beside `crates/burn_quantum_example`. Public Rust imports are unchanged.
+  Local path dependencies must point to `crates/burn_quantum` rather than the
+  repository root; registry dependencies keep the same crate name.
+- Each crate owns its manifest and README. Shared metadata, dependency paths,
+  lockfile, toolchain, repository documentation and validation tooling remain
+  at the root. CI also builds the standalone library source package.
+
 ## 0.2.0 — 2026-11-08
 
 ### Added

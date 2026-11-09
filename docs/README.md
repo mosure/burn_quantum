@@ -12,6 +12,7 @@
 
 ## Algorithms and usage
 
+- [Core package](../crates/burn_quantum/README.md): library usage, features and packaged demos.
 - [Example suite](../crates/burn_quantum_example/README.md): one file per canonical application.
 - [Boolean SAT](sat.md): CNF/DIMACS, reversible oracles and bounded search semantics.
 - [Quantum natural SPSA](qnspsa.md): fidelity geometry, optimizer API, checkpoints and numerical limits.
@@ -23,7 +24,8 @@ older record's file paths and hashes can predate subsequent reorganizations.
 
 | Record | Scope |
 | --- | --- |
-| [Organization regression results](organization-results.json) | Current module split, CPU/GPU regressions, example discovery and source provenance |
+| [Workspace relocation](organization.md#workspace-relocation-verification) | Virtual workspace, unchanged source/dependency contracts, CPU/GPU regressions and standalone package checks |
+| [Organization regression results](organization-results.json) | Internal module split before the crate relocation, CPU/GPU regressions, example discovery and source provenance |
 | [QN-SPSA results](qnspsa-results.json) | Analytic geometry, optimizer semantics and four GPU configurations when introduced |
 | [SAT results](sat-results.json) | Oracle/search qualification when introduced |
 | [Backend qualification](backend-validation.md), [raw results](backend-results.json) | Original seven-example CPU/WGPU/CUDA runtime matrix and precision corrections |

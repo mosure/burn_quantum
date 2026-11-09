@@ -53,8 +53,9 @@ cargo test --locked --workspace --all-targets
 
 Shared quantum operations live in the core crate; model-specific datasets and
 training logic remain in each example. See the [suite guide](crates/burn_quantum_example/README.md)
-and [example validation record](docs/examples-validation.md). The original
-`examples/` directory retains basic simulator demonstrations and device probes.
+and [example validation record](docs/examples-validation.md). The core crate's
+[`examples/`](crates/burn_quantum/examples/) directory contains basic simulator
+demonstrations and device probes.
 
 ## Quantum natural SPSA
 
@@ -159,11 +160,11 @@ readout order, and simulator limits live in the config. Reload the config, call
 ## Run and validate
 
 ```sh
-cargo run --locked --example bell
-cargo run --locked --example qudit
-cargo run --locked --example train
-cargo run --locked --example hybrid
-cargo run --locked --release --example profile
+cargo run --locked -p burn_quantum --example bell
+cargo run --locked -p burn_quantum --example qudit
+cargo run --locked -p burn_quantum --example train
+cargo run --locked -p burn_quantum --example hybrid
+cargo run --locked -p burn_quantum --release --example profile
 cargo test --locked --workspace --all-targets
 cargo test --locked --workspace --doc
 cargo clippy --locked --workspace --all-targets -- -D warnings
@@ -183,7 +184,7 @@ one. Enable the same features in your direct Burn dependency where needed.
 ```sh
 cargo check --locked -p burn_quantum --no-default-features
 cargo check --locked -p burn_quantum --features wgpu,fusion --all-targets
-cargo run --locked --features wgpu --example wgpu_smoke
+cargo run --locked -p burn_quantum --features wgpu --example wgpu_smoke
 ```
 
 `BURN_QUANTUM_DEVICE=wgpu` selects a discrete GPU in all example executables;
@@ -237,11 +238,14 @@ Read the [architecture and initial plan](docs/architecture.md),
 
 ## Repository organization
 
-The root package contains the public library; `crates/burn_quantum_example`
+The repository root is a virtual Cargo workspace. Both packages live under
+`crates/`: [`burn_quantum`](crates/burn_quantum/README.md) owns the public library,
+integration tests and simulator demos; [`burn_quantum_example`](crates/burn_quantum_example/README.md)
 contains one executable source file per application. Circuit, SAT, and QN-SPSA
 internals are split by responsibility behind stable public exports. Shared
-dependency versions and lints live in the workspace manifest; runner and
-comparison scripts discover example binaries through Cargo metadata.
+metadata, dependency versions and lints live in the root manifest. Repository
+guides, validation scripts and CI stay at the root; runner and comparison
+scripts discover example binaries through Cargo metadata.
 
 See the [repository map](docs/organization.md), [contributing guide](CONTRIBUTING.md),
 and [documentation index](docs/README.md) for module ownership and validation workflows.

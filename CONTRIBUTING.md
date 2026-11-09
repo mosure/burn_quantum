@@ -1,8 +1,9 @@
 # Contributing
 
 Start with the [repository map](docs/organization.md) and
-[architecture](docs/architecture.md). The core library is the root package;
-`crates/burn_quantum_example` is the executable application suite.
+[architecture](docs/architecture.md). The root is a virtual Cargo workspace;
+`crates/burn_quantum` owns the core library, integration tests and basic demos,
+and `crates/burn_quantum_example` is the executable application suite.
 
 ## Place changes by responsibility
 
@@ -23,6 +24,16 @@ Start with the [repository map](docs/organization.md) and
 The workspace defines common package metadata, dependency versions and lints.
 Select execution features on the package that needs them; check the core
 separately so example/dev features do not hide a missing library feature.
+Use `-p burn_quantum` for core-only commands and `--workspace` for both packages.
+Dependencies on the core inherit its path from `[workspace.dependencies]`.
+
+Keep repository guides, the changelog, validation scripts, CI, toolchain and
+lockfile at the root. The core crate owns its package README and copies of the
+root license texts so its source archive is self-contained; update both copies
+when changing a license. Its package whitelist includes source, tests, demos
+and their device helper. The example crate reuses that helper from
+`crates/burn_quantum/support/device.rs`; it does not expose device-selection
+environment variables through the public library.
 
 ## Add an application example
 

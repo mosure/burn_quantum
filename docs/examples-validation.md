@@ -21,7 +21,7 @@ library provides reporting, initialization and evaluation utilities.
 
 Shared quantum encoding, RY/CNOT layers, Pauli-Z probability conversion,
 distribution cross-entropy, and fidelity kernels live in
-[`burn_quantum::qml`](../src/qml.rs). Pairwise state fidelity is available on
+[`burn_quantum::qml`](../crates/burn_quantum/src/qml.rs). Pairwise state fidelity is available on
 `StateVector`. `QuantumLayer` permits empty observable lists for state-based
 objectives while retaining its existing Burn parameter/record structure;
 `forward` reports an error when no readouts were configured.

@@ -10,7 +10,7 @@ including their CPU counts and targeted hardware checks.
 ## Device selection and reproducibility
 
 All seven `burn_quantum_example` binaries and the basic simulator demos select
-their device through `support/device.rs`. Selection is explicit and cached once
+their device through `crates/burn_quantum/support/device.rs`. Selection is explicit and cached once
 per process. `BURN_QUANTUM_DEVICE` defaults to `cpu` (Flex); `wgpu` selects a
 discrete GPU, `wgpu-integrated` selects an integrated GPU, and `cuda` selects a
 CUDA device. `BURN_QUANTUM_DEVICE_INDEX` defaults to zero. WGPU adapter type is
@@ -50,7 +50,7 @@ core integration tests, nine new portable backend tests, and seven algorithm
 acceptance tests. The strict F64 CPU reference checks remain unchanged. GPU
 qualification uses F32, matching the examples and portable shader support.
 
-Each hardware configuration runs nine tests in `tests/backend_parity.rs` and
+Each hardware configuration runs nine tests in `crates/burn_quantum/tests/backend_parity.rs` and
 the seven example acceptance tests, then executes the seven binaries and the
 basic demos. It does not relabel CPU-only F64 tests as GPU coverage. The portable
 tests exercise both the selected backend and Flex, with independent references:
@@ -98,7 +98,7 @@ value is `cos(0.6) = 0.8253356149`, failing the `2e-5` tolerance. Inspection of 
 locked CubeCL/Cubek matrix kernel showed that its accelerator selection converts
 F32 operands to TF32. The quantum simulator now uses dtype-preserving
 multiply/reduce contractions on non-Flex devices, implemented in
-[`src/precision.rs`](../src/precision.rs). Flex retains its native GEMM path.
+[`precision.rs`](../crates/burn_quantum/src/precision.rs). Flex retains its native GEMM path.
 This applies to local gates, reduced states, pure-to-density conversion and
 fidelity kernels. No device readback, custom autodiff bridge, or dependency fork
 was added.

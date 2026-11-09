@@ -85,11 +85,11 @@ The JSON includes backend, actual adapter, precision and the example's `fusion`
 feature selection. Reports are separated into `artifacts/examples/<backend>/`
 or `<backend>-fusion/` directories.
 
-Shared selection lives in [`support/device.rs`](../../support/device.rs), used
+Shared selection lives in [`burn_quantum/support/device.rs`](../burn_quantum/support/device.rs), used
 by the example package, basic simulator demos and backend parity tests. The core
 library continues to accept ordinary Burn devices without reading environment
 variables. The original F64 CPU oracle tests retain their strict tolerances;
-[`backend_parity.rs`](../../tests/backend_parity.rs) compares portable F32
+[`backend_parity.rs`](../burn_quantum/tests/backend_parity.rs) compares portable F32
 execution and derivatives against CPU/scalar/analytic references.
 
 Training uses exact simulator gradients/expectations. QN-SPSA instead estimates
@@ -102,7 +102,7 @@ coverage and the [manual GPU CI workflow](../../.github/workflows/gpu.yml).
 
 ## What belongs in the core
 
-Reusable quantum operations live in [`burn_quantum::qml`](../../src/qml.rs):
+Reusable quantum operations live in [`burn_quantum::qml`](../burn_quantum/src/qml.rs):
 
 - `angle_embedding`: ordered qubit feature encoding with atomic validation.
 - `ry_cnot_layer`: an explicitly defined reusable real-amplitude circuit layer.
@@ -111,18 +111,18 @@ Reusable quantum operations live in [`burn_quantum::qml`](../../src/qml.rs):
   soft targets, shared by binary, generative and qutrit models.
 - `fidelity_kernel`: differentiable batched Gram/cross-kernel construction.
 
-[`StateVector::fidelity`](../../src/state.rs) supports state-overlap objectives
+[`StateVector::fidelity`](../burn_quantum/src/state.rs) supports state-overlap objectives
 and reference checks. `QuantumLayerConfig` accepts empty observables for
 state-based objectives; use `state` for energies/probabilities and `forward` for
 configured Hermitian readouts. Calling `forward` without readouts returns an
 error. Existing weight-record parameter paths remain unchanged.
 
-[`burn_quantum::sat`](../../src/sat/mod.rs) contains CNF parsing, reversible oracle
+[`burn_quantum::sat`](../burn_quantum/src/sat/mod.rs) contains CNF parsing, reversible oracle
 compilation and bounded search. Controlled gates and circuit continuation also
 live in the core. The SAT example contains only its problem, analytic evaluation
 and command-line reporting.
 
-[`burn_quantum::optim`](../../src/optim/mod.rs) contains the reusable QN-SPSA
+[`burn_quantum::optim`](../burn_quantum/src/optim/mod.rs) contains the reusable QN-SPSA
 estimator, schedules, metric regularization/solve, blocking and checkpoints.
 The example supplies its ansatz, loss/fidelity callbacks and independent
 evaluation. Quantum evaluations stay on the selected device; the dense metric

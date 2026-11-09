@@ -1,0 +1,63 @@
+[package]
+name = "burn_quantum"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "Differentiable qubit and qudit simulation with Burn's native tensor and module APIs"
+license.workspace = true
+repository.workspace = true
+readme = "README.md"
+keywords = ["quantum", "qudit", "machine-learning", "burn", "autodiff"]
+categories = ["science", "simulation"]
+include = [
+    "src/**", "examples/**", "tests/**", "support/**",
+    "Cargo.toml", "Cargo.lock", "README.md", "LICENSE-*",
+]
+
+[features]
+default = ["flex", "autodiff"]
+flex = ["burn/flex"]
+autodiff = ["burn/autodiff"]
+wgpu = ["burn/wgpu"]
+cuda = ["burn/cuda"]
+fusion = ["burn/fusion"]
+
+[dependencies]
+burn.workspace = true
+num-complex = { version = "0.4.6", features = ["serde"] }
+serde.workspace = true
+thiserror = "2.0"
+rand.workspace = true
+rand_chacha.workspace = true
+nalgebra = { version = "0.34.2", default-features = false, features = ["std"] }
+
+[dev-dependencies]
+burn = { workspace = true, features = ["flex", "autodiff", "optim"] }
+serde_json.workspace = true
+
+[lints]
+workspace = true
+
+[[example]]
+name = "bell"
+required-features = ["flex"]
+
+[[example]]
+name = "qudit"
+required-features = ["flex"]
+
+[[example]]
+name = "train"
+required-features = ["flex", "autodiff"]
+
+[[example]]
+name = "profile"
+required-features = ["flex"]
+
+[[example]]
+name = "hybrid"
+required-features = ["flex", "autodiff"]
+
+[[example]]
+name = "wgpu_smoke"
+required-features = ["wgpu", "autodiff"]

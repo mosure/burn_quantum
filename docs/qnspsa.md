@@ -193,7 +193,7 @@ objectives, real QPUs, or learning tasks.
 
 ## Validation
 
-[`tests/qnspsa.rs`](../tests/qnspsa.rs) checks the single-rotation metric factor,
+[`tests/qnspsa.rs`](../crates/burn_quantum/tests/qnspsa.rs) checks the single-rotation metric factor,
 exhaustive perturbation averages with off-diagonal rank-one geometry, independent
 complex tangent-vector geometry for qubits and qutrits, a global-phase null
 direction, rotated indefinite-matrix regularization, and a closed-form coupled

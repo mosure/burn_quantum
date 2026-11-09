@@ -6,6 +6,9 @@ example suite and its shared core operations are covered by
 Actual GPU runtime qualification subsequently became possible outside the
 sandbox; see [CPU/GPU backend validation](backend-validation.md) for current results.
 
+Commands below retain the original root-package context; current core-only
+commands select `-p burn_quantum` from the virtual workspace.
+
 Validated locally on 2026-10-29 against the working tree, Burn **0.22.1** and
 the repository's `Cargo.lock`. This document records implementation
 qualification, not a published release, remote CI result, or quantum advantage.

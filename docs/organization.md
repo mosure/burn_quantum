@@ -1,27 +1,59 @@
 # Repository organization
 
-The workspace has two packages: the published `burn_quantum` library at the
-repository root, and the unpublished `burn_quantum_example` application suite
-under `crates/`. Both inherit package metadata, shared dependency versions, and
-lints from the root workspace. Each package still selects its own Burn features;
-the library can compile without an execution backend or autodiff.
+The repository root is a virtual Cargo workspace with two sibling packages:
+
+```text
+Cargo.toml                    Workspace members, shared metadata/dependencies/lints
+Cargo.lock                    One locked dependency graph for the workspace
+rust-toolchain.toml           Shared Rust toolchain
+crates/
+  burn_quantum/
+    Cargo.toml                Published library package and execution features
+    README.md                 Package usage and links to repository guides
+    LICENSE-*                 License texts included in the standalone archive
+    src/                      Public library and private implementation modules
+    tests/                    Integration tests and independent references
+    examples/                 Basic simulator demos and device probes
+    support/device.rs         Executable/test device selection
+  burn_quantum_example/
+    Cargo.toml                Unpublished application suite
+    README.md                 Algorithm catalog and execution instructions
+    src/lib.rs                Example-only reporting and evaluation utilities
+    src/bin/                  One complete algorithm and acceptance test per file
+docs/                         Repository guides and historical qualification records
+scripts/                      Workspace validation and example runners
+.github/workflows/            CPU, packaging and GPU qualification workflows
+```
+
+Both packages inherit common metadata, dependency versions and lints from the
+root workspace. The example package inherits its core dependency path from
+`[workspace.dependencies]`. Each package selects its own Burn features; the
+library can compile without an execution backend or autodiff. Both are default
+members, so ordinary root `cargo test`/`cargo check` commands select the workspace.
+Use `-p burn_quantum` for isolated library checks.
+
+Repository documentation, the changelog, contribution guide and license texts
+remain at the root. The library includes its own README and copies of the root
+licenses in the publishable archive, together with its sources, tests, demos
+and device helper. Its extracted package builds independently of the workspace
+and sibling example crate. CI verifies that boundary with `cargo package`.
 
 ## Ownership and boundaries
 
 | Location | Responsibility | Keep elsewhere |
 | --- | --- | --- |
-| `src/layout.rs`, `complex.rs`, `gate.rs` | Register conventions, tensor representation, validated operators | Application models and datasets |
-| `src/backend.rs`, `control.rs`, `precision.rs` | Quantum execution contract, dense contractions, structured controls, precision handling | Environment-selected devices and CLI behavior |
-| `src/state.rs`, `noise.rs`, `observable.rs`, `sampling.rs` | Pure/density states, channels, readouts, measurement | Task-specific objectives and acceptance criteria |
-| `src/circuit/` | Validated circuit IR, serialization, tensor binding and execution | Optimizer policy and hardware job submission |
-| `src/gradient.rs`, `quantum_module.rs`, `qml.rs` | Differentiation, native Burn modules, reusable quantum ML operations | Example training loops and synthetic datasets |
-| `src/sat/` | CNF representation, reversible oracle compilation, bounded search | DIMACS file I/O and CLI reporting |
-| `src/optim/qnspsa/` | Fidelity estimator, metric solve, optimizer state and updates | Circuit ansatz, data, loss/fidelity evaluator implementations |
+| `crates/burn_quantum/src/layout.rs`, `complex.rs`, `gate.rs` | Register conventions, tensor representation, validated operators | Application models and datasets |
+| `crates/burn_quantum/src/backend.rs`, `control.rs`, `precision.rs` | Quantum execution contract, dense contractions, structured controls, precision handling | Environment-selected devices and CLI behavior |
+| `crates/burn_quantum/src/state.rs`, `noise.rs`, `observable.rs`, `sampling.rs` | Pure/density states, channels, readouts, measurement | Task-specific objectives and acceptance criteria |
+| `crates/burn_quantum/src/circuit/` | Validated circuit IR, serialization, tensor binding and execution | Optimizer policy and hardware job submission |
+| `crates/burn_quantum/src/gradient.rs`, `quantum_module.rs`, `qml.rs` | Differentiation, native Burn modules, reusable quantum ML operations | Example training loops and synthetic datasets |
+| `crates/burn_quantum/src/sat/` | CNF representation, reversible oracle compilation, bounded search | DIMACS file I/O and CLI reporting |
+| `crates/burn_quantum/src/optim/qnspsa/` | Fidelity estimator, metric solve, optimizer state and updates | Circuit ansatz, data, loss/fidelity evaluator implementations |
 | `crates/burn_quantum_example/src/bin/` | One complete algorithm and acceptance test per file | Repeated quantum operations shared by applications |
 | `crates/burn_quantum_example/src/lib.rs` | Small example-only reporting and evaluation utilities | Public quantum library APIs |
-| `examples/` | Cargo examples for basic simulator use, integration and device probes | The canonical application suite |
-| `support/device.rs` | Explicit device selection shared by executables and tests | The public library, which accepts ordinary Burn devices |
-| `tests/` | External API conformance and independent mathematical references | Production implementations of their own test oracles |
+| `crates/burn_quantum/examples/` | Cargo examples for basic simulator use, integration and device probes | The canonical application suite |
+| `crates/burn_quantum/support/device.rs` | Explicit device selection shared by executables and tests | The public library, which accepts ordinary Burn devices |
+| `crates/burn_quantum/tests/` | External API conformance and independent mathematical references | Production implementations of their own test oracles |
 | `scripts/`, `.github/workflows/` | Reproducible execution and validation | Quantum algorithms |
 | `docs/`, `artifacts/` | Committed guides/evidence and ignored local logs respectively | Build output in source control |
 
@@ -33,7 +65,7 @@ through the shared precision path, including SAT and optimizer evaluations.
 ## Circuit module
 
 ```text
-src/circuit/
+crates/burn_quantum/src/circuit/
   mod.rs            Circuit specification, builders, instruction validation, public exports
   operation.rs      Angle, Rotation, Operation: device-independent instruction definitions
   serialization.rs  Versioned wire format and checked conversions
@@ -48,7 +80,7 @@ private; existing schemas and root/module import paths remain unchanged.
 ## SAT module
 
 ```text
-src/sat/
+crates/burn_quantum/src/sat/
   mod.rs     Public exports
   cnf.rs     Normalization, DIMACS parsing, evaluation, checked serialization
   oracle.rs  GroverSat, reversible compilation, preparation and fixed iterations
@@ -63,7 +95,7 @@ changing CNF parsing. File access remains in the `grover_sat` executable.
 ## QN-SPSA module
 
 ```text
-src/optim/
+crates/burn_quantum/src/optim/
   mod.rs                 Public optimizer exports
   qnspsa/
     mod.rs               Private implementation-module exports
@@ -86,14 +118,22 @@ Users continue importing `burn_quantum::{Circuit, Angle, Rotation, Operation}`,
 `burn_quantum::optim::{QnSpsa, QnSpsaConfig, ...}`. No wrapper API or new crate is
 needed to use the reorganization.
 
+## Shared executable support
+
+The library's basic demos and integration tests include `support/device.rs`
+within their own package. The unpublished example crate includes the same file
+from its sibling `burn_quantum` directory, so device selection is maintained in
+one place. It is development support rather than part of the public quantum API;
+ordinary library consumers always pass Burn devices explicitly.
+
 ## Tests and example discovery
 
 The `sat` and `qnspsa` integration test targets retain their names. Their root
 files hold shared fixtures and include focused test modules:
 
-- `tests/sat/`: CNF, oracle, search, and serialization/resource/continuation contracts.
-- `tests/qnspsa/`: scalar estimators/solves, optimizer state transitions, and quantum geometry/device parity.
-- `tests/common/`: independent scalar-complex reference operations shared by the suite.
+- `crates/burn_quantum/tests/sat/`: CNF, oracle, search, and serialization/resource/continuation contracts.
+- `crates/burn_quantum/tests/qnspsa/`: scalar estimators/solves, optimizer state transitions, and quantum geometry/device parity.
+- `crates/burn_quantum/tests/common/`: independent scalar-complex reference operations shared by the suite.
 
 These are external tests using the public library API. They cannot access the
 library's private implementation modules. Existing assertions and tolerances
@@ -122,12 +162,46 @@ The default comparison requires every current example report. Missing reports
 are errors, not silent omissions. `--example` is repeatable and intentionally
 selects a narrower set; it does not imply whole-suite validation.
 
-## Verification record
+## Workspace relocation verification
 
-[organization-results.json](organization-results.json) records the reorganization
-checks and source hashes. The earlier SAT, QN-SPSA, and initial release reports
-remain historical records of the file layouts and numerical results they
-qualified; their hashes were not rewritten to imply they tested later sources.
+The **2026-11-08** relocation was checked against release commit `90443a8`:
+
+- All 54 relocated Rust files are byte-for-byte unchanged. All nine algorithm
+  sources are unchanged; the example library only updates its device-helper
+  include path.
+- Cargo metadata retains the package names, target names, feature mappings,
+  dependency requirements and default-member selection. `Cargo.lock` is
+  unchanged, and both packages now resolve beneath `crates/`.
+- The CPU run passed 80 tests, one doctest, four basic demos and all nine
+  application executables. The nine JSON reports exactly match the earlier
+  module-split qualification.
+- WGPU and CUDA, each with fusion off/on, passed 45 checks per configuration
+  on an NVIDIA RTX PRO 6000 Blackwell Workstation Edition, driver 610.43.02.
+  These comprise the 36 backend/SAT/QN-SPSA checks and all nine application
+  acceptance tests. GPU execution uses F32; host analytic/control cases and
+  F64 reference fixtures remain CPU checks. The SAT and QN-SPSA executables
+  also passed CPU/GPU report comparisons; their reports exactly match the
+  earlier qualification on all four configurations.
+- Formatting, strict all-feature Clippy, warning-free all-feature rustdoc,
+  isolated no-backend/Flex builds, shell syntax and local Markdown links passed.
+- The standalone package contains 61 files, including all 54 Rust files, its
+  README and both license texts. Its normalized manifest resolves workspace
+  inheritance, and its VCS metadata identifies `crates/burn_quantum`. Cargo
+  independently built the archive and checked all extracted package targets.
+
+These checks describe the local working tree. Logs, source comparisons, package
+inspection and hardware reports are retained under ignored
+`artifacts/workspace-layout/`. The package version remains 0.2.0; the repository
+layout change is recorded under Unreleased in the changelog.
+
+## Earlier module-split verification
+
+[organization-results.json](organization-results.json) records the earlier internal
+module split, before the library moved under `crates/burn_quantum`. Paths and
+source hashes in that snapshot describe the old root-package layout. The earlier
+SAT, QN-SPSA, and initial release reports remain historical records of the file
+layouts and numerical results they qualified; their hashes were not rewritten
+to imply they tested later sources.
 
 The **2026-11-08** regression run passed 80 CPU tests, one doctest, all nine CPU
 example executables, and 45 checks per hardware configuration: WGPU and CUDA,
