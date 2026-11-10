@@ -21,7 +21,23 @@ fi
 export BURN_QUANTUM_DEVICE="$backend"
 output="artifacts/validation/$backend$suffix"
 mkdir -p "$output"
-cargo test --locked -p burn_quantum "${features[@]}" --test backend_parity --test sat --test qnspsa -- --test-threads=1 --nocapture 2>&1 | tee "$output/parity.log"
+# Discover tests that explicitly select the requested runtime device. Host-only
+# protocol/routing/decoder tests are covered by the full workspace CPU run.
+# Cargo auto-discovers new test files; keep the GPU matrix equally automatic.
+mapfile -t runtime_tests < <(python3 - <<'PYTESTS'
+from pathlib import Path
+for path in sorted(Path("crates/burn_quantum/tests").glob("*.rs")):
+    if "support/device.rs" in path.read_text():
+        print(path.stem)
+PYTESTS
+)
+test_args=()
+for name in "${runtime_tests[@]}"; do test_args+=(--test "$name"); done
+if [[ ${#test_args[@]} -eq 0 ]]; then
+    echo "No runtime device tests discovered" >&2
+    exit 2
+fi
+cargo test --locked -p burn_quantum "${features[@]}" "${test_args[@]}" -- --test-threads=1 --nocapture 2>&1 | tee "$output/parity.log"
 cargo test --locked -p burn_quantum_example "${features[@]}" --bins -- --test-threads=1 --nocapture 2>&1 | tee "$output/example-tests.log"
 bash scripts/run_examples.sh "$@" 2>&1 | tee "$output/examples.log"
 for example in bell qudit train hybrid profile; do

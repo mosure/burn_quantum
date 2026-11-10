@@ -1,4 +1,7 @@
-//! Fidelity-based QN-SPSA with a dense Fubini–Study metric (QFI / 4).
+//! Fidelity-based QN-SPSA with a bounded dense host metric.
+//! Squared pure-state overlaps give Fubini–Study geometry; squared Uhlmann fidelity
+//! gives Bures geometry for smooth mixed-state families. Evaluators declare their
+//! state family and overlap protocol; rank-changing boundaries require care.
 mod config;
 mod estimator;
 mod metric;

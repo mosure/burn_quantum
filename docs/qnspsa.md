@@ -67,6 +67,12 @@ BURN_QUANTUM_DEVICE=cuda cargo run --locked -p burn_quantum_example --features c
 cargo test --locked -p burn_quantum --test qnspsa
 ```
 
+The photonic stack also supplies [measured fidelity and mixed-state geometry
+protocols](photonic-optics.md), including their shot accounting and independent
+geometry checks. [Asynchronous local jobs](photonic-runtime.md#immutable-asynchronous-local-jobs)
+can schedule caller evaluations; the optimizer's step interface remains synchronous,
+and this is not a hardware-QPU provider integration.
+
 ## Estimator and update
 
 For independent Rademacher vectors `u,v` (each component independently ±1),
@@ -250,3 +256,20 @@ bash scripts/validate_backend.sh wgpu --fusion
 bash scripts/validate_backend.sh cuda
 bash scripts/validate_backend.sh cuda --fusion
 ```
+
+## Mixed photonic states
+
+The evaluator determines the geometry. Supplying squared Uhlmann fidelity
+`F(rho,sigma) = (Tr sqrt(sqrt(rho) sigma sqrt(rho)))²` makes the same finite-difference
+estimator approach the Bures metric. For smooth full-rank families this is QFI/4;
+it reduces to Fubini–Study on smooth pure-state families. Rank-changing points
+need separate treatment and must not be silently assigned the same regularity
+assumptions. See [Zhou and Jiang](https://arxiv.org/abs/1910.08473) and
+[Safranek](https://arxiv.org/abs/1612.04581).
+
+The photonic optics API supplies a bounded host density-matrix fidelity reference.
+This accesses simulated density entries and performs a host eigensolve; it is not
+an executable hardware overlap protocol or a native autodiff operation. Finite-shot
+optical parameter-shift probes and measurement Fisher estimates are separately
+named APIs with shot counts, uncertainty and regularization. Their measurement
+geometry is not substituted for the mixed-state quantum metric.

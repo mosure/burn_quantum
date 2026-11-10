@@ -227,7 +227,7 @@ impl DensityMatrix {
         }
         Ok(())
     }
-    fn left_right(
+    pub(crate) fn left_right(
         &self,
         engine: &DenseSimulator,
         wires: &[usize],

@@ -1,0 +1,450 @@
+{
+  "date": "2026-11-09",
+  "scope": "Uncommitted photonic foundation on the stated base commit; local validation, not publication or exact-commit CI evidence.",
+  "base_commit": "3b4473801b1b972795140f0bac4ab100b1b8ef0e",
+  "workspace_version": "0.2.0",
+  "rustc": "rustc 1.95.0 (59807616e 2026-04-14)",
+  "burn": "0.22.1",
+  "gpu": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 610.43.02",
+  "photonic_tensor_dtype": "f32",
+  "host_reference_dtype": "f64",
+  "cpu_workspace_tests": 96,
+  "cpu_doctests": 1,
+  "photonic_tests": {
+    "total": 15,
+    "tensor_execution": 10,
+    "host_planning_serialization_preflight": 5
+  },
+  "cpu_example_reports": {
+    "born_machine": {
+      "example": "born_machine",
+      "seed": 19,
+      "steps": 250,
+      "backend": "cpu",
+      "adapter": "Flex CPU",
+      "dtype": "f32",
+      "fusion": false,
+      "metrics": {
+        "initial_kl_divergence": 2.0268000330444162,
+        "kl_divergence": 1.1582334691340179e-07,
+        "sample_total_variation": 0.011767578124999997,
+        "shots": 4096.0,
+        "total_variation": 1.1380761861801147e-06
+      }
+    },
+    "fbqc_bell_swap": {
+      "example": "fbqc_bell_swap",
+      "seed": 23,
+      "steps": 1,
+      "backend": "cpu",
+      "adapter": "Flex CPU",
+      "dtype": "f32",
+      "fusion": false,
+      "metrics": {
+        "conditional_bell_fidelity": 1.0,
+        "failure_probability": 0.3599998950958252,
+        "finish_tick": 6.0,
+        "fusion_count": 1.0,
+        "loss_probability": 0.27999991178512573,
+        "sample_fusion_success": 0.368896484375,
+        "success_probability": 0.3599998950958252,
+        "supplied_photons": 4.0,
+        "total_probability": 0.9999997019767761
+      }
+    },
+    "grover_sat": {
+      "example": "grover_sat",
+      "seed": 7,
+      "steps": 2,
+      "backend": "cpu",
+      "adapter": "Flex CPU",
+      "dtype": "f32",
+      "fusion": false,
+      "metrics": {
+        "analytic_success_probability": 0.9453125,
+        "clean_ancilla_probability": 0.9999994039535522,
+        "initial_success_probability": 0.12499997764825821,
+        "search_oracle_calls": 1.0,
+        "search_trials": 4.0,
+        "simulated_qubits": 7.0,
+        "success_probability": 0.945311963558197,
+        "variables": 3.0,
+        "verified_witness": 1.0
+      }
+    },
+    "hybrid_regression": {
+      "example": "hybrid_regression",
+      "seed": 0,
+      "steps": 120,
+      "backend": "cpu",
+      "adapter": "Flex CPU",
+      "dtype": "f32",
+      "fusion": false,
+      "metrics": {
+        "encoder_parameter_change": 1.1939144730567932,
+        "head_parameter_change": 0.5330054610967636,
+        "initial_train_mse": 0.13606639206409454,
+        "quantum_parameter_change": 0.32824430614709854,
+        "test_mse": 9.460920409765095e-05,
+        "train_mse": 0.00012017238623229787
+      }
+    },
+    "qaoa_maxcut": {
+      "example": "qaoa_maxcut",
+      "seed": 11,
+      "steps": 140,
+      "backend": "cpu",
+      "adapter": "Flex CPU",
+      "dtype": "f32",
+      "fusion": false,
+      "metrics": {
+        "best_sampled_cut": 2.0,
+        "exact_optimal_cut": 2.0,
+        "expected_cut": 1.9999995231628418,
+        "initial_expected_cut": 1.8514546155929565,
+        "optimal_probability": 0.9999997615814209
+      }
+    },
+    "qnspsa_vqe": {
+      "example": "qnspsa_vqe",
+      "seed": 17,
+      "steps": 80,
+      "backend": "cpu",
+      "adapter": "Flex CPU",
+      "dtype": "f32",
+      "fusion": false,
+      "metrics": {
+        "analytic_ground_energy": -3.0,
+        "energy": -3.000000476837158,
+        "fidelity_evaluations": 640.0,
+        "initial_energy": -1.7003509998321533,
+        "loss_evaluations": 480.0,
+        "singlet_fidelity": 1.0000000500651556
+      }
+    },
+    "quantum_kernel": {
+      "example": "quantum_kernel",
+      "seed": 0,
+      "steps": 0,
+      "backend": "cpu",
+      "adapter": "Flex CPU",
+      "dtype": "f32",
+      "fusion": false,
+      "metrics": {
+        "gram_diagonal_error": 2.384185791015625e-07,
+        "gram_symmetry_error": 0.0,
+        "majority_baseline_accuracy": 0.5,
+        "ridge": 0.001,
+        "test_accuracy": 1.0,
+        "train_accuracy": 1.0
+      }
+    },
+    "qudit_classifier": {
+      "example": "qudit_classifier",
+      "seed": 0,
+      "steps": 120,
+      "backend": "cpu",
+      "adapter": "Flex CPU",
+      "dtype": "f32",
+      "fusion": false,
+      "metrics": {
+        "cross_entropy": 0.011130043305456638,
+        "initial_cross_entropy": 0.2041456401348114,
+        "majority_baseline_accuracy": 0.3333333333333333,
+        "test_accuracy": 1.0,
+        "train_accuracy": 1.0
+      }
+    },
+    "variational_classifier": {
+      "example": "variational_classifier",
+      "seed": 0,
+      "steps": 120,
+      "backend": "cpu",
+      "adapter": "Flex CPU",
+      "dtype": "f32",
+      "fusion": false,
+      "metrics": {
+        "cross_entropy": 0.2700399160385132,
+        "initial_cross_entropy": 0.4722198247909546,
+        "majority_baseline_accuracy": 0.5,
+        "test_accuracy": 1.0,
+        "train_accuracy": 1.0
+      }
+    },
+    "vqe": {
+      "example": "vqe",
+      "seed": 7,
+      "steps": 160,
+      "backend": "cpu",
+      "adapter": "Flex CPU",
+      "dtype": "f32",
+      "fusion": false,
+      "metrics": {
+        "energy": -2.999999523162842,
+        "exact_ground_energy": -3.0,
+        "ground_state_fidelity": 0.9999997615814209,
+        "initial_energy": 0.9088529348373413
+      }
+    }
+  },
+  "gpu_matrix": {
+    "wgpu": {
+      "core_test_count": 24,
+      "core_test_targets": [
+        "backend_parity",
+        "photonic"
+      ],
+      "example_acceptance_count": 1,
+      "example_report": {
+        "example": "fbqc_bell_swap",
+        "seed": 23,
+        "steps": 1,
+        "backend": "wgpu",
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+        "dtype": "f32",
+        "fusion": false,
+        "metrics": {
+          "conditional_bell_fidelity": 1.0,
+          "failure_probability": 0.3599998950958252,
+          "finish_tick": 6.0,
+          "fusion_count": 1.0,
+          "loss_probability": 0.27999991178512573,
+          "sample_fusion_success": 0.368896484375,
+          "success_probability": 0.3599998950958252,
+          "supplied_photons": 4.0,
+          "total_probability": 0.9999997019767761
+        }
+      }
+    },
+    "wgpu-fusion": {
+      "core_test_count": 24,
+      "core_test_targets": [
+        "backend_parity",
+        "photonic"
+      ],
+      "example_acceptance_count": 1,
+      "example_report": {
+        "example": "fbqc_bell_swap",
+        "seed": 23,
+        "steps": 1,
+        "backend": "wgpu",
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)",
+        "dtype": "f32",
+        "fusion": true,
+        "metrics": {
+          "conditional_bell_fidelity": 1.0,
+          "failure_probability": 0.3599998950958252,
+          "finish_tick": 6.0,
+          "fusion_count": 1.0,
+          "loss_probability": 0.27999991178512573,
+          "sample_fusion_success": 0.368896484375,
+          "success_probability": 0.3599998950958252,
+          "supplied_photons": 4.0,
+          "total_probability": 0.9999997019767761
+        }
+      }
+    },
+    "cuda": {
+      "core_test_count": 24,
+      "core_test_targets": [
+        "backend_parity",
+        "photonic"
+      ],
+      "example_acceptance_count": 1,
+      "example_report": {
+        "example": "fbqc_bell_swap",
+        "seed": 23,
+        "steps": 1,
+        "backend": "cuda",
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+        "dtype": "f32",
+        "fusion": false,
+        "metrics": {
+          "conditional_bell_fidelity": 1.0,
+          "failure_probability": 0.3599998950958252,
+          "finish_tick": 6.0,
+          "fusion_count": 1.0,
+          "loss_probability": 0.27999991178512573,
+          "sample_fusion_success": 0.368896484375,
+          "success_probability": 0.3599998950958252,
+          "supplied_photons": 4.0,
+          "total_probability": 0.9999997019767761
+        }
+      }
+    },
+    "cuda-fusion": {
+      "core_test_count": 24,
+      "core_test_targets": [
+        "backend_parity",
+        "photonic"
+      ],
+      "example_acceptance_count": 1,
+      "example_report": {
+        "example": "fbqc_bell_swap",
+        "seed": 23,
+        "steps": 1,
+        "backend": "cuda",
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+        "dtype": "f32",
+        "fusion": true,
+        "metrics": {
+          "conditional_bell_fidelity": 1.0,
+          "failure_probability": 0.3599998950958252,
+          "finish_tick": 6.0,
+          "fusion_count": 1.0,
+          "loss_probability": 0.27999991178512573,
+          "sample_fusion_success": 0.368896484375,
+          "success_probability": 0.3599998950958252,
+          "supplied_photons": 4.0,
+          "total_probability": 0.9999997019767761
+        }
+      }
+    }
+  },
+  "cpu_gpu_comparison": {
+    "wgpu": {
+      "fbqc_bell_swap": {
+        "max_absolute_metric_difference": 0.0,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      }
+    },
+    "wgpu-fusion": {
+      "fbqc_bell_swap": {
+        "max_absolute_metric_difference": 0.0,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition (DiscreteGpu, Vulkan)"
+      }
+    },
+    "cuda": {
+      "fbqc_bell_swap": {
+        "max_absolute_metric_difference": 0.0,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      }
+    },
+    "cuda-fusion": {
+      "fbqc_bell_swap": {
+        "max_absolute_metric_difference": 0.0,
+        "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition"
+      }
+    }
+  },
+  "engineering_checks": [
+    "cargo fmt --all --check",
+    "cargo clippy --locked --workspace --all-targets --all-features -- -D warnings",
+    "RUSTDOCFLAGS='-D warnings' cargo doc --locked --workspace --all-features --no-deps",
+    "cargo check --locked -p burn_quantum --no-default-features",
+    "cargo check --locked -p burn_quantum --no-default-features --features flex",
+    "cargo package --locked --offline --allow-dirty -p burn_quantum",
+    "cargo check --locked --offline --manifest-path target/package/burn_quantum-0.2.0/Cargo.toml --all-targets"
+  ],
+  "package_inspection": {
+    "files": 77,
+    "rust_files_matching_checkout": 70,
+    "archive_sha256": "03184abc63e23a73b0e7508846dc11cd27c423a7ee575d6611d7046f55c475d9",
+    "vcs": {
+      "git": {
+        "sha1": "3b4473801b1b972795140f0bac4ab100b1b8ef0e",
+        "dirty": true
+      },
+      "path_in_vcs": "crates/burn_quantum"
+    },
+    "normalized_manifest_has_no_workspace_inheritance": true
+  },
+  "coverage_limits": [
+    "GPU runtime scope is backend_parity, photonic, and fbqc_bell_swap; previous nine GPU application tests were not rerun in this qualification.",
+    "Independent effective-instrument mathematics; no optical Fock engine, Perceval/Stim runtime parity, realistic resource factory, boosted fusion, QEC, universal logical compiler or QPU qualification.",
+    "Dense exact execution remains exponential; 200-photon compilation is not 200-photon simulation.",
+    "Source hashes include a subsequent rustdoc-only comment fix; runtime semantics are unchanged."
+  ],
+  "source_sha256": {
+    "Cargo.lock": "2617f3d350c2028350fa067f1fb9178e6c48256b3fe258abaa6b9c72ab694d41",
+    "Cargo.toml": "b995be3ec52517f22a83b1ab8542ee06705fb9eaee081d72a5361f32ceb7e6be",
+    "crates/burn_quantum/Cargo.toml": "cb34a1688fbefbafee39fa7ed37f98d7164945f8a4413de8079ecbc54ae3d1e3",
+    "crates/burn_quantum/examples/bell.rs": "c988affc7a65af0fd96fc9df55b6a3b1786a824d8c04899be6a08028cb0dc414",
+    "crates/burn_quantum/examples/hybrid.rs": "2a3a9a0adb870b1f9aacb802ffbb36da6c90bb04d861cf4511aad0fb6de5dcd6",
+    "crates/burn_quantum/examples/profile.rs": "06db32a5ab5cdb6f38c713620e3326a37943f81c234c0e94bcb4aae592f109b8",
+    "crates/burn_quantum/examples/qudit.rs": "0382de4508d677889c8b3d59939f4e72355f6b9a22d667bc94dbda96f6df9fd1",
+    "crates/burn_quantum/examples/train.rs": "2ccf60a7958c44b50ee6b0dd20b00170f73c102c798b32f69964f78274de38c3",
+    "crates/burn_quantum/examples/wgpu_smoke.rs": "82380df1ced485901f0c362149fddb7452109cca555be4e5740828024afb619a",
+    "crates/burn_quantum/src/backend.rs": "3d6077ffa68f795734a25c16afe0f69f08a2517fa94b2c9a7e6d9a34aafd27f9",
+    "crates/burn_quantum/src/circuit/execution.rs": "2cc2853e3c1d604a701113ae78e6fc09f910a7b4ead40c3c807d5e1eded09e6c",
+    "crates/burn_quantum/src/circuit/mod.rs": "231e46ebbeafe4d122990b6117402a5100a33946d7d440fdfc159ae24a6d7cdc",
+    "crates/burn_quantum/src/circuit/operation.rs": "2ee3e54e52a457bec2db5cc8af5f6c5180a4ede046acebb4f027857b53c75f58",
+    "crates/burn_quantum/src/circuit/serialization.rs": "c528b02469de360a27002dd95f9b4a3bb9b215b4d49f349c5aaea3a81deb9d32",
+    "crates/burn_quantum/src/complex.rs": "b6dd5104793f4ad916678463db4d44b7ef5a48f53f7a0322b2c906132cea433f",
+    "crates/burn_quantum/src/control.rs": "74ee53961adfe850497a229de77797fc91fb0babc83c8f001f8cc6585d14fe2c",
+    "crates/burn_quantum/src/error.rs": "f35bda4e24b12b95063a08cd0f4d2e61317b87a0482a45aee7d6942d8727ebdb",
+    "crates/burn_quantum/src/gate.rs": "1429563a6484c28ce506f1bbd2d8f98cc79711ceff265f2b17cdf813db25e5d0",
+    "crates/burn_quantum/src/gradient.rs": "a454240a026e64d5b1dc8044b6101a525cdb0c859acba91bb5e993dc6080cfa8",
+    "crates/burn_quantum/src/layout.rs": "235f5c9a312d5041d8cb504f3e627dd0e604874e2259d179af8ed8e8282df1d5",
+    "crates/burn_quantum/src/lib.rs": "35aad67a7b1918e7b3a549f707f9b21284b5ad14b988114c9e5fd1fa77baa6da",
+    "crates/burn_quantum/src/noise.rs": "ab634a7930d1dbc324887ec832e901fa4d8f2c5a11c9df0b0f939baf355f8a79",
+    "crates/burn_quantum/src/observable.rs": "3cbb17088f12e5d1bc4ebd395172594e50950ad24f2d27f8b9dbb9a8f0f8dd13",
+    "crates/burn_quantum/src/optim/mod.rs": "8eb7abcaf9219c224e3c270c54d4e45eab317315339cc1a19dd75c3e997878a2",
+    "crates/burn_quantum/src/optim/qnspsa/config.rs": "8ce6278a480f259b86589792fab2a0f4fcbe4d3b91ba59af3b4b28b29b3e3a5a",
+    "crates/burn_quantum/src/optim/qnspsa/estimator.rs": "0f423030ab1d066d105aa9dd57b9f535b418a6b2d4d0246a8e5e5507994c7a95",
+    "crates/burn_quantum/src/optim/qnspsa/metric.rs": "85e67c19cbed659f86ef7ecdbd01f7fbecc07a12dcba886304862333fdd3d423",
+    "crates/burn_quantum/src/optim/qnspsa/mod.rs": "5789de94f07ccaef25874d0bc47af8ecf55e281c07a900141a9d198fc593fabf",
+    "crates/burn_quantum/src/optim/qnspsa/optimizer.rs": "318a9332b5d0726d0b8f7a169fdc2316adafcddb0f5d6dac30a990d8f875dca9",
+    "crates/burn_quantum/src/optim/qnspsa/state.rs": "005183769f85f633be2b1c80b132f73936c20c0fe80a72bf7226d179a400f4e1",
+    "crates/burn_quantum/src/optim/qnspsa/validation.rs": "2118b6aa010f5afd60a0b63bc754a9ad815d6a04c79040a1d50874e3563476f4",
+    "crates/burn_quantum/src/photonic/encoding.rs": "6aee24a0e2e1aa46e9c514a18bfb75764216273ae3321e2658bfe7939e17a4b1",
+    "crates/burn_quantum/src/photonic/fabric/mod.rs": "b325fed3c8dd1e91960e704f69e2964d0c0636acd787a53bef5aa4689c359d30",
+    "crates/burn_quantum/src/photonic/fabric/routing.rs": "c095fdd8b347c3691ebed2e5af7ea96bd4db7dd9c55851a6dbd4412c873d53d1",
+    "crates/burn_quantum/src/photonic/fusion.rs": "9857c211a91b07320912a0fd484644230ff51f40529686d5b4b7ecfc837333bd",
+    "crates/burn_quantum/src/photonic/loss.rs": "f89d123dbb7fd98855b302246cb5f478acdb880e2d1941c9d4edc60cdee12d39",
+    "crates/burn_quantum/src/photonic/mod.rs": "db473936c9360e01f8fad66b04a48d3bc40023e74d940ee38ecaf6c31504d4d7",
+    "crates/burn_quantum/src/photonic/program/compiler.rs": "36ffe43767d8822c2bf321ec6cafc9ed5bea9ceb543b61edf817c3e711316968",
+    "crates/burn_quantum/src/photonic/program/mod.rs": "637cc3cbedc3b06598ebd230fd7a65ea230a4debddc5d985c566db9402dda4a8",
+    "crates/burn_quantum/src/photonic/resource.rs": "caeab88d68b36ca596773d611014f258b9d1a4bb8c1d1ac60f88ab14bb90d852",
+    "crates/burn_quantum/src/photonic/simulator/mod.rs": "a771403b9eca6c85fa3ad5558091d60dc785604c781ec15de902e0531f134a86",
+    "crates/burn_quantum/src/photonic/simulator/sampling.rs": "b63c5d52ed07b51604cc3c057403bc0708ea5eb5618edd7212afb612981456a9",
+    "crates/burn_quantum/src/precision.rs": "f1d0364fad5af97b47661a1f3e3b411dc41f22456a86265085d2dd55ddb63fb7",
+    "crates/burn_quantum/src/qml.rs": "efdfd02d2dda1486e49587cc41e7f4ca099f1239cf46f3511a31e0fd13d958ee",
+    "crates/burn_quantum/src/quantum_module.rs": "afeb6fcf0b1d5d22cd63629dbb168c3fc2d52f93e468e96043274d5b23829c69",
+    "crates/burn_quantum/src/sampling.rs": "788008224c1c1c2ae2221102bd2f9425057d02129f1b735a8d56e125a463ba97",
+    "crates/burn_quantum/src/sat/cnf.rs": "25b4a84074e184c0c5b182dfce41b45a3f15618c33d1f0710e9f4a9a1ec0f0b2",
+    "crates/burn_quantum/src/sat/mod.rs": "d34c74ffcd6445aada68e7d57e42908731eb8f8fc33ca66650573f8b2039832a",
+    "crates/burn_quantum/src/sat/oracle.rs": "68f76941e63f8698b243fcb14bd327259a52919832dba82cb36f553341beeeee",
+    "crates/burn_quantum/src/sat/search.rs": "fa4a6417ceb0a220e1e6c4e31e70218a93b96e3cd5b65bca4882d90f68f7d1b0",
+    "crates/burn_quantum/src/state.rs": "fc4ffb46e2eb3ba3e2d8100e5aacf9620ee493196a36b845c40e2d87db516c42",
+    "crates/burn_quantum/support/device.rs": "a854b31efb24e6e6f50abbfeeca3cc5a2b8776a47bfc6011c1c9c6ea97ce24d7",
+    "crates/burn_quantum/tests/backend_parity.rs": "6294e6225b1fedd1049c9d7747f665caa6e7c04c9e4adc350f030b3e649ced79",
+    "crates/burn_quantum/tests/channels.rs": "fc3b94127e2e6d1777008ab57d129bc0b56c60223e140647911f63d88afd6d0d",
+    "crates/burn_quantum/tests/common/mod.rs": "6b22743f060562f33129fcf0346dc2c114e6005fdb07b30e4b32bc05b76c8ada",
+    "crates/burn_quantum/tests/contracts.rs": "8c3e420db9dc5d6751bf5d287f2aba07af380a36a36beef6b877c692020d52f1",
+    "crates/burn_quantum/tests/gradients.rs": "d842543c5a8c128aa01686a29effac40712d7c76ffe69c46915c358065826e3e",
+    "crates/burn_quantum/tests/photonic.rs": "c93ffbdfab4f7e4fb7de488a345a1259459b0375793cbd67a5eefee16a575406",
+    "crates/burn_quantum/tests/photonic/encoding.rs": "6de7af7c17c812250eb3e2ca473a4700161113adcafcbabcb80913921fd49f1d",
+    "crates/burn_quantum/tests/photonic/fabric.rs": "7ff813a7f61333f2a047ae211ff563964087072b4a7007a26682930b98473879",
+    "crates/burn_quantum/tests/photonic/fusion.rs": "301c933d18337d5bd77b5f4e4a490dbae962283c9027adb22e717b2c565d04d4",
+    "crates/burn_quantum/tests/photonic/program.rs": "e2882910092e11cd9d531bedfe23a88287c5464fbf76d3fd3290fcc2dfe236c2",
+    "crates/burn_quantum/tests/qml.rs": "002a1ff661f8597b6ffbcf4ff82012b70c18ee41a77bed78b185654252f7ffae",
+    "crates/burn_quantum/tests/qnspsa.rs": "2690e37d023e6fe637051ec76735dc38e11f508d157544a4d464e21fb8a5bfb4",
+    "crates/burn_quantum/tests/qnspsa/estimator.rs": "89e480a4b5e89bd4320490b1018dff23ccd12886524c5f5fb70fded7900a5cc6",
+    "crates/burn_quantum/tests/qnspsa/geometry.rs": "bc2b25bc581050d80d2b5ed4c01bf943240b3265faf58357016b7162d01f4c29",
+    "crates/burn_quantum/tests/qnspsa/optimizer.rs": "a2db1282b48401d3d836eb61f7394fc77bcc05d424c839cd23c3171d5659feb6",
+    "crates/burn_quantum/tests/sat.rs": "ed297f0106080e7555af42a99998ee6d131d265141e9ead681a7c5c245ed3208",
+    "crates/burn_quantum/tests/sat/cnf.rs": "381410bfb92c7361e9ab31db63aa72dd15a26369295fb05b3e060930a4e72bca",
+    "crates/burn_quantum/tests/sat/contracts.rs": "0a791b72ea59dc8bf6326a7c30059c51a6a915efeece3530744ebeac0bfb3f51",
+    "crates/burn_quantum/tests/sat/oracle.rs": "b5b0740a01b862bea6cb333f3b24780986f7a90c7b047af6d0023fd5c28e11a8",
+    "crates/burn_quantum/tests/sat/search.rs": "18369dca8307316e7fef0aeea28c9a3a4801e650a6c2d30b8766961fe0e6ba7a",
+    "crates/burn_quantum/tests/simulation.rs": "4002f429bb578568d9674665433553e24f571c729d7b87557c7bd8c1938069ac",
+    "crates/burn_quantum_example/Cargo.toml": "fd107f21558e08da689bae6e6eab7a3cdfb379d904494618fd87761042b428bf",
+    "crates/burn_quantum_example/src/bin/born_machine.rs": "a242278403399fe32a29153e02eff74c1f1fe9f12b91d0059ff1994164ae51fc",
+    "crates/burn_quantum_example/src/bin/fbqc_bell_swap.rs": "feeff8f5cf7c3a025f19e2037a92c0545a422a21fad24ac1c050c1be2f241f5d",
+    "crates/burn_quantum_example/src/bin/grover_sat.rs": "f05051aca81f5ca1fdfdf2d84ecd9c12659a3cadc116be85538e3aa35c9e94f6",
+    "crates/burn_quantum_example/src/bin/hybrid_regression.rs": "2cc26b43b1a0cf4cbeadc74101c076c8fd83b4d1330afa50b545fcb85815507b",
+    "crates/burn_quantum_example/src/bin/qaoa_maxcut.rs": "f175989bf39711867036a44a93f1edecd6b26ae31da58a526eafa398cbc73c52",
+    "crates/burn_quantum_example/src/bin/qnspsa_vqe.rs": "ea240218762770738dff4eae7349268b7dea730ec6c4c676e6c4a65688f37827",
+    "crates/burn_quantum_example/src/bin/quantum_kernel.rs": "65fc8bbe0f34e27bde33ef0065ae2df42c064f52dd251379163b79df6cae6a73",
+    "crates/burn_quantum_example/src/bin/qudit_classifier.rs": "a29986ac7e388778827ad33bc3886423ea0b763158bfa145a72ce4a39467822c",
+    "crates/burn_quantum_example/src/bin/variational_classifier.rs": "8824270d1723db99d08bbe40d917048fe6995413c60df7de245f90ee3c1b0b96",
+    "crates/burn_quantum_example/src/bin/vqe.rs": "2e830bb68fca45f23e68e804d24a1989e2b94538e4851593050092745fc244b8",
+    "crates/burn_quantum_example/src/lib.rs": "909fcbaeb3ef34c7434a76750901dc9b1a00dfaeffccf7533856d94e58e5738e",
+    "rust-toolchain.toml": "97aab3493c1fb14fe9a21c760433577f434714f5725bbb176e67048dde581afe",
+    "scripts/compare_backends.py": "f3e33a39a3f2a6fcb5f07b439c9143122f21509ba22cd63472f6cf464a3aca79",
+    "scripts/example_catalog.py": "5127b201ee815b51ec41c5065083548243947f9ff4084d5e37413f1a77d658f5",
+    "scripts/run_examples.sh": "33427be172848694794e42ac177172b84e1a77634613d715cb68f38578f86757",
+    "scripts/validate_backend.sh": "ba10239c63275e7c87622e460043262fb8e0af568192518382e9e18077c3cd8c"
+  }
+}

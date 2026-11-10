@@ -42,7 +42,7 @@ impl QnSpsa {
     pub fn iteration(&self) -> u64 {
         self.iteration
     }
-    /// Raw row-major running Fubini–Study metric, without regularization.
+    /// Raw row-major running fidelity metric, without regularization.
     pub fn metric(&self) -> &[f64] {
         &self.metric
     }

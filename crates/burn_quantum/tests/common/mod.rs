@@ -3,6 +3,13 @@ use burn::tensor::{DType, Device, Tensor, TensorData};
 use burn_quantum::{ComplexTensor, Matrix, Register, ResourceLimits, StateVector};
 use num_complex::Complex64;
 
+pub fn pinned_perceval_metadata(fixture: &serde_json::Value) {
+    assert_eq!(fixture["perceval"], "1.3.0");
+    assert_eq!(fixture["exqalibur"], "1.4.2");
+    assert_eq!(fixture["numpy"], "2.5.4");
+    assert_eq!(fixture["backend"], "SLOS");
+}
+
 pub fn values<const D: usize>(tensor: Tensor<D>) -> Vec<f64> {
     tensor
         .into_data()

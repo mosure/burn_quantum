@@ -7,7 +7,7 @@ use crate::Result as QuantumResult;
 pub struct QnSpsaSample {
     /// SPSA loss gradient estimate.
     pub gradient: Vec<f64>,
-    /// Symmetric Fubini–Study metric estimate, which may be indefinite.
+    /// Symmetric fidelity-metric estimate, which may be indefinite at finite sampling.
     pub metric: Vec<f64>,
     /// Mean of the two perturbed losses; not the loss at the center or candidate.
     pub loss_estimate: f64,
@@ -18,7 +18,9 @@ pub struct QnSpsaSample {
 /// Loss order: L(theta+c*d1), L(theta-c*d1). Fidelity order, with the first
 /// argument fixed at theta: F(theta,theta+c*d1), F(theta,theta-c*d1),
 /// F(theta,theta+c*(d1+d2)), F(theta,theta+c*(-d1+d2)).
-/// Returns g_hat = -deltaF * (d1*d2^T + d2*d1^T)/(8*c²), estimating QFI/4.
+/// Returns g_hat = -deltaF * (d1*d2^T + d2*d1^T)/(8*c²).
+/// Squared pure overlaps estimate Fubini–Study; squared Uhlmann fidelities estimate
+/// Bures geometry, equal to QFI/4 away from rank-changing singularities.
 /// Fidelity roundoff within 1e-5 of `[0,1]` is accepted without clipping.
 pub fn qn_spsa_sample(
     perturbation: f64,

@@ -3,6 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p artifacts/validation
+python3 -m unittest discover -s scripts -p 'test_*.py' 2>&1 | tee artifacts/validation/comparison-tests.log
 cargo fmt --all --check 2>&1 | tee artifacts/validation/fmt.log
 cargo clippy --locked --workspace --all-targets -- -D warnings 2>&1 | tee artifacts/validation/clippy.log
 cargo test --locked --workspace --all-targets 2>&1 | tee artifacts/validation/tests.log

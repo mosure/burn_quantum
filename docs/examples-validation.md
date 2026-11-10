@@ -9,7 +9,9 @@ Subsequent CPU/GPU runtime checks and the expanded test count are recorded in
 
 The tables below retain the original seven-example results. The later
 [Grover SAT](sat.md) and [quantum natural SPSA VQE](qnspsa.md) additions have
-their own validation records; the current suite contains nine examples.
+their own validation records. The [photonic Bell-swap addition](photonic-validation.md)
+brought the suite to ten examples at that snapshot. The current 22-example
+suite and later implementation are covered by [photonic milestone qualification](photonic-milestones-validation.md).
 
 ## Scope and organization
 

@@ -12,6 +12,7 @@ categories = ["science", "simulation"]
 include = [
     "src/**", "examples/**", "tests/**", "support/**",
     "Cargo.toml", "Cargo.lock", "README.md", "LICENSE-*",
+    "!**/__pycache__/**", "!**/*.pyc",
 ]
 
 [features]
@@ -23,6 +24,7 @@ cuda = ["burn/cuda"]
 fusion = ["burn/fusion"]
 
 [dependencies]
+serde_json.workspace = true
 burn.workspace = true
 num-complex = { version = "0.4.6", features = ["serde"] }
 serde.workspace = true
@@ -33,7 +35,6 @@ nalgebra = { version = "0.34.2", default-features = false, features = ["std"] }
 
 [dev-dependencies]
 burn = { workspace = true, features = ["flex", "autodiff", "optim"] }
-serde_json.workspace = true
 
 [lints]
 workspace = true

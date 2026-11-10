@@ -49,6 +49,9 @@ and sibling example crate. CI verifies that boundary with `cargo package`.
 | `crates/burn_quantum/src/gradient.rs`, `quantum_module.rs`, `qml.rs` | Differentiation, native Burn modules, reusable quantum ML operations | Example training loops and synthetic datasets |
 | `crates/burn_quantum/src/sat/` | CNF representation, reversible oracle compilation, bounded search | DIMACS file I/O and CLI reporting |
 | `crates/burn_quantum/src/optim/qnspsa/` | Fidelity estimator, metric solve, optimizer state and updates | Circuit ansatz, data, loss/fidelity evaluator implementations |
+| `crates/burn_quantum/src/tensor_network/` | Canonical MPS evolution, measurement, streaming readout, bounded host SVD, distributed state ownership | Application circuits and deployment transport policy |
+| `crates/burn_quantum/src/transport.rs` | Shared bounded frames and absolute socket deadlines | Quantum semantics and credentials |
+| `crates/burn_quantum/src/photonic/` | Encoding, Fock optics, Clifford/dense execution, resource/fusion compilation, finite fabric schedules, QEC, learning and event/worker runtimes | Example datasets/objectives; provider-specific hardware adapters |
 | `crates/burn_quantum_example/src/bin/` | One complete algorithm and acceptance test per file | Repeated quantum operations shared by applications |
 | `crates/burn_quantum_example/src/lib.rs` | Small example-only reporting and evaluation utilities | Public quantum library APIs |
 | `crates/burn_quantum/examples/` | Cargo examples for basic simulator use, integration and device probes | The canonical application suite |
@@ -118,6 +121,29 @@ Users continue importing `burn_quantum::{Circuit, Angle, Rotation, Operation}`,
 `burn_quantum::optim::{QnSpsa, QnSpsaConfig, ...}`. No wrapper API or new crate is
 needed to use the reorganization.
 
+## Photonic module
+
+The current [photonic stack](photonic-status.md) retains the encoded foundation
+modules `encoding`, `loss`, `resource`, `fusion`, `fabric`, `program` and `simulator`.
+Separate `optics`, `stabilizer`, `compiler`, `factories`, `qec`, `learning`, `runtime`
+and `interop` APIs own their physical models and execution contracts. Routing,
+compilation, optical instruments, QEC geometry/decoding and worker transports
+have focused implementation files. Typed recipes and compiled plans remain
+independent of dense tensor allocation; numerical executors reuse the core's
+precision and resource guards. The [optical](photonic-optics.md),
+[compiler](photonic-compiler.md), [QEC](photonic-stabilizer.md),
+[interchange](photonic-interop.md) and [runtime](photonic-runtime.md) guides describe
+the current public surfaces; the original [module roadmap](photonic-roadmap.md#module-ownership)
+records their planned boundaries.
+
+Within `qec`, `surgery/` separates geometry, ideal execution, spatial distances,
+transition detectors and observed-record recovery. `threshold/` owns sparse graph
+decoders, noise studies and fixed-shot statistics. `fusion_surgery/` owns actual
+six-ring optical instruments and boundary geometry. Examples contain study grids
+and reporting; shared physical laws, decoding and confidence intervals stay in
+the library. See [surgery](photonic-surgery.md) and
+[threshold decoding](photonic-threshold-decoder.md).
+
 ## Shared executable support
 
 The library's basic demos and integration tests include `support/device.rs`
@@ -128,11 +154,12 @@ ordinary library consumers always pass Burn devices explicitly.
 
 ## Tests and example discovery
 
-The `sat` and `qnspsa` integration test targets retain their names. Their root
-files hold shared fixtures and include focused test modules:
+The `sat`, `qnspsa` and `photonic` integration test targets use root
+files that hold shared fixtures and include focused test modules:
 
 - `crates/burn_quantum/tests/sat/`: CNF, oracle, search, and serialization/resource/continuation contracts.
 - `crates/burn_quantum/tests/qnspsa/`: scalar estimators/solves, optimizer state transitions, and quantum geometry/device parity.
+- `crates/burn_quantum/tests/photonic/`: encoding/loss, independent fusion-instrument oracles, fabric scheduling, program and sampling contracts.
 - `crates/burn_quantum/tests/common/`: independent scalar-complex reference operations shared by the suite.
 
 These are external tests using the public library API. They cannot access the
@@ -147,8 +174,9 @@ cargo test --locked -p burn_quantum --test qnspsa geometry::
 `scripts/example_catalog.py` reads Cargo target metadata for
 `burn_quantum_example`. Both `run_examples.sh` and `compare_backends.py` use it,
 so a new binary is automatically included without editing parallel name lists.
-An empty/missing example package fails discovery. All nine algorithms retain
-one source file each; the reorganization did not alter those implementations.
+An empty/missing example package fails discovery. All twenty-two current examples have
+one source file each, including physical VQE, optical learning, QEC memory and
+process/control experiments.
 
 ```sh
 python3 -B scripts/example_catalog.py
@@ -214,3 +242,14 @@ mappings, the lockfile, and all example algorithm sources were unchanged.
 
 See [the documentation index](README.md) and [contributing guide](../CONTRIBUTING.md)
 for navigation and extension workflows.
+
+## Tensor-network implementation
+
+`tensor_network` separates state/checkpoint invariants (`state.rs`), gauge/gate
+updates (`evolution.rs`), Kraus trajectories (`measurement.rs`), observables and
+bounded export (`readout.rs`), native contractions/host SVD (`tensor.rs`), and the
+`QuantumBackend` adapter (`engine.rs`). Distributed protocol, ownership and
+coordinator transactions have separate files under `distributed/`. Local and
+remote observable contractions share the same core implementation. The reusable
+frame transport is shared with photonic shot workers; no provider dependency or
+CLI environment selection enters the public core.

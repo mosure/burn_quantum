@@ -1,8 +1,14 @@
 # Research and engineering roadmap
 
-The current deliverable is an executable, tested dense simulator and Burn QML
-integration. The roadmap below describes additional work, not capabilities
-already implemented. Priority is driven by measured application requirements.
+The current implementation includes the native dense reference, Burn QML,
+MPS/Clifford/Fock engines and the local photonic stack. The sections below retain
+longer-term engineering directions; implemented contracts are identified here
+and in the [photonic acceptance map](photonic-status.md).
+
+The [photonic acceptance map](photonic-status.md) links the current implemented
+Clifford, optical, compiler, factory, QEC, QML and scale-out models. The
+[original staged roadmap](photonic-roadmap.md) records their planned acceptance
+criteria; its M0 baseline is historical.
 
 ## Current contracts
 
@@ -12,16 +18,18 @@ already implemented. Priority is driven by measured application requirements.
 | Pure states | Split-complex `[B,N]` Burn tensors | Exponential N; configurable element budget |
 | Mixed states | Split-complex `[B,N,N]` | Quadratic in N; small noisy problems |
 | Gate set | Arbitrary checked local unitaries; Pauli, Fourier, Weyl, SUM, SWAP, controls | Dense local matrices; built-in allocation cap |
-| Parameters | Affine shared parameter / input references; analytic X/Y/Z level rotations | No expression DAG or dynamic control |
+| Unitary circuit bindings | Affine shared parameter / input references; analytic X/Y/Z level rotations | No expression DAG or dynamic control |
 | Training | Burn first-order autodiff, `Module`, `Config`, `Param`, optimizers | Retained graph grows with circuit depth |
 | Gradient oracle | Occurrence-wise 2/4-term shifts | Implemented rotation generators only |
-| Quantum natural optimization | Fidelity-based QN-SPSA, spectral regularization, blocking, seeded schedules/checkpoints | Pure-state geometry; dense host O(d²) storage / O(d³) solve; synchronous callbacks |
-| Readouts | Local Hermitian operators, variance, local Hamiltonian sums, marginals | Exact analytic values |
-| Noise | Arbitrary checked Kraus operators, three qubit channel factories | Constant channel parameters; density path |
-| Sampling | Seeded terminal computational-basis shots | Host synchronization; no gradient / collapse |
+| Quantum natural optimization | Fidelity-based QN-SPSA, spectral regularization, blocking, seeded schedules/checkpoints | Fidelity-defined geometry; dense host O(d²) storage / O(d³) solve; synchronous callbacks |
+| Dense readouts | Local Hermitian operators, variance, local Hamiltonian sums, marginals | Exact analytic values |
+| Density-state noise | Arbitrary checked Kraus operators, three qubit channel factories | Constant channel parameters; density path |
+| Dense terminal sampling | Seeded terminal computational-basis shots | Host synchronization; no gradient / collapse |
 | Persistence | Versioned circuit JSON, validated deserialization, Burn weights | Config and weight record stored together by caller |
-| Runtime | Native Burn device dispatch; optional WGPU/CUDA features | Each device requires separate qualification |
+| Tensor device dispatch | Native Burn device dispatch; optional WGPU/CUDA features | Each device requires separate qualification |
 | Boolean SAT | Reversible CNF oracles, Grover amplification, bounded unknown-count search | Exponential dense simulation; failed search is inconclusive |
+| Photonics / FBQC | Fock/dual-rail models, calibrated fusion, bounded universal compilation, finite routing, QEC/learning/local runtime | Explicit model-specific bounds; hardware qualification deferred |
+| Tensor networks | Mixed-qudit MPS, non-Clifford gates, Kraus trajectories, selective readouts and distributed ownership | Entanglement-dependent rank; bounded host SVD without reverse-mode AD |
 
 ## 1. Prepared execution and accelerator kernels
 
@@ -64,10 +72,14 @@ Do not advertise higher-order derivatives through Burn's first-order engine.
 [Quantum natural SPSA](qnspsa.md) now estimates pure-state geometry with constant
 loss/fidelity callback count per resampling and needs no backward pass. The
 classical metric remains dense. Future block or low-rank metrics, batched probe
-execution, and shot-allocation policies must preserve tested metric conventions
+execution, and additional shot-allocation policies must preserve tested metric conventions
 and report accuracy, estimator variance, synchronization and full solve costs.
 
-## 3. Additional simulation representations
+## 3. Simulation representations and further extensions
+
+MPS, Clifford and finite-cutoff optical implementations now have their own
+validated APIs. Sparse states and distributed dense state vectors remain further
+extensions; distributed MPS ownership is already implemented.
 
 | Engine | Useful structure | Costs / acceptance evidence |
 | --- | --- | --- |
@@ -78,32 +90,34 @@ and report accuracy, estimator variance, synchronization and full solve costs.
 | Distributed state vectors | Exact high-entanglement states | Communication volume, network topology, sharding and collective gradient correctness |
 | Truncated bosonic systems | Continuous-variable applications with finite cutoff | Cutoff-convergence study and occupation leakage diagnostics |
 
-Use the associated state type on `QuantumBackend` for alternate exact analytic
-engines. Do not force MPS or hardware results into a dense amplitude buffer.
-The present full-distribution method may be unsupported on such engines; add
-capability negotiation and selective-readout contracts before integration.
+`MpsSimulator` uses the associated state type on `QuantumBackend`; direct MPS
+readouts avoid materializing a full distribution. Dense export and probability
+vectors have separate budgets and may be rejected while local expectations
+remain feasible. New engines should preserve that separation and expose their
+supported operations before execution.
 
 ## 4. Dynamic programs and hardware
 
-Version the IR to add classical registers, measurement destinations, resets,
-conditions, loops and execution limits. Define trajectory vs ensemble semantics
-and the nondifferentiable boundaries. New instructions must fail explicitly on
-engines that do not support them; serialized version upgrades need fixtures and
-migration policy. Existing v1 structure remains a straight-line unitary circuit.
+The unitary `Circuit` remains a straight-line v1/v2 IR. Measurement patterns and
+causal event programs now provide separate measured/adaptive execution, including
+bounded retry protocols. A future general dynamic circuit IR must still define
+classical registers, reset/loop semantics, execution limits and migration rules;
+unsupported engines must reject its instructions explicitly.
 
-For QPUs, introduce a separate asynchronous submit/poll/cancel contract with
-immutable compiled jobs, topology mapping, basis translation, batch/shot
-budgets, calibration identifiers, provider provenance, mitigation configuration
-and result uncertainty. Never silently fall back from hardware to simulation.
-Hardware gradients use occurrence-resolved shift jobs or justified estimators,
-not a claim that a remote measurement is an ordinary differentiable tensor.
+[LocalSimulationJobs](photonic-runtime.md#immutable-asynchronous-local-jobs)
+implements bounded asynchronous submit/status/result/cancel with immutable job
+identity, calibration leases, raw outcomes and attempted-shot accounting.
+Actual QPU providers must add hardware topology, basis translation, provenance,
+mitigation and uncertainty contracts without silently falling back to simulation.
+Hardware gradients need occurrence-resolved shift jobs or justified estimators,
+rather than treating a remote measurement as an ordinary differentiable tensor.
 
 ## 5. Quantum ML application suite
 
 The `burn_quantum_example` workspace crate now provides small, reproducible VQE,
 QAOA MaxCut, variational classification, fidelity-kernel classification,
 Born-machine, hybrid-regression, qutrit-classification, Grover SAT search, and
-quantum-natural-SPSA VQE implementations, each
+quantum-natural-SPSA VQE implementations, plus a lossy photonic Bell-swap primitive, each
 in one file with numerical acceptance checks. Shared encoding, ansatz, readout,
 loss and fidelity operations live in the core crate's `qml` module. These are
 integration prototypes on small problems; broader application benchmarks and

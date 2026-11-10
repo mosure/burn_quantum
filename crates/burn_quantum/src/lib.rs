@@ -28,12 +28,15 @@ pub mod layout;
 pub mod noise;
 pub mod observable;
 pub mod optim;
+pub mod photonic;
 mod precision;
 pub mod qml;
 pub mod quantum_module;
 pub mod sampling;
 pub mod sat;
 pub mod state;
+pub mod tensor_network;
+mod transport;
 
 pub use backend::{Capabilities, DenseSimulator, QuantumBackend, ResourceLimits};
 pub use circuit::{Angle, Circuit, Operation, Rotation};

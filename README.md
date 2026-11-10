@@ -30,6 +30,11 @@ See [Burn's migration guide](https://burn.dev/books/burn/migrating-to-0.22.html)
   seeded perturbations, loss blocking, schedules, and portable checkpoints.
 - Boolean CNF/DIMACS SAT search with reversible clause oracles, Grover amplification,
   bounded unknown-solution-count search, and verified candidate assignments.
+- Matrix-product states for large low-entanglement qubit/qudit circuits, with
+  explicit truncation budgets, Kraus trajectories and distributed tensor ownership.
+- Photonic computing in this **unreleased checkout**: dual-rail/Fock optics,
+  calibrated standard/boosted fusion, universal bounded gate synthesis, finite
+  fabric routing, encoded QEC references, measured learning protocols and local jobs.
 
 ## Canonical quantum AI/ML examples
 
@@ -37,14 +42,15 @@ The workspace includes [`burn_quantum_example`](crates/burn_quantum_example/READ
 with one complete source file per implementation: **VQE**, **QAOA MaxCut**,
 **variational classification**, **quantum-kernel classification**, a **Born
 machine**, **hybrid regression**, **qutrit multiclass classification**,
-**Grover SAT search**, and **quantum natural SPSA VQE**.
-Each has a deterministic problem, training/fitting procedure, numerical
+**Grover SAT search**, **quantum natural SPSA VQE**, and **lossy photonic Bell swapping**.
+Each has an explicit problem, execution or training procedure, numerical
 acceptance criteria, a test, and a JSON result report.
 
 ```sh
 cargo run --locked -p burn_quantum_example --bin vqe
 cargo run --locked -p burn_quantum_example --bin born_machine
 cargo run --locked -p burn_quantum_example --bin qnspsa_vqe
+cargo run --locked -p burn_quantum_example --bin fbqc_bell_swap
 bash scripts/run_examples.sh
 bash scripts/validate_backend.sh wgpu
 bash scripts/validate_backend.sh cuda --fusion
@@ -56,6 +62,43 @@ training logic remain in each example. See the [suite guide](crates/burn_quantum
 and [example validation record](docs/examples-validation.md). The core crate's
 [`examples/`](crates/burn_quantum/examples/) directory contains basic simulator
 demonstrations and device probes.
+
+## Photonic and fusion-based computing
+
+`burn_quantum::photonic` separates encoded states and loss, ideal resource
+recipes, destructive Bell measurements, resource-level programs, timed fabric
+routes and simulation. `FusionProgram` compiles small resource/fusion algorithms
+without allocating a quantum state. `DenseFusionSimulator` executes all exact
+branches on native Burn devices, retaining failure/loss probabilities, surviving
+states and unconditional shot records. Local qubit circuits can be encoded with
+their parameter/input bindings and autodiff intact.
+
+The local stack includes calibrated multimode optics, standard and Grice boosted
+Bell instruments, universal bounded gate synthesis, noisy resource factories,
+finite buffers, independent wavelength/rail routing and input-preserving parity
+retries. Four-star/six-ring networks, physical Shor fusions, open-boundary planar
+logical protocols and magic-state injection/distillation have explicit model,
+noise, decoder and cost contracts. Photonic learning includes measured mixed-state
+overlap protocols, calibration identifiability and matched-record controls.
+
+[`MpsState` and `MpsSimulator`](docs/tensor-network.md) add scalable low-entanglement
+non-Clifford execution. Contractions use native Burn devices; complex SVD is
+bounded host work with no reverse-mode claim. Local process workers can own
+separate tensors of the same entangled state, with checked transaction recovery.
+Asynchronous local jobs preserve raw outcomes, provenance and physical costs.
+[OpenQASM interchange](docs/photonic-interop.md) is checked against the actual
+pinned PsiQDK local SDK simulator.
+
+Read the [capability and acceptance map](docs/photonic-status.md),
+[optical API](docs/photonic-optics.md), [compiler guide](docs/photonic-compiler.md),
+[runtime guide](docs/photonic-runtime.md), [QEC/boundary guide](docs/photonic-stabilizer.md),
+[growing-distance surgery and thresholds](docs/photonic-surgery.md),
+[magic-state guide](docs/photonic-magic.md)
+and [original staged roadmap](docs/photonic-roadmap.md). Model-specific logical
+references do not establish a hardware threshold or a production fault-tolerant
+fabric compiler. PsiQuantum is the long-term hardware target; execution here is
+local. These additions require a repository checkout and are not in published
+version 0.2.0.
 
 ## Quantum natural SPSA
 
@@ -225,12 +268,13 @@ check physical values. Arbitrary tensor operators may be nonunitary; users
 must ensure physical semantics and finite parameter/input values. Sampling is
 an explicit synchronous, nondifferentiable readback and leaves the state intact.
 
-There is no blanket guarantee for arbitrary future quantum applications or
-efficient simulation of arbitrary circuits. The current engine supports finite
-Hilbert spaces; hardware jobs, dynamic measurement/control, tensor networks,
-distributed simulation and continuous-variable convergence are future work.
-The interfaces and mathematical contracts are designed to support those
-extensions without pretending they are implemented.
+There is no blanket guarantee of efficient simulation for arbitrary quantum
+applications. Dense states, MPS, Clifford trajectories and truncated Fock models
+have different explicit limits. The checkout includes adaptive photonic control,
+asynchronous local jobs and distributed MPS ownership; remote hardware execution
+and multi-host performance remain unqualified. Continuous-variable results
+require convergence within the declared cutoff and optical model. See the
+[capability map](docs/photonic-status.md) for those distinctions.
 
 Read the [architecture and initial plan](docs/architecture.md),
 [engineering and research roadmap](docs/roadmap.md), and
@@ -241,7 +285,7 @@ Read the [architecture and initial plan](docs/architecture.md),
 The repository root is a virtual Cargo workspace. Both packages live under
 `crates/`: [`burn_quantum`](crates/burn_quantum/README.md) owns the public library,
 integration tests and simulator demos; [`burn_quantum_example`](crates/burn_quantum_example/README.md)
-contains one executable source file per application. Circuit, SAT, and QN-SPSA
+contains one executable source file per application. Circuit, SAT, QN-SPSA and photonic
 internals are split by responsibility behind stable public exports. Shared
 metadata, dependency versions and lints live in the root manifest. Repository
 guides, validation scripts and CI stay at the root; runner and comparison

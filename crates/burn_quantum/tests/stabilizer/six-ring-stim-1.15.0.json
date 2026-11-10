@@ -1,0 +1,1743 @@
+{
+  "stim_version": "1.15.0",
+  "side": 2,
+  "cases": [
+    [
+      {
+        "sites": [
+          1,
+          28
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          1,
+          28
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          2,
+          17
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          2,
+          17
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          0,
+          9
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          0,
+          9
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          7,
+          34
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          7,
+          34
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          8,
+          23
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          8,
+          23
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          6,
+          3
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          6,
+          3
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          13,
+          40
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          13,
+          40
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          14,
+          5
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          14,
+          5
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          12,
+          21
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          12,
+          21
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          19,
+          46
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          19,
+          46
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          20,
+          11
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          20,
+          11
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          18,
+          15
+        ],
+        "basis": "X",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          18,
+          15
+        ],
+        "basis": "Z",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          25,
+          4
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          25,
+          4
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          26,
+          41
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          26,
+          41
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          24,
+          33
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          24,
+          33
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          31,
+          10
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          31,
+          10
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          32,
+          47
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          32,
+          47
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          30,
+          27
+        ],
+        "basis": "X",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          30,
+          27
+        ],
+        "basis": "Z",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          37,
+          16
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          37,
+          16
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          38,
+          29
+        ],
+        "basis": "X",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          38,
+          29
+        ],
+        "basis": "Z",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          36,
+          45
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          36,
+          45
+        ],
+        "basis": "Z",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          43,
+          22
+        ],
+        "basis": "X",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          43,
+          22
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          44,
+          35
+        ],
+        "basis": "X",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          44,
+          35
+        ],
+        "basis": "Z",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          42,
+          39
+        ],
+        "basis": "X",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          42,
+          39
+        ],
+        "basis": "Z",
+        "prior": -1,
+        "negative": true
+      }
+    ],
+    [
+      {
+        "sites": [
+          1,
+          28
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          1,
+          28
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          2,
+          17
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          2,
+          17
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          0,
+          9
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          0,
+          9
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          7,
+          34
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          7,
+          34
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          8,
+          23
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          8,
+          23
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          6,
+          3
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          6,
+          3
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          13,
+          40
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          13,
+          40
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          14,
+          5
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          14,
+          5
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          12,
+          21
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          12,
+          21
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          19,
+          46
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          19,
+          46
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          20,
+          11
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          20,
+          11
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          18,
+          15
+        ],
+        "basis": "X",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          18,
+          15
+        ],
+        "basis": "Z",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          25,
+          4
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          25,
+          4
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          26,
+          41
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          26,
+          41
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          24,
+          33
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          24,
+          33
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          31,
+          10
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          31,
+          10
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          32,
+          47
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          32,
+          47
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          30,
+          27
+        ],
+        "basis": "X",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          30,
+          27
+        ],
+        "basis": "Z",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          37,
+          16
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          37,
+          16
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          38,
+          29
+        ],
+        "basis": "X",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          38,
+          29
+        ],
+        "basis": "Z",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          36,
+          45
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          36,
+          45
+        ],
+        "basis": "Z",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          43,
+          22
+        ],
+        "basis": "X",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          43,
+          22
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          44,
+          35
+        ],
+        "basis": "X",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          44,
+          35
+        ],
+        "basis": "Z",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          42,
+          39
+        ],
+        "basis": "X",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          42,
+          39
+        ],
+        "basis": "Z",
+        "prior": -1,
+        "negative": true
+      }
+    ],
+    [
+      {
+        "sites": [
+          1,
+          28
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          1,
+          28
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          2,
+          17
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          2,
+          17
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          0,
+          9
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          0,
+          9
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          7,
+          34
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          7,
+          34
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          8,
+          23
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          8,
+          23
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          6,
+          3
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          6,
+          3
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          13,
+          40
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          13,
+          40
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          14,
+          5
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          14,
+          5
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          12,
+          21
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          12,
+          21
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          19,
+          46
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          19,
+          46
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          20,
+          11
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          20,
+          11
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          18,
+          15
+        ],
+        "basis": "X",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          18,
+          15
+        ],
+        "basis": "Z",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          25,
+          4
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          25,
+          4
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          26,
+          41
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          26,
+          41
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          24,
+          33
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          24,
+          33
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          31,
+          10
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          31,
+          10
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          32,
+          47
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          32,
+          47
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          30,
+          27
+        ],
+        "basis": "X",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          30,
+          27
+        ],
+        "basis": "Z",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          37,
+          16
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          37,
+          16
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          38,
+          29
+        ],
+        "basis": "X",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          38,
+          29
+        ],
+        "basis": "Z",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          36,
+          45
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          36,
+          45
+        ],
+        "basis": "Z",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          43,
+          22
+        ],
+        "basis": "X",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          43,
+          22
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          44,
+          35
+        ],
+        "basis": "X",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          44,
+          35
+        ],
+        "basis": "Z",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          42,
+          39
+        ],
+        "basis": "X",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          42,
+          39
+        ],
+        "basis": "Z",
+        "prior": 1,
+        "negative": false
+      }
+    ],
+    [
+      {
+        "sites": [
+          1,
+          28
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          1,
+          28
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          2,
+          17
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          2,
+          17
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          0,
+          9
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          0,
+          9
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          7,
+          34
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          7,
+          34
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          8,
+          23
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          8,
+          23
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          6,
+          3
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          6,
+          3
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          13,
+          40
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          13,
+          40
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          14,
+          5
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          14,
+          5
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          12,
+          21
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          12,
+          21
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          19,
+          46
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          19,
+          46
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          20,
+          11
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          20,
+          11
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          18,
+          15
+        ],
+        "basis": "X",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          18,
+          15
+        ],
+        "basis": "Z",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          25,
+          4
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          25,
+          4
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          26,
+          41
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          26,
+          41
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          24,
+          33
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          24,
+          33
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          31,
+          10
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          31,
+          10
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          32,
+          47
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          32,
+          47
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          30,
+          27
+        ],
+        "basis": "X",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          30,
+          27
+        ],
+        "basis": "Z",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          37,
+          16
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          37,
+          16
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          38,
+          29
+        ],
+        "basis": "X",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          38,
+          29
+        ],
+        "basis": "Z",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          36,
+          45
+        ],
+        "basis": "X",
+        "prior": 0,
+        "negative": false
+      },
+      {
+        "sites": [
+          36,
+          45
+        ],
+        "basis": "Z",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          43,
+          22
+        ],
+        "basis": "X",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          43,
+          22
+        ],
+        "basis": "Z",
+        "prior": 0,
+        "negative": true
+      },
+      {
+        "sites": [
+          44,
+          35
+        ],
+        "basis": "X",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          44,
+          35
+        ],
+        "basis": "Z",
+        "prior": 1,
+        "negative": false
+      },
+      {
+        "sites": [
+          42,
+          39
+        ],
+        "basis": "X",
+        "prior": -1,
+        "negative": true
+      },
+      {
+        "sites": [
+          42,
+          39
+        ],
+        "basis": "Z",
+        "prior": -1,
+        "negative": true
+      }
+    ]
+  ],
+  "source_archive_sha256": "95236006859d6754be99629d4fb44788e742e962ac8c59caad421ca088f7350e"
+}

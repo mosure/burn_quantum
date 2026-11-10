@@ -2,6 +2,9 @@
 
 See [repository organization](organization.md) for the current source-module map
 and the distinction between public exports and private implementation files.
+The dense-engine design below is the original architectural baseline. Current
+[photonic engines and runtimes](photonic-status.md) and [MPS/distributed execution](tensor-network.md)
+extend it with separate representation and control contracts.
 
 ## Scope and invariant
 
@@ -95,7 +98,7 @@ never silently normalize an invalid operator. State import checks shape and
 offers an explicit physical-state validation step, since a synchronous readback
 inside every differentiable operation would harm device execution. Rotations
 are constructed analytically. No amplitudes or trainable values are read back
-during circuit execution. No silent float-to-complex reinterpretation occurs.
+during dense unitary circuit execution. No silent float-to-complex reinterpretation occurs.
 
 Quantum matrix products use native Flex GEMM on CPU and explicit multiply/reduce
 contractions on other devices. The locked CubeCL 0.11.3 accelerator path can
@@ -137,21 +140,23 @@ target layout. Density storage is 2BN² scalars. Reverse-mode graph retention
 adds a depth-dependent cost beyond these forward allocations. The resource
 limits are preflight element budgets, not a guarantee against device OOM.
 
-Future engines should implement their own representation and report
-capabilities explicitly: matrix-product states / tensor networks for bounded
-entanglement, stabilizers for Clifford circuits, sparse representations when
-support is sparse, trajectories for noise, and distributed state vectors for
-large exact simulations. None removes worst-case exponential complexity.
-Compilation, optimization, connectivity, precision, error tolerances, and
-hardware shot budgets belong to an execution plan, not the tensor type.
+Alternate engines report their own representation and capabilities. The current
+checkout implements [MPS and distributed MPS](tensor-network.md),
+[Clifford tableaus and frames](photonic-stabilizer.md),
+[bounded Fock optics](photonic-optics.md), and local noisy trajectories. Sparse
+state engines and distributed dense state vectors remain separate extensions.
+None removes worst-case exponential complexity. Compilation, connectivity,
+precision, error tolerances and shot budgets belong to an execution plan.
 
 The dense path accepts arbitrary finite local unitary matrices, so new
 finite-dimensional gates are expressible without changing the engine.
-Arbitrary future applications cannot be guaranteed: continuous-variable
-systems need a justified finite cutoff; adaptive circuits need classical
-registers and control flow; hardware execution needs asynchronous jobs,
-provenance, calibration, and noise/shot-aware differentiation. These must be
-separate capability additions with tests rather than nominal flags.
+Arbitrary future applications cannot be guaranteed. Continuous-variable models
+need justified finite cutoffs; the optical module exposes convergence diagnostics.
+Measurement patterns and causal event programs implement explicit classical
+control, while the unitary `Circuit` stays a separate straight-line IR.
+The [local job runtime](photonic-runtime.md) retains asynchronous status,
+provenance and calibration contracts. Hardware-provider execution and its
+noise/shot-aware differentiation still require separate qualification.
 
 ## Qualification gates
 

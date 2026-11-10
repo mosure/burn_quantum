@@ -20,6 +20,9 @@ and `crates/burn_quantum_example` is the executable application suite.
   agreement rather than reproducing implementation details.
 - Circuit or checkpoint schema changes need explicit version handling and
   compatibility checks. Moving implementation files does not require a new schema.
+- Photonic changes should preserve the [physical model contracts](docs/photonic-fbqc.md)
+  and advance the [staged roadmap](docs/photonic-roadmap.md) with independent
+  instrument/compiler oracles. Keep loss, failed fusion and postselection distinct.
 
 The workspace defines common package metadata, dependency versions and lints.
 Select execution features on the package that needs them; check the core
@@ -59,7 +62,7 @@ bash scripts/run_examples.sh cpu
 The first command checks formatting, strict Clippy, all workspace tests,
 doctests, isolated core feature combinations, documentation and basic demos.
 The second exercises the current Cargo-discovered example catalog and saves
-JSON reports. Focused tests can use `--test sat` or `--test qnspsa`, optionally
+JSON reports. Focused tests can use `--test sat`, `--test qnspsa` or `--test photonic`, optionally
 with their module names as filters.
 
 When changing device execution, run the hardware matrix on available hardware:

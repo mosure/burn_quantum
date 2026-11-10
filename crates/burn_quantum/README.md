@@ -42,6 +42,14 @@ fn main() -> burn_quantum::Result<()> {
 - Reusable encodings, circuit templates, probability losses and fidelity kernels.
 - Quantum natural SPSA with a regularized Fubini–Study metric and checkpoints.
 - Boolean CNF/DIMACS SAT search with reversible oracles and verified witnesses.
+- In the unreleased checkout, `photonic` adds dual-rail/vacuum encoding, loss,
+  Fock optics, calibrated fusions, physical circuit compilation, finite fabric
+  scheduling, Clifford/frame simulation, encoded resources, QEC memories,
+  finite boundaries, logical/magic-state references and bounded event/process execution.
+  A separate `tensor_network` module supplies mixed-qudit MPS and distributed
+  entangled-state ownership, with explicit approximation and host-SVD limits. See the
+  [implemented models and remaining gates](https://github.com/mosure/burn_quantum/blob/main/docs/photonic-status.md).
+  The published 0.2.0 release predates this addition.
 
 Default features are `flex` and `autodiff`. Optional `wgpu`, `cuda` and `fusion`
 features select accelerator capabilities; callers supply the execution device.
@@ -66,12 +74,15 @@ cargo check --locked -p burn_quantum --no-default-features
 cargo run --locked -p burn_quantum --features wgpu --example wgpu_smoke
 ```
 
-The sibling `burn_quantum_example` package contains nine single-file QML/search
+The sibling `burn_quantum_example` package contains single-file quantum
 applications, including VQE, QAOA, classifiers, a Born machine, hybrid
-regression, Grover SAT and QN-SPSA VQE. It is run from a repository checkout:
+regression, Grover SAT, QN-SPSA VQE, physical photonic optimization, finite-boundary
+QEC studies, magic-state distillation and distributed MPS workloads.
+It is run from a repository checkout:
 
 ```sh
 cargo run --locked -p burn_quantum_example --bin qnspsa_vqe
+cargo run --locked -p burn_quantum_example --bin fbqc_bell_swap
 ```
 
 See the [API documentation](https://docs.rs/burn_quantum),
