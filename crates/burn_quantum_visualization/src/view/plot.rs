@@ -29,6 +29,8 @@ pub(super) struct PlotCache {
     boxes: Vec<(Rect, Color)>,
     labels: Vec<Label>,
     pub hits: Vec<(Rect, Hit)>,
+    pub hover_regions: Vec<super::tooltip::HoverRegion>,
+    pub generation: u64,
     pub description: String,
     pub overview_capacity: usize,
     discs: Vec<(Rect, Color, bool)>,
@@ -103,6 +105,17 @@ impl PlotCache {
     pub fn hit(&mut self, rect: Rect, hit: Hit) {
         self.hits.push((rect, hit));
     }
+    pub fn hover(&mut self, rect: Rect, title: impl Into<String>, summary: impl Into<String>) {
+        let min = rect.min.max(self.bounds.rect.min);
+        let max = rect.max.min(self.bounds.rect.max);
+        if min.cmplt(max).all() && self.hover_regions.len() < 2048 {
+            self.hover_regions.push(super::tooltip::HoverRegion {
+                rect: Rect::from_corners(min, max),
+                title: title.into(),
+                summary: summary.into(),
+            });
+        }
+    }
 }
 pub(super) fn measure_canvas(
     window: Single<&Window>,
@@ -143,6 +156,8 @@ pub(super) fn rebuild(
     cache.boxes.clear();
     cache.labels.clear();
     cache.hits.clear();
+    cache.hover_regions.clear();
+    cache.generation = cache.generation.wrapping_add(1);
     cache.discs.clear();
     cache.revision = state.revision;
     cache.bounds = *bounds;

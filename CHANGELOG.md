@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Add circuit hover explanations for gates, control/target symbols, measurements,
+  classical feedback and wires, with bounded tooltips shared by native and WebGPU.
+
 ## 0.4.0 — 2026-11-10
 
 - Align experiment navigation titles, allow wrapped rows to grow, and keep browser

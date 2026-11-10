@@ -8,6 +8,7 @@ mod learning;
 mod plot;
 mod state;
 pub(crate) mod theme;
+mod tooltip;
 mod ui;
 use bevy::prelude::*;
 /// Installs responsive Feathers controls and scientific views.
@@ -16,8 +17,9 @@ impl Plugin for ExplorerViewPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<plot::CanvasBounds>()
             .init_resource::<plot::PlotCache>()
+            .init_resource::<tooltip::HoverState>()
             .init_resource::<state::surface::BlochSurfaces>()
-            .add_systems(Startup, ui::setup)
+            .add_systems(Startup, (ui::setup, tooltip::setup))
             .add_systems(
                 Update,
                 (
@@ -26,6 +28,7 @@ impl Plugin for ExplorerViewPlugin {
                     input::touch,
                     ui::sync_controls,
                     plot::rebuild,
+                    tooltip::update,
                     plot::draw,
                 )
                     .chain(),

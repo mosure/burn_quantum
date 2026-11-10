@@ -30,6 +30,8 @@ pub(super) fn update(
     state: Res<Explorer>,
     experiment: Res<Experiment>,
     cache: Res<super::plot::PlotCache>,
+    hover: Res<super::tooltip::HoverState>,
+    tooltip: Query<(&ComputedNode, &UiGlobalTransform, &Visibility), With<super::tooltip::Tooltip>>,
     bounds: Res<super::plot::CanvasBounds>,
     entities: Query<Entity>,
     controls: Query<ControlNode>,
@@ -59,7 +61,7 @@ pub(super) fn update(
         let center=transform.affine().translation*scale;let rect=Rect::from_center_size(center,size);
         Some(serde_json::json!({"rect":[rect.min.x,rect.min.y,rect.max.x,rect.max.y],"viewport_height":size.y,"content_height":node.content_size().y*scale,"offset_y":offset.y}))
     }).collect::<Vec<_>>();
-    let value = serde_json::json!({
+    let mut value = serde_json::json!({
         "scroll_regions":scroll_regions,
         "controls":controls,
         "plot_hits":cache.hits.iter().map(|(r,h)|serde_json::json!({"action":format!("{h:?}"),"rect":[r.min.x,r.min.y,r.max.x,r.max.y]})).collect::<Vec<_>>(),
@@ -101,5 +103,14 @@ pub(super) fn update(
         "title": experiment.document.as_ref().map(|d|d.title.as_str()),
         "status":state.status,
     });
+    value["hover_regions"] = cache.hover_regions.iter().map(|h|serde_json::json!({"title":h.title,"summary":h.summary,"rect":[h.rect.min.x,h.rect.min.y,h.rect.max.x,h.rect.max.y]})).collect();
+    value["tooltip"] = hover.shown.as_ref().zip(hover.rect).and_then(|(h,_)| {
+        let (node,transform,visibility)=tooltip.single().ok()?;
+        if *visibility==Visibility::Hidden {return None;}
+        let size=node.size()*node.inverse_scale_factor();
+        let center=transform.affine().translation*node.inverse_scale_factor();
+        let rect=Rect::from_center_size(center,size);
+        Some(serde_json::json!({"title":h.title,"summary":h.summary,"rect":[rect.min.x,rect.min.y,rect.max.x,rect.max.y]}))
+    }).unwrap_or(serde_json::Value::Null);
     SNAPSHOT.with(|snapshot| *snapshot.borrow_mut() = value.to_string());
 }

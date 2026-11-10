@@ -87,6 +87,11 @@ the camera and **G** toggles guides. Focused Feathers widgets retain their norma
 keyboard behavior. Playback cycles through 0.5–4× and stops at the last frame.
 Fabric schedule ticks remain independent of quantum circuit steps.
 
+Hover a circuit gate or symbol for its name and a brief explanation. Help also
+distinguishes quantum controls, X targets, measurements, classical feedback and
+ordered matrix ports. It appears after a short pause, stays within the window,
+and leaves the selected gate and timeline unchanged.
+
 The native controls and browser shell follow the `burn_gekko` controller theme:
 charcoal surfaces, rose selections, thin borders and compact labels.
 [`view/theme.rs`](https://github.com/mosure/burn_quantum/blob/main/crates/burn_quantum_visualization/src/view/theme.rs)
@@ -272,7 +277,9 @@ site. The script renders all fifteen experiments and checks real widget clicks,
 keyboard focus, import/export, complete URL restoration, bounded entity counts,
 responsive layouts, touch input, unsupported graphics and device loss. It writes
 results under `artifacts/visualization/browser`; `VISUALIZATION_ARTIFACTS` changes
-the output directory. To include the larger imported-register checks, generate
+the output directory. `node scripts/validate_circuit_hover.cjs` uses the same
+browser environment variables for focused gate-help, overlapping-control and
+narrow-window checks. To include the larger imported-register checks, generate
 the fixture expected by the script:
 
 ```sh

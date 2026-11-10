@@ -13,6 +13,7 @@ use crate::{
 use bevy::prelude::*;
 use burn_quantum::protocol::Instruction;
 struct Step {
+    operation: Option<usize>,
     symbol: Option<GateSymbol>,
     measurement: Option<(usize, usize)>,
     conditions: Vec<(usize, usize)>,
@@ -60,6 +61,10 @@ fn steps(doc: &VisualizationDocument) -> Vec<Step> {
             let column = *next[min..=max].iter().max().unwrap();
             next[min..=max].fill(column + 1);
             Step {
+                operation: match i {
+                    Instruction::Gate { operation, .. } => Some(*operation),
+                    Instruction::Measure { .. } => None,
+                },
                 symbol,
                 measurement,
                 conditions,
@@ -143,6 +148,18 @@ pub(super) fn build(
             cursor = cursor.max(right);
         }
         line(p, cursor.max(bounds.min.x + 52.), bounds.max.x - 10.);
+        p.hover(
+            Rect::from_corners(
+                Vec2::new(bounds.min.x + 10., y - 7.),
+                Vec2::new(bounds.max.x - 10., y + 7.),
+            ),
+            if wire < n { format!("Quantum wire q{wire}") } else { format!("Classical bit c{}", wire - n) },
+            if wire < n {
+                format!("A {}-level subsystem. Read its operations from left to right; q0 is the most significant register digit.", doc.circuit.register().dimensions()[wire])
+            } else {
+                "The double line carries a recorded measurement value to later classical controls.".into()
+            },
+        );
         p.text(
             Vec2::new(bounds.min.x + 24., y),
             if wire < n {
@@ -168,6 +185,27 @@ pub(super) fn build(
             continue;
         }
         visible += 1;
+        let mut explanation = step
+            .operation
+            .map(|operation| diagram::explain(&doc.circuit.operations()[operation]));
+        if !step.conditions.is_empty()
+            && let Some(help) = &mut explanation
+        {
+            let conditions = step
+                .conditions
+                .iter()
+                .take(3)
+                .map(|(bit, value)| format!("c{bit} = {value}"))
+                .collect::<Vec<_>>()
+                .join(", ");
+            let rest = if step.conditions.len() > 3 {
+                format!(", and {} more conditions", step.conditions.len() - 3)
+            } else {
+                String::new()
+            };
+            help.summary
+                .push_str(&format!(" Runs only when {conditions}{rest}."));
+        }
         let color = if state.gate == Some(index) {
             GOLD
         } else if state.frame > index || doc.trace.kind == TraceKind::Optimization {
@@ -190,6 +228,18 @@ pub(super) fn build(
                 GOLD,
             );
             let value = doc.protocol.as_ref().unwrap().outcomes[bit];
+            let title = format!("Measurement · q{wire} → c{bit}");
+            let summary = format!(
+                "Measures q{wire} in the computational basis and records c{bit}, collapsing the state. This displayed branch has c{bit} = {value}."
+            );
+            let a = at(step.column, wire);
+            let b = at(step.column, n + bit);
+            p.hover(
+                Rect::from_corners(a.min(b) - Vec2::splat(7.), a.max(b) + Vec2::new(30., 12.)),
+                &title,
+                &summary,
+            );
+            p.hover(rect(step.column, wire), title, summary);
             p.text(
                 at(step.column, n + bit) + Vec2::new(18., -10.),
                 value.to_string(),
@@ -198,17 +248,32 @@ pub(super) fn build(
             );
         }
         if let Some(symbol) = &step.symbol {
+            let help = explanation.as_ref().unwrap();
+            let wires = symbol.wires();
+            let low = *wires.iter().min().unwrap();
+            let high = *wires.iter().max().unwrap();
+            let region = if matches!(symbol, GateSymbol::Box { .. }) {
+                Rect::from_corners(rect(step.column, low).min, rect(step.column, high).max)
+            } else {
+                Rect::from_corners(
+                    at(step.column, low) - Vec2::splat(7.),
+                    at(step.column, high) + Vec2::splat(7.),
+                )
+            };
+            p.hover(region, &help.title, &help.summary);
             match symbol {
                 GateSymbol::ControlledX { controls, target } => {
                     let wires = symbol.wires();
                     connector(p, &wires, |w| at(step.column, w), color);
                     for &(w, v) in controls {
                         control(p, at(step.column, w), v, color);
+                        control_help(p, rect(step.column, w), w, v, help);
                     }
                     let pos = at(step.column, *target);
                     p.circle(pos, 10., color);
                     p.line(pos - Vec2::X * 10., pos + Vec2::X * 10., color);
                     p.line(pos - Vec2::Y * 10., pos + Vec2::Y * 10., color);
+                    p.hover(rect(step.column, *target), format!("{} · target q{target}", help.title), "The circled plus is the X target: it flips |0⟩ ↔ |1⟩ when every connected control matches.");
                 }
                 GateSymbol::Swap(w) => {
                     connector(p, w, |w| at(step.column, w), color);
@@ -216,6 +281,7 @@ pub(super) fn build(
                         let pos = at(step.column, wire);
                         p.line(pos - Vec2::splat(7.), pos + Vec2::splat(7.), color);
                         p.line(pos + Vec2::new(-7., 7.), pos + Vec2::new(7., -7.), color);
+                        p.hover(rect(step.column, wire), &help.title, &help.summary);
                     }
                 }
                 GateSymbol::ControlledPhase {
@@ -231,15 +297,19 @@ pub(super) fn build(
                         color,
                     );
                     control(p, from, 1, color);
+                    control_help(p, rect(step.column, *c), *c, 1, help);
                     box_at(p, *target, format!("P({angle:.2})"));
+                    p.hover(rect(step.column, *target), &help.title, &help.summary);
                 }
                 GateSymbol::PhaseFlip(controls) => {
                     if controls.is_empty() {
-                        box_at(p, 0, "−I".into())
+                        box_at(p, 0, "−I".into());
+                        p.hover(rect(step.column, 0), &help.title, &help.summary);
                     } else {
                         connector(p, &symbol.wires(), |w| at(step.column, w), color);
                         for &(w, v) in controls {
                             control(p, at(step.column, w), v, color);
+                            control_help(p, rect(step.column, w), w, v, help);
                         }
                     }
                 }
@@ -273,6 +343,25 @@ pub(super) fn build(
                 let b = at(step.column, wire) + Vec2::Y * height / 2.;
                 double(p, a, b, GOLD);
                 control(p, a, value, GOLD);
+                let title = format!("Classical control · c{bit} = {value}");
+                let summary = format!(
+                    "The double wire carries a measured value. Applies {} only when c{bit} = {value} and all other classical conditions match.",
+                    help.title
+                );
+                p.hover(
+                    Rect::from_corners(a.min(b) - Vec2::splat(7.), a.max(b) + Vec2::splat(7.)),
+                    &title,
+                    &summary,
+                );
+            }
+            // Endpoint symbols take precedence over every classical connector,
+            // including connectors crossing another condition's classical row.
+            for &(bit, value) in &step.conditions {
+                p.hover(
+                    rect(step.column, n + bit),
+                    format!("Classical control · c{bit} = {value}"),
+                    format!("The double wire carries a measured value. Applies {} only when c{bit} = {value} and all other classical conditions match.", help.title),
+                );
             }
         }
         let wires = step
@@ -311,8 +400,29 @@ pub(super) fn build(
         TEXT,
     );
     p.description = format!(
-        "{visible} visible / {} steps · {columns} columns\n{n} quantum + {bits} classical wires\nDrag to pan · scroll to zoom · timeline follows execution",
+        "{visible} visible / {} steps · {columns} columns\n{n} quantum + {bits} classical wires\nHover symbols for help · drag to pan · scroll to zoom",
         diagram.len()
+    );
+}
+fn control_help(
+    p: &mut PlotCache,
+    rect: Rect,
+    wire: usize,
+    value: usize,
+    help: &diagram::GateExplanation,
+) {
+    let mark = match value {
+        0 => "Open dot",
+        1 => "Filled dot",
+        _ => "Level marker",
+    };
+    p.hover(
+        rect,
+        format!("{} · control q{wire}", help.title),
+        format!(
+            "{mark}: acts coherently on components with q{wire} = |{value}⟩. {}",
+            help.summary
+        ),
     );
 }
 fn blocks(step: &Step, wire: usize) -> bool {

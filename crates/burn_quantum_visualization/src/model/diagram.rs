@@ -1,4 +1,7 @@
 //! Semantic circuit notation, derived from checked operations rather than prose labels.
+mod help;
+pub use help::{GateExplanation, explain};
+
 use burn_quantum::{Angle, Operation, Unitary};
 /// Canonical drawing primitive for a quantum operation.
 #[derive(Clone, Debug, PartialEq)]
