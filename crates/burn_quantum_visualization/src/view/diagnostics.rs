@@ -3,6 +3,15 @@ use crate::app::{Experiment, Explorer, ViewMode};
 use bevy::prelude::*;
 use std::cell::RefCell;
 
+type ControlNode = (
+    &'static ComputedNode,
+    &'static UiGlobalTransform,
+    Option<&'static super::ui::Action>,
+    Option<&'static super::ui::Scrubber>,
+    Has<bevy::ui::Pressed>,
+    Has<bevy::ui::InteractionDisabled>,
+);
+
 thread_local! {
     static SNAPSHOT: RefCell<String> = const { RefCell::new(String::new()) };
 }
@@ -23,14 +32,7 @@ pub(super) fn update(
     cache: Res<super::plot::PlotCache>,
     bounds: Res<super::plot::CanvasBounds>,
     entities: Query<Entity>,
-    controls: Query<(
-        &ComputedNode,
-        &UiGlobalTransform,
-        Option<&super::ui::Action>,
-        Option<&super::ui::Scrubber>,
-        Has<bevy::ui::Pressed>,
-        Has<bevy::ui::InteractionDisabled>,
-    )>,
+    controls: Query<ControlNode>,
     scrolls: Query<
         (&ComputedNode, &UiGlobalTransform, &ScrollPosition),
         With<bevy::ui_widgets::ScrollArea>,

@@ -34,6 +34,10 @@ const report = {url:base, timestamp:new Date().toISOString(), demos:[], interact
  try {
   report.browser = browser.version();
   const page = await browser.newPage({viewport:{width:1600,height:1200},deviceScaleFactor:1});
+  // Headful WebGPU tests share a desktop with other apps. Keep this page active
+  // so an unrelated window taking focus cannot cancel a held widget press.
+  const focusSession=await page.context().newCDPSession(page);
+  await focusSession.send('Emulation.setFocusEmulationEnabled',{enabled:true});
   page.on('pageerror', error => report.errors.push(String(error)));
   report.navigation=[];page.on('framenavigated',frame=>{if(frame===page.mainFrame())report.navigation.push({url:frame.url(),time:Date.now()});});
   page.on('console', message => {if(message.type()==='error') report.errors.push(message.text());});
@@ -61,7 +65,7 @@ const report = {url:base, timestamp:new Date().toISOString(), demos:[], interact
    const hovered=await diag();
    await page.mouse.down();
    if(d.controls.some(c=>c.action===action) && !control.disabled) {
-    await page.waitForFunction(action=>JSON.parse(window.__qaApi.diagnostics_json()).controls.find(c=>c.action===action)?.pressed,action,{timeout:10000});
+    try{await page.waitForFunction(action=>JSON.parse(window.__qaApi.diagnostics_json()).controls.find(c=>c.action===action)?.pressed,action,{timeout:10000});}catch(error){const last=await diag();report.failed_click={action,before:d,pressed:last,last,events:await page.evaluate(()=>window.__qaPointer),browser:await page.evaluate(()=>({focused:document.hasFocus(),width:innerWidth,height:innerHeight,scroll:scrollY,dpr:devicePixelRatio}))};await page.screenshot({path:path.join(out,'failed-click.png'),fullPage:true});throw error;}
    } else {
     await page.waitForFunction(frame=>JSON.parse(window.__qaApi.diagnostics_json()).app_frames>frame+2,hovered.app_frames);
    }
@@ -184,6 +188,8 @@ const report = {url:base, timestamp:new Date().toISOString(), demos:[], interact
   assert.ok(await unavailable.locator('#native-link').isVisible());await unavailable.screenshot({path:path.join(out,'unsupported.png')});await unavailable.close();
   report.interactions.push('unsupported WebGPU displays native fallback');
   const lost=await browser.newPage({viewport:{width:390,height:1000},hasTouch:true,isMobile:true});
+  const touchFocus=await lost.context().newCDPSession(lost);
+  await touchFocus.send('Emulation.setFocusEmulationEnabled',{enabled:true});
   await lost.addInitScript(()=>{const request=GPUAdapter.prototype.requestDevice;GPUAdapter.prototype.requestDevice=async function(...args){const device=await request.apply(this,args);(window.__qaDevices??=[]).push(device);return device;};});
   await lost.goto(base);await lost.waitForFunction(()=>window.__burnQuantumStatus?.state==='ready');
   report.touch=await exerciseTouch(lost);report.interactions.push('two-finger touch pinch and Feathers touch activation');
