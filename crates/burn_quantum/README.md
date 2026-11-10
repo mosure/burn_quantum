@@ -11,7 +11,7 @@ using supported Burn devices. The public API accepts native `Tensor<D>` and
 
 ```toml
 [dependencies]
-burn_quantum = "0.2.0"
+burn_quantum = "0.3.0"
 burn = { version = "~0.22.1", default-features = false, features = ["std", "flex"] }
 ```
 
@@ -42,14 +42,14 @@ fn main() -> burn_quantum::Result<()> {
 - Reusable encodings, circuit templates, probability losses and fidelity kernels.
 - Quantum natural SPSA with a regularized Fubini–Study metric and checkpoints.
 - Boolean CNF/DIMACS SAT search with reversible oracles and verified witnesses.
-- In the unreleased checkout, `photonic` adds dual-rail/vacuum encoding, loss,
+- `photonic` adds dual-rail/vacuum encoding, loss,
   Fock optics, calibrated fusions, physical circuit compilation, finite fabric
   scheduling, Clifford/frame simulation, encoded resources, QEC memories,
   finite boundaries, logical/magic-state references and bounded event/process execution.
   A separate `tensor_network` module supplies mixed-qudit MPS and distributed
   entangled-state ownership, with explicit approximation and host-SVD limits. See the
   [implemented models and remaining gates](https://github.com/mosure/burn_quantum/blob/main/docs/photonic-status.md).
-  The published 0.2.0 release predates this addition.
+  These capabilities are included in version 0.3.0.
 
 Default features are `flex` and `autodiff`. Optional `wgpu`, `cuda` and `fusion`
 features select accelerator capabilities; callers supply the execution device.

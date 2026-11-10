@@ -33,7 +33,7 @@ See [Burn's migration guide](https://burn.dev/books/burn/migrating-to-0.22.html)
   bounded unknown-solution-count search, and verified candidate assignments.
 - Matrix-product states for large low-entanglement qubit/qudit circuits, with
   explicit truncation budgets, Kraus trajectories and distributed tensor ownership.
-- Photonic computing in this **unreleased checkout**: dual-rail/Fock optics,
+- Photonic computing: dual-rail/Fock optics,
   calibrated standard/boosted fusion, universal bounded gate synthesis, finite
   fabric routing, encoded QEC references, measured learning protocols and local jobs.
 
@@ -41,12 +41,15 @@ See [Burn's migration guide](https://burn.dev/books/burn/migrating-to-0.22.html)
 
 Open the [live quantum explorer](https://mosure.github.io/burn_quantum/) to inspect
 Bell/GHZ entanglement, interference, qutrits, photonic routing and quantum natural
-SPSA. The new [`burn_quantum_visualization`](crates/burn_quantum_visualization/README.md)
+SPSA. The [`burn_quantum_visualization`](crates/burn_quantum_visualization/README.md)
 crate shares a Bevy/Feathers interface between native and WebGPU browsers: Bloch
 balls, circuit diagrams, physical routing, optimizer history and a synchronized
 timeline. Validated JSON documents connect your own experiments to the same views.
 
 ```sh
+cargo install burn_quantum_visualization --version 0.3.0 --locked
+quantum_explorer
+# Or run the viewer and embedding example from this workspace:
 cargo run --locked -p burn_quantum_visualization --bin quantum_explorer
 cargo run --locked -p burn_quantum_visualization --example embedded
 ```
@@ -118,8 +121,8 @@ Read the [capability and acceptance map](docs/photonic-status.md),
 and [original staged roadmap](docs/photonic-roadmap.md). Model-specific logical
 references do not establish a hardware threshold or a production fault-tolerant
 fabric compiler. PsiQuantum is the long-term hardware target; execution here is
-local. These additions require a repository checkout and are not in published
-version 0.2.0.
+local. These library capabilities are included in version 0.3.0; the application
+suite and qualification scripts are run from a repository checkout.
 
 ## Quantum natural SPSA
 
@@ -157,7 +160,7 @@ does not establish quantum advantage. See the [SAT API and algorithm guide](docs
 
 ```toml
 [dependencies]
-burn_quantum = "0.2.0"
+burn_quantum = "0.3.0"
 burn = { version = "~0.22.1", default-features = false, features = ["std", "flex"] }
 ```
 

@@ -7,6 +7,9 @@ license.workspace = true
 repository.workspace = true
 description = "Interactive Bevy workbench for quantum circuits, states, photonic fabrics and optimization"
 readme = "README.md"
+keywords = ["quantum", "visualization", "bevy", "simulation", "burn"]
+categories = ["science", "simulation", "visualization"]
+include = ["src/**", "examples/**", "tests/**", "Cargo.toml", "Cargo.lock", "README.md", "LICENSE-*"]
 
 [features]
 default = ["viewer"]
@@ -14,7 +17,7 @@ viewer = ["dep:bevy", "dep:wasm-bindgen", "dep:wasm-bindgen-futures", "dep:web-s
 gpu-bridge = ["viewer", "burn/wgpu", "dep:burn-wgpu", "dep:burn-cubecl"]
 
 [dependencies]
-burn_quantum = { path = "../burn_quantum", default-features = false }
+burn_quantum = { version = "0.3.0", path = "../burn_quantum", default-features = false }
 burn = { workspace = true, features = ["flex"] }
 serde.workspace = true
 serde_json.workspace = true

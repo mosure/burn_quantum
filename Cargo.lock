@@ -2875,7 +2875,7 @@ dependencies = [
 
 [[package]]
 name = "burn_quantum"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "burn",
  "nalgebra",
@@ -2889,7 +2889,7 @@ dependencies = [
 
 [[package]]
 name = "burn_quantum_example"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "burn",
  "burn_quantum",
@@ -2901,7 +2901,7 @@ dependencies = [
 
 [[package]]
 name = "burn_quantum_visualization"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "bevy",
  "burn",

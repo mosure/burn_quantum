@@ -1,6 +1,17 @@
 # Changelog
 
-## Unreleased
+## 0.3.0 — 2026-11-10
+
+- Publish `burn_quantum_visualization`: a reusable Bevy/Feathers native and WebGPU
+  workbench with Bloch spheres, circuit/fabric diagrams, optimization histories,
+  bounded timelines, validated JSON interchange and six executable experiments.
+- Add optional shared Burn/Bevy WGPU buffer leases, with actual GPU-rendering and
+  CPU/GPU numerical-parity validation. The gallery uses cached CPU traces.
+- Deploy the interactive gallery to GitHub Pages with build provenance. Match the
+  controller's charcoal/rose theme, preserve native timeline space and order
+  overlapping probability fills explicitly.
+- Require Rust 1.97.1 for the visualization crate; the core retains Rust 1.95.
+  The executable examples crate remains an unpublished workspace package.
 
 - Add local growing-distance XX/ZZ merge/split, measurement-only logical CNOT,
   complete noisy transition detectors and observed-record physical recovery.

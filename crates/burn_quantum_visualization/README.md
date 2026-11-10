@@ -12,7 +12,14 @@ cargo run --locked -p burn_quantum_visualization --example embedded
 ```
 
 Rust 1.97.1 is required by the viewer. The core library keeps its Rust 1.95 MSRV.
-This new crate is available from this repository checkout.
+Install the native application from crates.io:
+
+```sh
+cargo install burn_quantum_visualization --version 0.3.0 --locked
+quantum_explorer
+```
+
+To embed the viewer, add `burn_quantum_visualization = "0.3.0"` to your dependencies.
 
 ## Explore
 
@@ -44,8 +51,8 @@ schedule ticks independently of quantum circuit steps.
 
 The native controls and browser shell follow the `burn_gekko` controller theme:
 warm charcoal surfaces, muted rose selections, thin borders and compact labels.
-[`view/theme.rs`](src/view/theme.rs) owns the Feathers semantic colors, including
-hover, pressed, disabled and keyboard-focus states; [`web/index.html`](../../web/index.html)
+[`view/theme.rs`](https://github.com/mosure/burn_quantum/blob/main/crates/burn_quantum_visualization/src/view/theme.rs) owns the Feathers semantic colors, including
+hover, pressed, disabled and keyboard-focus states; [`web/index.html`](https://github.com/mosure/burn_quantum/blob/main/web/index.html)
 mirrors the surface and accent tokens. Scientific plots retain separate cyan,
 amber and blue series and a cyclic phase legend. Plot guides use a brighter
 neutral than panel borders so fine geometry remains visible.
@@ -56,7 +63,7 @@ The core simulation crate has no Bevy dependency. `model::VisualizationDocument`
 is a versioned, owned record containing a `Circuit`, parameter/input bindings,
 labels and an `ExperimentTrace`; optional fabric/optimization records attach
 physical or learning context. Build a document and call `app::run_document`.
-The complete [embedded example](examples/embedded.rs) shows the integration.
+The complete [embedded example](https://github.com/mosure/burn_quantum/blob/main/crates/burn_quantum_visualization/examples/embedded.rs) shows the integration.
 
 Use `simulation::simulate` for actual circuit-prefix execution, or
 `snapshot_pure` / `snapshot_density` to adapt a state from another experiment.
@@ -68,7 +75,7 @@ provenance of an externally supplied trace.
 For analysis and interchange without a renderer:
 
 ```toml
-burn_quantum_visualization = { path = "../burn_quantum_visualization", default-features = false }
+burn_quantum_visualization = { version = "0.3.0", default-features = false }
 ```
 
 The browser's Import/Export buttons exchange validated JSON. Native equivalents:
@@ -111,7 +118,7 @@ rejected. The caller supplies the shader/pipeline and must not write the buffer.
 This optional path avoids a host value readback for eligible existing GPU data.
 The tutorial gallery uses Flex CPU simulation and cached host snapshots. It does
 not automatically turn arbitrary dense readouts into zero-copy textures. The
-[render proof](tests/gpu_bridge.rs) computes a Burn color, renders directly from
+[render proof](https://github.com/mosure/burn_quantum/blob/main/crates/burn_quantum_visualization/tests/gpu_bridge.rs) computes a Burn color, renders directly from
 that allocation, and reads back only the final image to verify its pixels.
 
 ## Browser build and validation
@@ -139,7 +146,7 @@ cargo run --locked -p burn_quantum_visualization --no-default-features --example
 Native screenshot automation uses `--screenshot /absolute/path.png` (captures the
 application after initialization and exits). Architecture, acceptance gates and
 further scale-out work are recorded in the
-[plan](../../docs/visualization-plan.md).
+[plan](https://github.com/mosure/burn_quantum/blob/main/docs/visualization-plan.md).
 
 Browser regression checks use `scripts/validate_visualization.cjs` with Playwright
 1.63.0 and a working WebGPU adapter. Configure `PLAYWRIGHT_MODULE` if Playwright
@@ -151,5 +158,5 @@ release profile for comparison. `VISUALIZATION_URL` selects a local or deployed
 site. The script saves all six rendered experiments, checks real widget clicks,
 keyboard focus, import/export, bounded entity counts, narrow layout and unsupported
 graphics, and writes measured results under `artifacts/visualization/browser`.
-See the [validation record](../../docs/visualization-validation.md) for the tested
+See the [validation record](https://github.com/mosure/burn_quantum/blob/main/docs/visualization-validation.md) for the tested
 adapter, numerical tolerances and performance evidence.
