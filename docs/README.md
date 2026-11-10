@@ -1,7 +1,10 @@
 # Documentation
 
 The [interactive quantum workbench](../crates/burn_quantum_visualization/README.md)
-adds Bevy/Feathers state, circuit, photonic fabric and learning views. Its
+provides Bevy/Feathers probability/phase disks, Bloch spheres, circuit diagrams,
+photonic fabrics and learning views. View settings and timeline selections are
+shareable through URLs. Open the [live explorer](https://mosure.github.io/burn_quantum/)
+or see the [configurable catalog](visualization-catalog.md). Its
 [architecture and acceptance plan](visualization-plan.md) records the scientific
 contracts, native/browser delivery and GPU interoperability boundaries.
 

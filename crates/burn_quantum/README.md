@@ -11,7 +11,7 @@ using supported Burn devices. The public API accepts native `Tensor<D>` and
 
 ```toml
 [dependencies]
-burn_quantum = "0.3.0"
+burn_quantum = "0.4.0"
 burn = { version = "~0.22.1", default-features = false, features = ["std", "flex"] }
 ```
 
@@ -49,7 +49,6 @@ fn main() -> burn_quantum::Result<()> {
   A separate `tensor_network` module supplies mixed-qudit MPS and distributed
   entangled-state ownership, with explicit approximation and host-SVD limits. See the
   [implemented models and remaining gates](https://github.com/mosure/burn_quantum/blob/main/docs/photonic-status.md).
-  These capabilities are included in version 0.3.0.
 
 Default features are `flex` and `autodiff`. Optional `wgpu`, `cuda` and `fusion`
 features select accelerator capabilities; callers supply the execution device.
@@ -61,38 +60,6 @@ Allocation limits are preflight checks, not a total memory cap. SAT search may
 return `Inconclusive` when its budget is exhausted. QN-SPSA's dense host metric
 uses O(d²) storage and an O(d³) solve for d parameters. These implementations do
 not establish quantum advantage or efficient simulation of arbitrary circuits.
-
-## Package and repository
-
-This package owns `src/`, integration `tests/`, simulator `examples/`, and the
-executable-only `support/device.rs` helper. From a repository checkout:
-
-```sh
-cargo run --locked -p burn_quantum --example bell
-cargo test --locked -p burn_quantum
-cargo check --locked -p burn_quantum --no-default-features
-cargo run --locked -p burn_quantum --features wgpu --example wgpu_smoke
-```
-
-The sibling `burn_quantum_example` package contains single-file quantum
-applications, including VQE, QAOA, classifiers, a Born machine, hybrid
-regression, Grover SAT, QN-SPSA VQE, physical photonic optimization, finite-boundary
-QEC studies, magic-state distillation and distributed MPS workloads.
-It is run from a repository checkout:
-
-```sh
-cargo run --locked -p burn_quantum_example --bin qnspsa_vqe
-cargo run --locked -p burn_quantum_example --bin fbqc_bell_swap
-```
-
-See the [API documentation](https://docs.rs/burn_quantum),
-[example suite](https://github.com/mosure/burn_quantum/tree/main/crates/burn_quantum_example),
-[guides and validation records](https://github.com/mosure/burn_quantum/tree/main/docs),
-and [changelog](https://github.com/mosure/burn_quantum/blob/main/CHANGELOG.md).
-
-## License
-
-MIT OR Apache-2.0. Both license texts are included in this package.
 
 ## Canonical algorithms and dynamic protocols
 
@@ -108,3 +75,41 @@ executes a supplied outcome branch incrementally, reports its cumulative
 probability, and normalizes the actually collapsed state. Impossible branches are
 errors. This is explicit branch execution, not random shot sampling or a claim
 that requested measurement outcomes occur deterministically.
+
+## Package and repository
+
+This package owns `src/`, integration `tests/`, simulator `examples/`, and the
+executable-only `support/device.rs` helper. From a repository checkout:
+
+```sh
+cargo run --locked -p burn_quantum --example bell
+cargo test --locked -p burn_quantum
+cargo check --locked -p burn_quantum --no-default-features
+cargo run --locked -p burn_quantum --features wgpu --example wgpu_smoke
+```
+
+The unpublished sibling `burn_quantum_example` package contains single-file
+applications, including canonical circuits, VQE, QAOA, classifiers, a Born
+machine, hybrid regression, Grover SAT, QN-SPSA VQE, physical photonic optimization,
+finite-boundary QEC studies, magic-state distillation and distributed MPS workloads.
+Run it from a repository checkout:
+
+```sh
+cargo run --locked -p burn_quantum_example --bin qnspsa_vqe
+cargo run --locked -p burn_quantum_example --bin fbqc_bell_swap
+```
+
+See the [API documentation](https://docs.rs/burn_quantum),
+[example suite](https://github.com/mosure/burn_quantum/tree/main/crates/burn_quantum_example),
+[guides and validation records](https://github.com/mosure/burn_quantum/tree/main/docs),
+and [changelog](https://github.com/mosure/burn_quantum/blob/main/CHANGELOG.md).
+
+The separate [`burn_quantum_visualization`](https://crates.io/crates/burn_quantum_visualization)
+crate provides a native and browser explorer for these experiments, with Bloch
+spheres, probability/phase disks, circuit diagrams and photonic timelines.
+It requires Rust 1.97.1; the core crate remains usable with Rust 1.95.
+Try the [interactive gallery](https://mosure.github.io/burn_quantum/).
+
+## License
+
+MIT OR Apache-2.0. Both license texts are included in this package.

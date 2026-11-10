@@ -1,8 +1,21 @@
 # burn_quantum_visualization
 
-A Bevy 0.20 / Feathers workbench for actual `burn_quantum` experiments, with a
-shared native and WebGPU interface. Open the
-[live gallery](https://mosure.github.io/burn_quantum/) or run it locally:
+A Bevy 0.20 / Feathers workbench for `burn_quantum` circuits, states, photonic
+fabrics and optimization traces. It shares one interface across native and WebGPU
+runtimes. Open the [live explorer](https://mosure.github.io/burn_quantum/) or
+install the native application:
+
+```sh
+cargo install burn_quantum_visualization --version 0.4.0 --locked
+quantum_explorer
+quantum_explorer --demo mixed --step 6 --bloch 2d
+```
+
+This crate requires Rust 1.97.1, including builds without the viewer. The separate
+`burn_quantum` core crate supports Rust 1.95. To embed the workbench, add
+`burn_quantum_visualization = "0.4.0"` to your dependencies.
+
+From a repository checkout:
 
 ```sh
 cargo run --locked -p burn_quantum_visualization --bin quantum_explorer
@@ -11,27 +24,17 @@ cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --dem
 cargo run --locked -p burn_quantum_visualization --example embedded
 ```
 
-Rust 1.97.1 is required by the viewer. The core library keeps its Rust 1.95 MSRV.
-Install the native application from crates.io:
-
-```sh
-cargo install burn_quantum_visualization --version 0.3.0 --locked
-quantum_explorer
-```
-
-To embed the viewer, add `burn_quantum_visualization = "0.3.0"` to your dependencies.
-
 ## Explore
 
 Fifteen experiments cover Bell/GHZ states, mixed qubit/qutrit registers, interference,
 teleportation, Toffoli, QFT, Deutsch–Jozsa, QPE, Grover, QAOA MaxCut, bit-flip
 correction, compiled photonic routing and quantum natural SPSA.
-Each experiment is built once through core Burn APIs. Changing views or scrubbing
-a cached timeline does not rerun its simulation.
+Each loaded configuration is simulated once through core Burn APIs. Changing
+views or scrubbing a cached timeline does not rerun its simulation.
 
 | View | Meaning |
 | --- | --- |
-| State | Parallel reduced-state panels, direct subsystem selection, qudit populations; focused joint probabilities and complex phase |
+| State | Parallel reduced-state panels, direct subsystem selection, qudit populations; focused joint probabilities and amplitude phase |
 | Circuit | Semantic gate symbols, conservative parallel columns, SWAPs, control levels, measurement and double classical wires |
 | Photonic fabric | Resource ownership, held outputs, paired optical rails, switches, destructive fusion analyzers and per-photon travel/wait timelines |
 | Learning | Actual QN-SPSA parameter iterates, objective history and cumulative probe costs |
@@ -42,62 +45,77 @@ bins retain all mass; aggregation does not pretend to retain one complex phase.
 The photonic demo separates resource preparation from physical routing: moving
 dots show scheduled travel, not sampled photon detection or a successful fusion.
 
-Use the view tabs, experiment selector, directly clickable subsystem panels and timeline.
-Register overview displays many states together and provides groups when a small
-viewport cannot fit them legibly. Focus retains joint probabilities.
-Shared orbit/zoom and playback update all visible states together. The tighter
-register grid centers compact tiles instead of stretching large boxes. **3D** uses
-an orthographic sphere with shaded surfaces, depth-cued great circles and orbit;
-**2D probability** uses a phase disk: the colored area fraction equals the
-computational-basis probability `P(1) = (1-z)/2` (radius `R * sqrt(P(1))`).
-The hand angle is the coherence phase `atan2(y,x)` and its length is
-`R * sqrt(x²+y²) = R * 2|rho01|`. Phase is undefined at the poles and for
-incoherent mixtures, so no hand is drawn there. `P(1)`, phase, and purity are
-reported independently; a 50/50 pure superposition and a maximally mixed state
-have equal fill areas but different hands and purity. Trails trace earlier hand
-tips. This follows the local-state [phase-disk convention](https://quantum.cloud.ibm.com/docs/en/guides/composer#phase-disk), with explicit area scaling.
-**Projection** retains selectable XY/XZ/YZ coordinate disks and labels the
-omitted coordinate. A short projected vector need not be mixed: use the full
-purity/hidden component. 3D spheres label the computational poles `|0>` and
-`|1>` and retain the canonical Bloch vector inside the unit ball.
-**Settings** contains projection modes, planes, guides, trails, playback speed and experiment configuration. **Focus** toggles the selected subsystem and joint probabilities. The default toolbar shows only the relevant views and primary actions. **Trails** enables history explicitly. Qudit population panels retain their meaning
-in either mode. Two shared analytic surface textures are uploaded once; no
-per-qubit render targets, cameras or tensor readbacks are introduced. Click the
-plot to use global keyboard shortcuts; focused Feathers widgets retain their
-normal keyboard behavior. Space toggles
-playback, left/right arrows step, R resets the view and G toggles guides. Drag the
-sphere to orbit; drag other diagrams to pan; scroll to zoom. The speed control
-cycles through 0.5–4×. The timeline stops at the final frame. Fabric playback uses
-schedule ticks independently of quantum circuit steps.
+Use the experiment list, view tabs, clickable subsystem panels and timeline.
+Narrow browser windows use an experiment selector; compact native windows use
+**Next experiment**. The list keeps titles left-aligned and
+lets wrapped rows grow. Register overview displays many reduced states together;
+small viewports divide them into selectable groups. **Focus** shows the selected
+subsystem alongside the joint computational-basis distribution.
+
+### Bloch representations
+
+- **3D:** an orthographic sphere with shaded surfaces, depth-cued great circles,
+  computational poles `|0>` / `|1>`, and an orbitable Bloch vector inside the unit ball.
+- **2D probability:** colored area fraction is `P(1) = (1-z)/2`, so the fill radius
+  is `R * sqrt(P(1))`. The hand angle is the coherence phase `atan2(y,x)`; its
+  length is `R * sqrt(x²+y²) = R * 2|rho01|`. No hand is drawn when coherence is
+  below display precision. Probability, phase and purity are separate readouts:
+  a 50/50 pure superposition and a maximally mixed state have equal fill areas
+  but different hands and purity. Trails trace earlier hand tips. This follows
+  the local-state [phase-disk convention](https://quantum.cloud.ibm.com/docs/en/guides/composer#phase-disk), with explicit area scaling.
+- **Projection:** XY/XZ/YZ coordinate disks retain the omitted coordinate as a
+  label. A short projected vector need not be mixed; use the full purity and
+  omitted component to interpret it.
+
+Qudits retain population charts in all three modes. Local reduced states alone
+do not describe joint correlations. Two shared analytic surface textures are
+uploaded once; the panels introduce no per-qubit render targets, cameras or
+tensor readbacks.
+
+### Controls
+
+**Settings** groups representation modes, projection planes, guides, trails,
+playback speed and experiment configuration. **Details** shows the inspector on
+compact layouts; large native windows keep it visible. Secondary controls stay
+out of the default toolbar.
+
+Left-drag a 3D sphere to orbit; right-drag a focused state view, or drag a circuit
+or fabric diagram, to pan. Scroll to zoom. Orbit and zoom are shared across the
+visible register panels. Click the plot to use
+keyboard shortcuts: **Space** toggles playback, **Left/Right** step, **R** resets
+the camera and **G** toggles guides. Focused Feathers widgets retain their normal
+keyboard behavior. Playback cycles through 0.5–4× and stops at the last frame.
+Fabric schedule ticks remain independent of quantum circuit steps.
 
 The native controls and browser shell follow the `burn_gekko` controller theme:
-warm charcoal surfaces, muted rose selections, thin borders and compact labels.
-[`view/theme.rs`](https://github.com/mosure/burn_quantum/blob/main/crates/burn_quantum_visualization/src/view/theme.rs) owns the Feathers semantic colors, including
-hover, pressed, disabled and keyboard-focus states; [`web/index.html`](https://github.com/mosure/burn_quantum/blob/main/web/index.html)
-mirrors the surface and accent tokens. Scientific plots retain separate cyan,
-amber and blue series and a cyclic phase legend. Plot guides use a brighter
-neutral than panel borders so fine geometry remains visible.
-
+charcoal surfaces, rose selections, thin borders and compact labels.
+[`view/theme.rs`](https://github.com/mosure/burn_quantum/blob/main/crates/burn_quantum_visualization/src/view/theme.rs)
+owns the Feathers semantic colors;
+[`web/index.html`](https://github.com/mosure/burn_quantum/blob/main/web/index.html)
+mirrors the surface and accent tokens. Scientific plots retain distinct series
+colors and a cyclic amplitude-phase legend.
 
 ## Configurable algorithms
 
-Open **Settings**, use the size/variant controls (and layers for QAOA), inspect the resource preview,
-then press **Run**. Editing settings does not recompute the displayed experiment.
+Open **Settings**, use the size/variant controls (and layers for QAOA), inspect
+the resource preview, then press **Run**. Editing settings does not recompute the displayed experiment.
 The preview rejects excessive wire, frame and retained-state budgets before any
 state allocation. Native and browser defaults use the same portable budgets;
 applications can supply their own `TraceLimits` based on measured device resources.
 The UI does not guess available VRAM or silently reduce a requested circuit.
 
 ```sh
-cargo run -p burn_quantum_visualization --bin quantum_explorer -- --demo ghz --size 12 --step 12
-cargo run -p burn_quantum_visualization --bin quantum_explorer -- --demo mixed --step 6 --bloch 2d
-cargo run -p burn_quantum_visualization --bin quantum_explorer -- --demo qpe --size 6 --variant 1 --view circuit
-cargo run -p burn_quantum_visualization --bin quantum_explorer -- --demo qaoa --size 8 --layers 3 --view circuit
+cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --demo ghz --size 12 --step 12
+cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --demo mixed --step 6 --bloch 2d
+cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --demo qpe --size 6 --variant 1 --view circuit
+cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --demo qaoa --size 8 --layers 3 --view circuit
 ```
 
 Browser links accept the same settings, for example
 [twelve qubits in 3D](https://mosure.github.io/burn_quantum/?demo=ghz&size=12&step=12)
 or [a mixed register in 2D](https://mosure.github.io/burn_quantum/?demo=mixed&step=6&bloch=2d).
+
+### Share a view
 
 The address bar tracks the complete durable view state. Copying the URL restores
 the selected example, applied configuration, pending edits, both timelines,
@@ -159,27 +177,29 @@ The complete [embedded example](https://github.com/mosure/burn_quantum/blob/main
 
 Use `simulation::simulate` for actual circuit-prefix execution, or
 `snapshot_pure` / `snapshot_density` to adapt a state from another experiment.
-These APIs accept a real Burn `Device` and use asynchronous tensor readback.
-`snapshot_density` does not invent pure amplitudes for mixed states. Validation
+`simulate` accepts a Burn `Device`; the snapshot adapters read states on their
+existing device. Tensor readback is asynchronous; each snapshot displays one
+batch row. `snapshot_density` does not invent pure amplitudes for mixed states. Validation
 checks bounded sizes and scientific consistency; it cannot authenticate the
 provenance of an externally supplied trace.
 
 For analysis and interchange without a renderer:
 
 ```toml
-burn_quantum_visualization = { version = "0.3.0", default-features = false }
+burn_quantum_visualization = { version = "0.4.0", default-features = false }
 ```
 
 The browser's Import/Export buttons exchange validated JSON. Native equivalents:
 
 ```sh
-cargo run -p burn_quantum_visualization --bin quantum_explorer -- --demo bell --export bell.json
-cargo run -p burn_quantum_visualization --bin quantum_explorer -- --input bell.json
+cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --demo bell --export bell.json
+cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --input bell.json
 ```
 
 `io::parse_document`, `document_json`, `read_input` and `write_export` are reusable.
-JSON is capped at 16 MiB. Imported values, register order, reduced states, norms,
-operation counts, optimization records and fabric references are checked before
+The JSON representation is capped at 16 MiB for both import and export. Imported
+values, register order, reduced states, norms, operation counts, optimization
+records and fabric references are checked before
 replacing the selected document. Invalid input leaves the current experiment intact.
 Before checked core deserialization, JSON preflight also bounds aggregate dense
 unitary-validation work: `sum(dimension^3) <= 16,777,216`. Records without global
@@ -197,7 +217,8 @@ budget. Dense state preparation is still exponential in the number of qubits.
 
 Rendering uses bounded probability bins, trails, graph elements and viewport
 culling. Geometry/text are rebuilt on selection or camera changes, rather than
-recapturing tensors every frame. Drawing budgets are reported in the inspector.
+recapturing tensors every frame. The inspector reports the selected scientific
+state; `app::diagnostics_json` exposes drawing/entity statistics for tooling.
 
 Enable `gpu-bridge` for `bridge::SharedGpuBridge`. Register the renderer's actual
 WGPU instance, adapter, device and queue once, then create Burn tensors on
@@ -225,8 +246,8 @@ python3 -m http.server --directory target/visualization-web 8080
 
 Open `http://localhost:8080`. HTTPS/localhost and a WebGPU-capable browser/adapter
 are required; unsupported graphics produce an explicit fallback screen. URL
-parameters `demo`, `view` and `step` select the initial experiment. The Pages
-workflow deploys the actual WASM build on `main` and publishes build provenance.
+state uses the [query parameters above](#share-a-view). The Pages workflow deploys
+the actual WASM build on `main` and publishes a `build.json` provenance manifest.
 
 ```sh
 cargo test --locked -p burn_quantum_visualization --no-default-features
@@ -247,8 +268,18 @@ is installed outside the repository, `CHROME_BIN` for a browser executable,
 of platform-specific launch flags. The default `web-release` profile uses size
 optimization and thin LTO; `BURN_QUANTUM_WEB_PROFILE=release` selects the standard
 release profile for comparison. `VISUALIZATION_URL` selects a local or deployed
-site. The script saves all six rendered experiments, checks real widget clicks,
-keyboard focus, import/export, bounded entity counts, narrow layout and unsupported
-graphics, and writes measured results under `artifacts/visualization/browser`.
+site. The script renders all fifteen experiments and checks real widget clicks,
+keyboard focus, import/export, complete URL restoration, bounded entity counts,
+responsive layouts, touch input, unsupported graphics and device loss. It writes
+results under `artifacts/visualization/browser`; `VISUALIZATION_ARTIFACTS` changes
+the output directory. To include the larger imported-register checks, generate
+the fixture expected by the script:
+
+```sh
+mkdir -p artifacts/visualization
+cargo run --locked -p burn_quantum_visualization --no-default-features --example trace_profile -- artifacts/visualization/twelve-qubits.json
+VISUALIZATION_URL=http://localhost:8080/ LARGE_TRACE_JSON="$PWD/artifacts/visualization/twelve-qubits.json" node scripts/validate_visualization.cjs
+```
+
 See the [validation record](https://github.com/mosure/burn_quantum/blob/main/docs/visualization-validation.md) for the tested
 adapter, numerical tolerances and performance evidence.

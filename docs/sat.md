@@ -6,7 +6,7 @@ strict DIMACS parsing, explicit iteration experiments, a seeded search for an
 unknown number of solutions, and classical witness verification. It does not
 solve the distinct quantum constraint problem usually called QSAT.
 
-This feature is included in `burn_quantum` 0.2.0.
+This feature has been included in `burn_quantum` since 0.2.0.
 
 ## Use the solver
 

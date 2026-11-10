@@ -11,6 +11,42 @@ external tensor backends, so `QuantumBackend` describes quantum execution while
 `Tensor<D>` and `Device`, with no legacy backend generic or private Burn fork.
 See [Burn's migration guide](https://burn.dev/books/burn/migrating-to-0.22.html).
 
+## Quick start
+
+```toml
+[dependencies]
+burn_quantum = "0.4.0"
+burn = { version = "~0.22.1", default-features = false, features = ["std", "flex"] }
+```
+
+The core crate is available on [crates.io](https://crates.io/crates/burn_quantum).
+The `burn_quantum_example` workspace package is run from a repository checkout.
+See the [changelog](CHANGELOG.md) for release and migration notes. Version 0.4
+updates the visualization API; the core quantum API is unchanged from 0.3.
+
+```rust
+use burn::tensor::Device;
+use burn_quantum::{Circuit, DenseSimulator, QuantumBackend, Register, Unitary};
+
+fn main() -> burn_quantum::Result<()> {
+    let mut circuit = Circuit::new(Register::qubits(2)?, 0, 0);
+    circuit.unitary(vec![0], Unitary::h())?;
+    circuit.unitary(vec![0, 1], Unitary::cnot())?;
+
+    let state = DenseSimulator::default()
+        .execute(&circuit, None, None, 1, &Device::flex())?;
+    state.validate(1e-5)?;
+    // [0.5, 0.0, 0.0, 0.5] in |00>, |01>, |10>, |11> order.
+    println!("{}", state.probabilities());
+    Ok(())
+}
+```
+
+Wire zero is the most significant digit. `Register::new(vec![2, 3, 4])` has
+24 amplitudes; `|1,2,3>` is flat index 23. Ordered targets define a gate's local
+basis: applying a two-site matrix to `[2, 0]` gives wire 2 local significance
+before wire 0. Matrices use row-major `[output, input]` storage.
+
 ## Implemented
 
 - Qubits, qudits and heterogeneous registers, with checked mixed-radix indexing.
@@ -46,12 +82,19 @@ experiments, from Bell/GHZ entanglement and mixed qubit/qudit registers to
 teleportation, QFT, QPE, Grover, QAOA, error correction and photonic routing.
 The [`burn_quantum_visualization`](crates/burn_quantum_visualization/README.md)
 crate shares a Bevy/Feathers interface between native and WebGPU browsers:
-compact parallel Bloch panels with 2D/3D modes, canonical circuit diagrams,
-physical routing, optimizer history and a synchronized timeline. Configure
-algorithm size before running, or import validated JSON from your own experiment.
+compact parallel Bloch panels, canonical circuit diagrams, physical routing,
+optimizer history and synchronized timelines. **2D probability disks** encode
+`P(1)` as filled area, phase as hand angle, and coherence as hand length; purity
+remains explicit. **3D spheres** and Cartesian projections are also available.
+Settings groups secondary controls, and the experiment list uses aligned,
+wrapping rows. Configure algorithm size before running or import validated JSON.
+
+The URL preserves the selected example, applied and pending configuration,
+quantum/fabric time, selections, camera, playback and display settings. Imported
+experiments require their exported JSON alongside the link.
 
 ```sh
-cargo install burn_quantum_visualization --version 0.3.0 --locked
+cargo install burn_quantum_visualization --version 0.4.0 --locked
 quantum_explorer
 # Or run the viewer and embedding example from this workspace:
 cargo run --locked -p burn_quantum_visualization --bin quantum_explorer
@@ -127,8 +170,7 @@ Read the [capability and acceptance map](docs/photonic-status.md),
 and [original staged roadmap](docs/photonic-roadmap.md). Model-specific logical
 references do not establish a hardware threshold or a production fault-tolerant
 fabric compiler. PsiQuantum is the long-term hardware target; execution here is
-local. These library capabilities are included in version 0.3.0; the application
-suite and qualification scripts are run from a repository checkout.
+local. The application suite and qualification scripts run from a repository checkout.
 
 ## Quantum natural SPSA
 
@@ -142,12 +184,12 @@ decay schedules and versioned checkpoints support reproducible training.
 The dense metric and solve run in host F64 with O(d²) storage and O(d³) work for
 d parameters. See the [algorithm, API, numerical limits and validation](docs/qnspsa.md)
 and the [single-file example](crates/burn_quantum_example/src/bin/qnspsa_vqe.rs).
-The optimizer is included in version 0.2.0; run the example from a repository checkout.
+Run the optimizer example from a repository checkout.
 
 ## Boolean satisfiability
 
-Version 0.2.0 adds `burn_quantum::sat::{Cnf, GroverSat, SearchConfig, SatOutcome}`
-and a single-file `grover_sat` example. Run the example from a repository checkout:
+`burn_quantum::sat::{Cnf, GroverSat, SearchConfig, SatOutcome}` provides the solver
+API. Run its single-file `grover_sat` example from a repository checkout:
 
 ```sh
 cargo run --locked -p burn_quantum_example --bin grover_sat
@@ -161,42 +203,6 @@ uncomputes its work qubits, and checks every sampled candidate. A failed bounded
 search returns `Inconclusive`; only an explicit empty clause produces a proven
 `Unsatisfiable` result. Dense simulation uses exponentially many amplitudes and
 does not establish quantum advantage. See the [SAT API and algorithm guide](docs/sat.md).
-
-## Quick start
-
-```toml
-[dependencies]
-burn_quantum = "0.3.0"
-burn = { version = "~0.22.1", default-features = false, features = ["std", "flex"] }
-```
-
-The core crate is available on [crates.io](https://crates.io/crates/burn_quantum).
-The `burn_quantum_example` workspace package is run from a repository checkout.
-See the [changelog](CHANGELOG.md) for the 0.2 migration notes, including the new
-`Operation` variants and circuit schema v2.
-
-```rust
-use burn::tensor::Device;
-use burn_quantum::{Circuit, DenseSimulator, QuantumBackend, Register, Unitary};
-
-fn main() -> burn_quantum::Result<()> {
-    let mut circuit = Circuit::new(Register::qubits(2)?, 0, 0);
-    circuit.unitary(vec![0], Unitary::h())?;
-    circuit.unitary(vec![0, 1], Unitary::cnot())?;
-
-    let state = DenseSimulator::default()
-        .execute(&circuit, None, None, 1, &Device::flex())?;
-    state.validate(1e-5)?;
-    // [0.5, 0.0, 0.0, 0.5] in |00>, |01>, |10>, |11> order.
-    println!("{}", state.probabilities());
-    Ok(())
-}
-```
-
-Wire zero is the most significant digit. `Register::new(vec![2, 3, 4])` has
-24 amplitudes; `|1,2,3>` is flat index 23. Ordered targets define a gate's local
-basis: applying a two-site matrix to `[2, 0]` gives wire 2 local significance
-before wire 0. Matrices use row-major `[output, input]` storage.
 
 ## Differentiable quantum layer
 

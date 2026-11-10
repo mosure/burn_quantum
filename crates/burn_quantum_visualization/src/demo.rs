@@ -17,7 +17,7 @@ use serde::{Deserialize, Serialize};
 pub enum DemoKind {
     /// Bell-pair entanglement.
     Bell,
-    /// Four-qubit GHZ correlations.
+    /// Configurable GHZ correlations.
     Ghz,
     /// Phase-to-population interference.
     Interference,

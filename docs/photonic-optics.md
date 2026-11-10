@@ -1,6 +1,6 @@
 # Exact Fock optics and native photonic learning
 
-The unreleased `burn_quantum::photonic::optics` module implements a bounded
+The `burn_quantum::photonic::optics` module implements a bounded
 bosonic reference engine. It is separate from the three-level encoded-photon
 engine: optical modes have integer occupations, including multiphoton bunching.
 Tensor execution and phase derivatives use ordinary Burn devices and the shared

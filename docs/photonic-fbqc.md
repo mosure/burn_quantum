@@ -4,7 +4,7 @@ This guide describes the original encoded M0 model. Additional Fock, stabilizer,
 compiler, factory, QEC, learning and runtime modules are documented in the
 [current implementation status](photonic-status.md).
 
-The checkout's `burn_quantum::photonic` additions are **unreleased**. This guide
+`burn_quantum::photonic` is included in published releases since 0.3. This guide
 focuses on the encoded-state model and its default scheduler. The separate
 [Fock optics](photonic-optics.md), [physical compiler](photonic-compiler.md),
 [QEC and finite boundaries](photonic-stabilizer.md), and [runtime](photonic-runtime.md)

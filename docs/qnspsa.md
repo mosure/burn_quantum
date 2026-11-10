@@ -10,7 +10,7 @@ The algorithm follows [Gacon et al., *Simultaneous Perturbation Stochastic
 Approximation of the Quantum Fisher Information*](https://arxiv.org/abs/2103.09232),
 especially Eq. (13), with the metric convention and four fidelity points also
 used by [Qiskit's QNSPSA implementation](https://qiskit-community.github.io/qiskit-algorithms/_modules/qiskit_algorithms/optimizers/qnspsa.html).
-This implementation is included in `burn_quantum` 0.2.0.
+This implementation has been included in `burn_quantum` since 0.2.0.
 
 ## Burn integration and example
 

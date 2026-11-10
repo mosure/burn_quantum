@@ -219,8 +219,9 @@ The **2026-11-08** relocation was checked against release commit `90443a8`:
 
 These checks describe the local working tree. Logs, source comparisons, package
 inspection and hardware reports are retained under ignored
-`artifacts/workspace-layout/`. The package version remains 0.2.0; the repository
-layout change is recorded under Unreleased in the changelog.
+`artifacts/workspace-layout/`. At this historical verification, the package version
+was 0.2.0 and the relocation was unreleased; see the current
+[changelog](../CHANGELOG.md) for subsequent published versions.
 
 ## Earlier module-split verification
 

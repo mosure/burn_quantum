@@ -1,15 +1,25 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 — 2026-11-10
 
 - Align experiment navigation titles, allow wrapped rows to grow, and keep browser
   titles/descriptions in a consistent column. Remove the clipped native sidebar footer.
-
 - Add probability/phase disks with area-correct P(1) fills, coherence hands, and
   explicit mixed-state purity; retain Cartesian projections and label 3D basis poles.
 - Encode the full explorer view in URLs, including selected wire/gate/node, independent
   quantum/fabric time, camera, playback, panel settings, and unrun configuration drafts.
   Imported-document links request the accompanying JSON instead of substituting catalog data.
+
+- Refresh README installation, API and validation guidance for this release.
+
+### Migration from 0.3
+
+- `BlochMode::Planar` now means the probability/phase disk. Use the new
+  `BlochMode::Projection` for the previous Cartesian-plane view, and add that
+  variant to exhaustive matches. URL equivalents are `bloch=2d` and
+  `bloch=projection&plane=xy` (or `xz` / `yz`).
+- The core quantum API and scientific document schema are unchanged. Published
+  workspace crates share the 0.4.0 version; the examples crate remains unpublished.
 
 ## 0.3.0 — 2026-11-10
 

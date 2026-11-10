@@ -1,13 +1,20 @@
 # Configurable quantum experiment catalog
 
-The 0.3.0 catalog combines configurable scientific experiments with parallel
-subsystem views. Release qualification covers the delivery gates below.
+The catalog combines fifteen scientific experiments with parallel subsystem
+views and configurable algorithm complexity. Release qualification covers the
+delivery gates below.
 
 ## Presentation contracts
 
 - Default to a register overview with simultaneous reduced-state panels. Every
   qubit uses its actual partial-trace Bloch vector; qudits use populations. A
   selection opens focused inspection and the joint computational distribution.
+- Offer 3D Bloch spheres, 2D probability/phase disks and separate Cartesian
+  projections. Filled disk area equals `P(1)`; the hand reports coherence phase
+  and magnitude. Retain purity so mixtures are distinguishable from superpositions.
+- Encode durable view settings, applied/draft configurations, selections and
+  independent quantum/fabric times in URLs. Custom documents travel as JSON
+  alongside their view link.
 - Keep panels legible with an adaptive grid and bounded groups on small screens.
   All panels share the timeline and camera orientation. Selection is direct,
   with keyboard/touch-compatible controls retained.
@@ -108,11 +115,14 @@ and research sources explain the corresponding protocols:
 The register grid uses centered compact cells with restrained selection brackets,
 shared orientation and optional trails. Spatial mode is an orthographic 3D
 representation with analytically shaded sphere surfaces and front/back grid cues.
-Planar mode preserves all coordinates through an XY/XZ/YZ disk plus an explicit
-hidden-component label. Shared surface images are built/uploaded once and reused;
+Planar mode encodes P(1) as disk area and coherence as a phase hand, with purity
+reported separately. Projection mode preserves all coordinates through an
+XY/XZ/YZ disk plus an explicit hidden-component label. Shared surface images are
+built/uploaded once and reused;
 there is no render target or camera per subsystem. Plot clipping applies to both
-the surface images and line geometry. Secondary controls live in a single Settings panel by default to
-protect plotting space, and browser mobile canvases retain useful vertical room.
+the surface images and line geometry. Secondary controls live in a single Settings
+panel by default to protect plotting space, and browser mobile canvases retain
+useful vertical room.
 
 The default control surface has contextual view tabs, Focus, Settings and Details,
 plus three playback buttons. A scrollable settings panel holds projection, guides,

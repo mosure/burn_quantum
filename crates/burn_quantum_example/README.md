@@ -1,12 +1,27 @@
 # burn_quantum_example
 
-Small, executable quantum AI/ML, search and photonic implementations using Burn's native
-tensors, optimizers, and the `burn_quantum` simulator. Every algorithm is a single file
-under `src/bin/`, containing its circuit, data/problem definition, training or
-fit procedure, evaluation, `main`, and a test. The package is a local workspace
-member and is not published.
+Executable quantum AI/ML, search and photonic implementations using Burn's native
+tensors, optimizers and the `burn_quantum` simulator. Each executable lives in one
+file under `src/bin/`, with its problem definition, training or execution procedure,
+independent evaluation, `main` and acceptance tests. Reusable circuits and quantum
+operations live in the core crate. This package is a workspace member and is not
+published; run it from a repository checkout.
 
 ## Examples
+
+### Canonical circuits
+
+| Binary / source | Implementation | Independent evaluation |
+| --- | --- | --- |
+| [`qft`](src/bin/qft.rs) | Positive-sign QFT of a computational-basis state | Complex amplitudes against the independent DFT formula |
+| [`deutsch_jozsa`](src/bin/deutsch_jozsa.rs) | Constant-one and balanced parity promise oracles | Probability of the all-zero input register |
+| [`phase_estimation`](src/bin/phase_estimation.rs) | QPE of eigenphase 3/8, most-significant precision bit first | Exact expected phase peak |
+| [`grover_search`](src/bin/grover_search.rs) | Single-target amplitude amplification | Analytic Grover success probability |
+| [`toffoli`](src/bin/toffoli.rs) | Generalized controlled-X with superposed controls | Target/control correlation probability |
+| [`bit_flip_code`](src/bin/bit_flip_code.rs) | Coherent odd-repetition recovery after an injected X fault | Recovered logical Bloch vector |
+| [`teleportation`](src/bin/teleportation.rs) | Projective teleportation with classical feed-forward | Every measurement branch, its probability, and output state |
+
+### Learning and search
 
 | Binary / source | Implementation | Independent evaluation |
 | --- | --- | --- |
@@ -19,22 +34,32 @@ member and is not published.
 | [`qudit_classifier`](src/bin/qudit_classifier.rs) | Single-qutrit three-class model using explicit two-level rotations and Born readout | Disjoint angle-cluster test data and multiclass majority baseline |
 | [`grover_sat`](src/bin/grover_sat.rs) | Reversible CNF oracle, Grover amplification, bounded search with unknown solution count; optional DIMACS file | Analytic success probability, clean work qubits, verified witness |
 | [`qnspsa_vqe`](src/bin/qnspsa_vqe.rs) | Fidelity-based quantum natural SPSA, two-qubit RY/CNOT/RZ ansatz, Heisenberg energy | Analytic -3 ground energy, singlet fidelity, normalization and evaluator-call budget |
+
+### Optical learning and physical execution
+
+| Binary / source | Implementation | Independent evaluation |
+| --- | --- | --- |
 | [`fbqc_bell_swap`](src/bin/fbqc_bell_swap.rs) | Two Bell resources, contended fabric routing, rail loss and destructive fusion; unconditional shots | Analytic 0.36 success / 0.28 loss, corrected Bell fidelity and schedule checks |
 | [`photonic_hom`](src/bin/photonic_hom.rs) | Bosonic two-photon interference, loss and detection | Analytic bunching, number conservation, unfiltered detection probabilities |
 | [`photonic_mz_learning`](src/bin/photonic_mz_learning.rs) | Burn Module/Param/Adam optical phase learning | Three initializations, disjoint held-out inputs and analytic baseline |
 | [`photonic_teleportation`](src/bin/photonic_teleportation.rs) | Logical measurement compilation with outcome-dependent corrections | Direct circuit equivalence and absolute branch normalization |
 | [`fbqc_factory_pipeline`](src/bin/fbqc_factory_pipeline.rs) | Heralded factories, timed fabric, host tableaux and resumable local shards | Unconditional success, source cost and selected-device dense oracle |
-| [`fbqc_repetition_memory`](src/bin/fbqc_repetition_memory.rs) | Host Clifford repetition-memory experiment for a specified binary error channel | Logical correlations, erasure decoding and dense device reference |
 | [`physical_vqe`](src/bin/physical_vqe.rs) | VQE through routed heralded local/CNOT channels | Singlet energy, native gradient and abort-aware photon costs |
 | [`fbqc_adaptive`](src/bin/fbqc_adaptive.rs) | Correlated source outages, finite buffers and bounded fresh-resource retries | Exact unconditional yield/cost, causal feedback and checkpoint replay |
 | [`fbqc_remote`](src/bin/fbqc_remote.rs) | Two real process/TCP photonic trajectory workers | Byte-identical local replay, dense device oracle and communication cost |
-| [`fbqc_four_star_memory`](src/bin/fbqc_four_star_memory.rs) | Four-star toric memory with loss, Pauli noise and bounded decoding | Multiple distances, unconditional Wilson intervals and device resource-state oracle |
 | [`photonic_mz_shots`](src/bin/photonic_mz_shots.rs) | Finite-shot lossy phase training with parameter-shift estimates | Three starts, held-out MSE, frozen control and attempted-shot budget |
 | [`photonic_kernel`](src/bin/photonic_kernel.rs) | Lossy mixed-state Hilbert-Schmidt kernel classifier | Held-out accuracy, majority and matched classical controls |
 | [`photonic_born_qnspsa`](src/bin/photonic_born_qnspsa.rs) | Full-rank lossy Born model with squared-Uhlmann QN-SPSA | Three starts, disjoint sampled holdout, analytic Bures metric and evaluator cost |
-
 | [`physical_qaoa`](src/bin/physical_qaoa.rs) | QAOA through calibrated resource factories, optical effects and finite buffers | Exact conditional objective, false-herald/failure semantics and physical cost |
 | [`photonic_benchmarks`](src/bin/photonic_benchmarks.rs) | Five-seed classification, mixed kernels and Born fitting from finite records | Disjoint calibration/holdout, matched-record classical controls, photons and illustrative time/energy proxies |
+| [`photonic_jobs`](src/bin/photonic_jobs.rs) | Immutable asynchronous lossy optical jobs | Native phase oracle, exact raw-shot replay and counted detector misses |
+
+### Logical protocols and error correction
+
+| Binary / source | Implementation | Independent evaluation |
+| --- | --- | --- |
+| [`fbqc_repetition_memory`](src/bin/fbqc_repetition_memory.rs) | Host Clifford repetition-memory experiment for a specified binary error channel | Logical correlations, erasure decoding and dense device reference |
+| [`fbqc_four_star_memory`](src/bin/fbqc_four_star_memory.rs) | Four-star toric memory with loss, Pauli noise and bounded decoding | Multiple distances, unconditional Wilson intervals and device resource-state oracle |
 | [`photonic_magic_distillation`](src/bin/photonic_magic_distillation.rs) | Reed-Muller 15-to-1 distillation and T injection | Native encoder/transversal/decoder oracle, exhaustive phase faults, noisy acceptance and resource cost |
 | [`fbqc_six_ring_memory`](src/bin/fbqc_six_ring_memory.rs) | Bare and physical Shor-encoded six-ring toric studies | Correlated loss, independent stabilizer fixtures, multiple sizes and unconditional confidence intervals |
 | [`planar_logical_memory`](src/bin/planar_logical_memory.rs) | Open planar code memories and H/CNOT/S circuit references | Entangled logical channels, single-fault/loss recovery and explicit gate-level cost |
@@ -43,12 +68,19 @@ member and is not published.
 | [`planar_threshold`](src/bin/planar_threshold.rs) | Repeated noisy-check planar memories | Bounded union-find, unconditional failures and independent confirmation study |
 | [`surgery_threshold`](src/bin/surgery_threshold.rs) | Complete noisy XX/ZZ merge/split transitions | Four entangled-channel labels, spacetime distances and explicit finite-size brackets |
 | [`surface_threshold`](src/bin/surface_threshold.rs) | Actual six-ring surface memories and fusion-seam merges | Resource-derived detectors, growing record distance and a fixed outcome-noise study |
+| [`fbqc_open_boundaries`](src/bin/fbqc_open_boundaries.rs) | Finite six-ring strips/boxes with actual boundary measurements | Independent branch amplitudes, signed logical identity/H correlations and correlated-loss records |
+
+### Tensor networks and local SDK interoperability
+
+| Binary / source | Implementation | Independent evaluation |
+| --- | --- | --- |
 | [`mps_qaoa`](src/bin/mps_qaoa.rs) | Non-Clifford QAOA on an 80-qubit MPS ring | Analytic cut law, random control, Schmidt storage and approximation bounds |
 | [`distributed_mps`](src/bin/distributed_mps.rs) | One entangled state owned by one/three real worker processes | Complete dense amplitudes, streamed correlations and injected commit recovery |
-| [`photonic_jobs`](src/bin/photonic_jobs.rs) | Immutable asynchronous lossy optical jobs | Native phase oracle, exact raw-shot replay and counted detector misses |
+| [`psiqdk_interop`](src/bin/psiqdk_interop.rs) | Bounded OpenQASM 3 export for local PsiQDK interoperability | Native state normalization and synthesis budget; SDK fixtures are checked separately |
 
-| [`fbqc_open_boundaries`](src/bin/fbqc_open_boundaries.rs) | Finite six-ring strips/boxes with actual boundary measurements | Independent branch amplitudes, signed logical identity/H correlations and correlated-loss records |
-| [`psiqdk_interop`](src/bin/psiqdk_interop.rs) | Bounded logical export to pinned PsiQDK local simulation | Actual SDK complex-state fixtures, bit ordering, global phase and readout mapping |
+`psiqdk_interop` runs native Burn and emits interchange inputs; it does not
+connect to hardware or invoke the SDK. The [interoperability guide](../../docs/photonic-interop.md)
+explains the pinned local SDK fixture checks and regeneration procedure.
 
 The implementations use established algorithm families on intentionally small
 problems, with explicit models and objectives. VQE and QAOA cover variational
@@ -59,6 +91,41 @@ qudit architecture.
 Photonic examples cover resource-level primitives, physical algorithm training,
 optical learning, scheduling/control, logical-memory studies and process workers.
 Each names its physical assumptions; none demonstrates quantum advantage.
+
+## Configurable canonical circuit examples
+
+Each algorithm has one executable file and reuses `burn_quantum::algorithms`.
+The optional positional size argument has the following meaning and bounds.
+These are executable limits, not claims that dense simulation scales efficiently.
+
+| Binary | Size argument | Default | Accepted values |
+| --- | --- | --- | --- |
+| `qft` | Qubits | 5 | 2–12 |
+| `deutsch_jozsa` | Input bits, plus one oracle qubit | 5 | 2–12 |
+| `phase_estimation` | Precision bits, plus one eigenstate qubit | 5 | 3–12 |
+| `grover_search` | Qubits | 6 | 2–10 |
+| `toffoli` | Controls, plus one target qubit | 2 | 2–12 |
+| `bit_flip_code` | Code length | 5 | Odd values 3–9 |
+| `teleportation` | Independent transfers, three qubits each | 1 | 1–2 |
+
+```sh
+cargo run --locked -p burn_quantum_example --bin qft -- 8
+cargo run --locked -p burn_quantum_example --bin deutsch_jozsa -- 8
+cargo run --locked -p burn_quantum_example --bin phase_estimation -- 8
+cargo run --locked -p burn_quantum_example --bin grover_search -- 8
+cargo run --locked -p burn_quantum_example --bin toffoli -- 6
+cargo run --locked -p burn_quantum_example --bin bit_flip_code -- 7
+cargo run --locked -p burn_quantum_example --bin teleportation -- 2
+```
+
+The `qaoa_maxcut` training executable uses the shared symbolic graph builder
+with its fixed triangle problem and depth-one training setup. All these programs
+honor `BURN_QUANTUM_DEVICE`, including explicit WGPU selection with
+`--features wgpu`. They report independent numerical acceptance
+criteria, and teleportation checks all measurement branches. Interactive versions
+are available in the [visualization gallery](https://mosure.github.io/burn_quantum/),
+including configurable QAOA layers. The gallery shows a fixed-angle QAOA evaluation;
+`qaoa_maxcut` performs optimization.
 
 ## Run
 
@@ -92,8 +159,8 @@ directions. No datasets are downloaded.
 ```sh
 bash scripts/run_examples.sh cpu                   # artifacts/examples/cpu/*.json
 cargo test --locked -p burn_quantum_example --bins  # runs every binary's acceptance checks
-cargo test --locked --workspace --all-targets       # core and example regressions
-bash scripts/validate.sh                           # full workspace qualification
+cargo test --locked --workspace --all-targets       # all workspace regressions
+bash scripts/validate.sh                           # CPU checks and GPU compilation
 ```
 
 The examples use F32 on the explicitly selected device, defaulting to Flex CPU.
@@ -126,11 +193,13 @@ variables. The original F64 CPU oracle tests retain their strict tolerances;
 [`backend_parity.rs`](../burn_quantum/tests/backend_parity.rs) compares portable F32
 execution and derivatives against CPU/scalar/analytic references.
 
-Training uses exact simulator gradients/expectations. QN-SPSA instead estimates
-its updates from perturbed energies and state fidelities, without backpropagation;
-see the [algorithm and validation guide](../../docs/qnspsa.md). Terminal shot sampling is
-shown in QAOA, the Born machine and SAT search. These tests do not establish shot-based QPU
-training, large-scale performance, or quantum advantage. See the
+Differentiable examples use simulator gradients and expectations. QN-SPSA
+estimates updates from perturbed energies and state fidelities without
+backpropagation; see the [algorithm and validation guide](../../docs/qnspsa.md).
+The optical shot-based examples explicitly estimate quantities from simulated
+finite detection records. QAOA, the Born machine and SAT also demonstrate terminal
+shot sampling. These checks establish the stated simulator behavior, not training
+on a physical QPU, unrestricted scale, or quantum advantage. See the
 [hardware validation record](../../docs/backend-validation.md) for actual runtime
 coverage and the [manual GPU CI workflow](../../.github/workflows/gpu.yml).
 
@@ -180,6 +249,14 @@ and model-specific evaluation stay beside their examples. In particular, the
 kernel example contains its small classical Cholesky solve rather than adding
 a generic linear solver to the quantum library.
 
+The reusable MPS engine and its local/distributed streaming contractions live in
+`burn_quantum::tensor_network`. Optical tomography, calibrated likelihoods,
+shot allocation, resource costs, logical code protocols and immutable job contracts
+also live in the core. Their examples contain only problem setup, training/study
+policy and independent acceptance checks. Complex MPS SVD, tableau/decoder work
+and classical scheduling remain host operations even when native numerical
+oracles/contractions run on the requested GPU.
+
 ## Algorithm references
 
 These references establish the algorithm families; the small problems and Rust
@@ -196,33 +273,3 @@ of the referenced experiments.
 
 See [the original seven-example validation](../../docs/examples-validation.md)
 and [the SAT guide](../../docs/sat.md) for recorded outcomes and limitations.
-
-The reusable MPS engine and its local/distributed streaming contractions live in
-`burn_quantum::tensor_network`. Optical tomography, calibrated likelihoods,
-shot allocation, resource costs, logical code protocols and immutable job contracts
-also live in the core. Their examples contain only problem setup, training/study
-policy and independent acceptance checks. Complex MPS SVD, tableau/decoder work
-and classical scheduling remain host operations even when native numerical
-oracles/contractions run on the requested GPU.
-
-## Configurable canonical circuit examples
-
-Each algorithm has one executable file and reuses `burn_quantum::algorithms`.
-The optional positional size argument is qubits, controls, input/precision bits,
-code length, or independent transfers as documented at the top of each file.
-
-```sh
-cargo run -p burn_quantum_example --bin qft -- 8
-cargo run -p burn_quantum_example --bin deutsch_jozsa -- 8
-cargo run -p burn_quantum_example --bin phase_estimation -- 8
-cargo run -p burn_quantum_example --bin grover_search -- 8
-cargo run -p burn_quantum_example --bin toffoli -- 6
-cargo run -p burn_quantum_example --bin bit_flip_code -- 7
-cargo run -p burn_quantum_example --bin teleportation -- 2
-```
-
-The existing `qaoa_maxcut` training executable now uses the shared symbolic graph
-builder. All these programs honor `BURN_QUANTUM_DEVICE`, including explicit WGPU
-selection with `--features wgpu`. They report independent numerical acceptance
-criteria, and teleportation checks all measurement branches. Interactive versions
-are available in the visualization gallery, including configurable QAOA layers.
