@@ -2,10 +2,12 @@
 pub mod bloch;
 pub mod diagram;
 mod fabric;
+mod study;
 mod validation;
 use burn_quantum::{Circuit, Error, Result};
 pub use fabric::*;
 use serde::{Deserialize, Serialize};
+pub use study::*;
 
 /// A complex scalar in the circuit's computational basis convention.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -78,7 +80,7 @@ pub struct OptimizationPoint {
     pub parameters: Vec<f64>,
     /// Objective evaluated at these parameters, not the perturbed-loss average.
     pub loss: f64,
-    /// Row-major running fidelity metric before regularization.
+    /// Row-major running fidelity metric before regularization; empty if the optimizer does not record one.
     pub metric: Vec<f64>,
     /// Reduced-qubit Bloch vectors at this iterate.
     pub bloch: Vec<Option<[f64; 3]>>,
@@ -125,6 +127,9 @@ pub struct VisualizationDocument {
     /// Explicit measurement branch; only present with Protocol timelines in schema two.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub protocol: Option<ProtocolRecord>,
+    /// Optional task outcomes, references and resource accounting.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub study: Option<StudyReport>,
 }
 
 /// One probability bucket; adjacent basis states are aggregated without losing mass.

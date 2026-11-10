@@ -133,6 +133,8 @@ pub(super) fn build(
             Vec2::new(rect.center().x, rect.min.y + 15.),
             if q.dimension == 2 {
                 format!("q{wire}")
+            } else if q.dimension == 3 && super::includes_vacuum(doc) {
+                format!("q{wire} + vacuum")
             } else {
                 format!("q{wire} · {} levels", q.dimension)
             },
@@ -157,7 +159,7 @@ pub(super) fn build(
                 },
             );
         } else {
-            populations(p, rect, q, color);
+            populations(p, rect, q, color, super::includes_vacuum(doc));
         }
         p.text(
             Vec2::new(rect.center().x, rect.max.y - 13.),
@@ -168,7 +170,8 @@ pub(super) fn build(
         p.hit(rect, Hit::Wire(wire));
     }
     p.text(Vec2::new(bounds.center().x,bounds.max.y-9.),
-        if state.bloch_mode == crate::model::bloch::BlochMode::Planar { "Area = P(1) · hand = phase / coherence" }
+        if super::includes_vacuum(doc) { "0 / 1 = logical dual-rail qubit · vac = lost photon (not a logical level)" }
+        else if state.bloch_mode == crate::model::bloch::BlochMode::Planar { "Area = P(1) · hand = phase / coherence" }
         else if bounds.width() < 500. { "Shared timeline · Focus for joint probabilities" }
         else { "Reduced states share one timeline and camera. Local states alone do not show all joint correlations." },
         10., MUTED);
@@ -182,7 +185,7 @@ pub(super) fn build(
     );
 }
 
-fn populations(p: &mut PlotCache, rect: Rect, q: &SubsystemState, color: Color) {
+fn populations(p: &mut PlotCache, rect: Rect, q: &SubsystemState, color: Color, vacuum: bool) {
     let chart = Rect::from_corners(
         rect.min + Vec2::new(14., 36.),
         rect.max - Vec2::new(14., 40.),
@@ -204,7 +207,11 @@ fn populations(p: &mut PlotCache, rect: Rect, q: &SubsystemState, color: Color) 
             color,
         );
         let label = if bin.end - bin.start == 1 {
-            bin.start.to_string()
+            if vacuum && q.dimension == 3 && bin.start == 2 {
+                "vac".into()
+            } else {
+                bin.start.to_string()
+            }
         } else {
             format!("{}–{}", bin.start, bin.end - 1)
         };

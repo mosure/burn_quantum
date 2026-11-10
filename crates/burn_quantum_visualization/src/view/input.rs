@@ -26,6 +26,11 @@ pub(super) fn pointer_keyboard(
     mut state: ResMut<Explorer>,
     experiment: Res<Experiment>,
 ) {
+    if state.view == ViewMode::Results {
+        wheel.clear();
+        drag.active = false;
+        return;
+    }
     for (key, action) in [
         (KeyCode::Space, Action::Play),
         (KeyCode::ArrowLeft, Action::Step(-1)),
@@ -155,7 +160,9 @@ pub(super) fn touch(
             (size.min_element() > 1. && Rect::from_center_size(center, size).contains(current[0].1))
                 .then_some(entity)
         });
-        gesture.active = gesture.scroll.is_none() && bounds.rect.contains(current[0].1);
+        gesture.active = state.view != ViewMode::Results
+            && gesture.scroll.is_none()
+            && bounds.rect.contains(current[0].1);
         if gesture.active {
             select(current[0].1, &cache, &mut state, &experiment);
         }

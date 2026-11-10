@@ -102,6 +102,7 @@ pub(super) async fn build(device: &Device, limits: TraceLimits) -> Result<Visual
         fabric: None,
         optimization: points,
         protocol: None,
+        study: None,
     };
     document.validate_with(limits)?;
     Ok(document)

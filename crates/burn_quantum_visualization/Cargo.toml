@@ -17,7 +17,7 @@ viewer = ["dep:bevy", "dep:wasm-bindgen", "dep:wasm-bindgen-futures", "dep:web-s
 gpu-bridge = ["viewer", "burn/wgpu", "dep:burn-wgpu", "dep:burn-cubecl"]
 
 [dependencies]
-burn_quantum = { version = "0.4.0", path = "../burn_quantum", default-features = false }
+burn_quantum = { version = "0.4.0", path = "../burn_quantum", default-features = false, features = ["benchmarks"] }
 burn = { workspace = true, features = ["flex"] }
 serde.workspace = true
 serde_json.workspace = true

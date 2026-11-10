@@ -33,6 +33,7 @@ pub(super) struct PlotCache {
     pub generation: u64,
     pub description: String,
     pub overview_capacity: usize,
+    pub dropped_lines: usize,
     discs: Vec<(Rect, Color, bool)>,
 }
 impl PlotCache {
@@ -48,6 +49,7 @@ impl PlotCache {
 
     pub fn line(&mut self, a: Vec2, b: Vec2, color: Color) {
         if self.lines.len() >= 8192 {
+            self.dropped_lines += 1;
             return;
         }
         if let Some((a, b)) = clip(a, b, self.bounds.rect) {
@@ -153,6 +155,7 @@ pub(super) fn rebuild(
         commands.entity(e).despawn();
     }
     cache.lines.clear();
+    cache.dropped_lines = 0;
     cache.boxes.clear();
     cache.labels.clear();
     cache.hits.clear();
@@ -172,6 +175,7 @@ pub(super) fn rebuild(
             ViewMode::Circuit => super::circuit::build(&mut cache, bounds.rect, &state, doc),
             ViewMode::Fabric => super::fabric::build(&mut cache, bounds.rect, &state, doc),
             ViewMode::Learning => super::learning::build(&mut cache, bounds.rect, &state, doc),
+            ViewMode::Results => super::results::build(&mut cache, bounds.rect, &state, doc),
         }
     } else {
         cache.text(
@@ -280,5 +284,87 @@ pub(super) fn short(value: &str, max: usize) -> String {
         format!("{text}…")
     } else {
         text
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        demo::{self, DemoKind},
+        model::{ClassificationSummary, StudyReport},
+        simulation::TraceLimits,
+    };
+
+    #[test]
+    fn long_learning_histories_retain_validation_and_checkpoint_geometry() {
+        // Start with a validated numerical document, then synthesize repeated
+        // optimizer snapshots solely to exercise drawing length, not the optimizer.
+        let initial = pollster::block_on(demo::build(
+            DemoKind::Optimization,
+            &burn::tensor::Device::flex(),
+            TraceLimits::default(),
+        ))
+        .unwrap();
+        for count in [65, 81, 129] {
+            let mut doc = initial.clone();
+            let point = doc.optimization.last().unwrap().clone();
+            doc.optimization = (0..count)
+                .map(|iteration| {
+                    let mut point = point.clone();
+                    point.iteration = iteration;
+                    point.loss = 1. / (1. + iteration as f64);
+                    point
+                })
+                .collect();
+            doc.study = Some(StudyReport {
+                title: "Drawing fixture".into(),
+                summary: String::new(),
+                metrics: vec![],
+                notes: vec![],
+                classification: Some(ClassificationSummary {
+                    classes: vec!["A".into(), "B".into()],
+                    confusion: vec![vec![1, 0], vec![0, 1]],
+                    split_sizes: [2, 2, 2],
+                    selected_iteration: count / 2,
+                    validation_loss: (0..count).map(|i| 0.2 + 1. / (1. + i as f64)).collect(),
+                }),
+                sat: None,
+                photonic: None,
+            });
+            let area = Rect::from_corners(Vec2::ZERO, Vec2::new(1000., 600.));
+            let mut cache = PlotCache {
+                bounds: CanvasBounds {
+                    rect: area,
+                    window: area.size(),
+                },
+                ..Default::default()
+            };
+            let state = Explorer {
+                frame: count - 1,
+                ..Default::default()
+            };
+            super::super::learning::build(&mut cache, area, &state, &doc);
+            assert_eq!(
+                cache.dropped_lines, 0,
+                "{count} iterates exhausted the geometry budget"
+            );
+            assert!(cache.lines.len() < 8192);
+            let validation = cache
+                .lines
+                .iter()
+                .filter(|(_, _, c)| *c == GOLD.with_alpha(0.95))
+                .count();
+            assert_eq!(
+                validation,
+                count - 1,
+                "every validation segment is retained"
+            );
+            assert_eq!(
+                cache.lines.iter().filter(|(_, _, c)| *c == BLUE).count(),
+                140,
+                "12 checkpoint dashes and its 128-segment marker remain visible"
+            );
+        }
     }
 }

@@ -10,6 +10,10 @@ use crate::state::compatible_states;
 use crate::{Angle, Circuit, Error, ResourceLimits, Result, Rotation, StateVector, Unitary};
 use burn::tensor::Tensor;
 
+#[cfg(feature = "benchmarks")]
+pub mod benchmarks;
+pub mod preprocessing;
+
 fn qubit_targets(circuit: &Circuit, wires: &[usize]) -> Result<()> {
     circuit.register().local_size(wires)?;
     if wires

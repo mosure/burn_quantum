@@ -24,19 +24,32 @@ pub(super) fn build(
         return;
     }
     let points = &doc.optimization;
+    let classification = doc
+        .study
+        .as_ref()
+        .and_then(|study| study.classification.as_ref());
+    let validation = classification
+        .map(|c| c.validation_loss.as_slice())
+        .unwrap_or(&[]);
     let area = Rect::from_corners(
         bounds.min + Vec2::new(75., 85.),
         bounds.max - Vec2::new(35., 100.),
     );
-    let scale = points.iter().map(|p| p.loss.abs()).fold(1f64, f64::max);
+    let scale = points
+        .iter()
+        .map(|p| p.loss.abs())
+        .chain(validation.iter().map(|v| v.abs()))
+        .fold(1f64, f64::max);
     let lo = points
         .iter()
         .map(|x| x.loss / scale)
+        .chain(validation.iter().map(|v| v / scale))
         .fold(f64::INFINITY, f64::min)
         .min(0.);
     let hi = points
         .iter()
         .map(|x| x.loss / scale)
+        .chain(validation.iter().map(|v| v / scale))
         .fold(f64::NEG_INFINITY, f64::max)
         .max(lo + 1e-5);
     let range = (hi - lo) * 1.15;
@@ -58,7 +71,14 @@ pub(super) fn build(
         if scale > 1e5 {
             format!("Objective axis / {scale:.3e}")
         } else {
-            "Recorded objective at each parameter iterate".into()
+            if classification.is_some() && bounds.width() < 560. {
+                "Train / validation · selected checkpoint"
+            } else if classification.is_some() {
+                "Training objective · validation loss · fixed selected checkpoint"
+            } else {
+                "Recorded objective at each parameter iterate"
+            }
+            .into()
         },
         12.,
         MUTED,
@@ -106,14 +126,59 @@ pub(super) fn build(
         last = Some(xy);
     }
     let current = state.frame.min(points.len() - 1);
+    // A circular marker is 128 line segments; bound markers separately from
+    // curve samples so long histories cannot exhaust PlotCache before the
+    // validation curve and selected-checkpoint marker are emitted.
+    let marker_stride = points.len().div_ceil(24).max(1);
     let mut last = None;
     for (i, point) in points.iter().enumerate().take(current + 1).step_by(stride) {
         let xy = to_point(i, point.loss / scale);
         if let Some(prev) = last {
             p.line(prev, xy, ACCENT);
         }
-        p.dot(xy, 2., ACCENT);
+        if i.is_multiple_of(marker_stride) || i == current {
+            p.dot(xy, 2., ACCENT);
+        }
         last = Some(xy);
+    }
+    let mut last = None;
+    for (i, &loss) in validation.iter().enumerate().step_by(stride) {
+        let xy = to_point(i, loss / scale);
+        if let Some(prev) = last {
+            p.line(
+                prev,
+                xy,
+                GOLD.with_alpha(if i <= current { 0.95 } else { 0.3 }),
+            );
+        }
+        last = Some(xy);
+    }
+    if let Some(c) = classification {
+        let checkpoint = c.selected_iteration.min(points.len() - 1);
+        let x = to_point(checkpoint, lo).x;
+        for i in 0..12 {
+            let y = area.min.y + area.height() * i as f32 / 12.;
+            p.line(Vec2::new(x, y), Vec2::new(x, y + area.height() / 24.), BLUE);
+        }
+        p.dot(
+            to_point(checkpoint, validation[checkpoint] / scale),
+            6.,
+            BLUE,
+        );
+        let label_y = bounds.min.y + 70.;
+        p.text(
+            Vec2::new(area.min.x + area.width() * 0.16, label_y),
+            "Training",
+            11.,
+            ACCENT,
+        );
+        p.text(Vec2::new(area.center().x, label_y), "Validation", 11., GOLD);
+        p.text(
+            Vec2::new(area.min.x + area.width() * 0.84, label_y),
+            format!("Selected {checkpoint}"),
+            11.,
+            BLUE,
+        );
     }
     let selected = &points[current];
     let xy = to_point(current, selected.loss / scale);
@@ -125,15 +190,26 @@ pub(super) fn build(
     p.dot(xy, 6., GOLD);
     p.text(
         Vec2::new(area.center().x, area.max.y + 70.),
-        format!(
-            "Iteration {} · objective {}",
-            selected.iteration,
-            if selected.loss.abs() > 1e5 {
-                format!("{:.3e}", selected.loss)
-            } else {
-                format!("{:.5}", selected.loss)
-            }
-        ),
+        if bounds.width() < 560. && !validation.is_empty() {
+            format!(
+                "Iter {} · train {:.3} · val {:.3}",
+                selected.iteration, selected.loss, validation[current]
+            )
+        } else {
+            format!(
+                "Iteration {} · objective {}{}",
+                selected.iteration,
+                if selected.loss.abs() > 1e5 {
+                    format!("{:.3e}", selected.loss)
+                } else {
+                    format!("{:.5}", selected.loss)
+                },
+                validation
+                    .get(current)
+                    .map(|v| format!(" · validation {v:.5}"))
+                    .unwrap_or_default()
+            )
+        },
         15.,
         TEXT,
     );

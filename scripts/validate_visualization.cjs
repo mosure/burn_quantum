@@ -93,7 +93,7 @@ const report = {url:base, timestamp:new Date().toISOString(), demos:[], interact
    assert.deepEqual(persistentState(await diag()),before,`${label}: copied URL restores complete paused view state`);
    (report.url_round_trips??=[]).push({label,url,state:before});
   }
-  const cases=[['bell','state',2],['ghz','state',6],['mixed','state',6],['teleportation','circuit',10],['toffoli','circuit',3],['qft','circuit',0],['deutsch-jozsa','circuit',0],['qpe','circuit',0],['grover','state',5],['qaoa','circuit',0],['bit-flip','circuit',0],['interference','state',2],['qutrit','state',2],['photonic','fabric',0],['optimization','learning',16]];
+  const cases=[['wine','results',53],['three-sat','results',46],['vqe','learning',80],['bell','state',2],['ghz','state',6],['mixed','state',6],['teleportation','circuit',10],['toffoli','circuit',3],['qft','circuit',0],['deutsch-jozsa','circuit',0],['qpe','circuit',0],['grover','state',5],['qaoa','circuit',0],['bit-flip','circuit',0],['interference','state',2],['qutrit','state',2],['photonic','fabric',0],['optimization','learning',16]];
   for (const [demo,view,step] of cases) {
    const start=Date.now();await page.goto(`${base}?demo=${demo}&view=${view}&step=${step}`);await ready();
    const d=await diag();assert.equal(d.demo,demo);assert.equal(d.view,view);
@@ -102,7 +102,7 @@ const report = {url:base, timestamp:new Date().toISOString(), demos:[], interact
    assert.ok(document.trace.frames.length>1);assert.ok(document.trace.frames.every(f=>Math.abs(f.norm-1)<5e-4));
    const b=await page.locator('canvas').boundingBox();
    assert.ok(d.canvas[3]<=b.height,`plot exceeds canvas in ${demo}`);
-   assert.ok(d.controls.some(c=>c.action==='Scrubber' && c.rect[3]<=b.height),`timeline clipped in ${demo}`);
+   if(view!=='results')assert.ok(d.controls.some(c=>c.action==='Scrubber' && c.rect[3]<=b.height),`timeline clipped in ${demo}`);
    report.demos.push({demo,view,startup_ms:Date.now()-start,frames:document.trace.frames.length,diagnostics:d});
    await page.screenshot({path:path.join(out,`${demo}.png`),fullPage:true});
    await click('Inspect');let detail=await diag();assert.equal(detail.show_details,true);assert.ok(detail.inspection_text.length>30);
@@ -113,6 +113,12 @@ const report = {url:base, timestamp:new Date().toISOString(), demos:[], interact
     await click('Play');await page.waitForTimeout(1000);await click('Play');assert.ok((await diag()).tick>1);
     report.interactions.push('physical schedule playback preserves quantum frame');
    }
+  }
+  for(const query of ['demo=wine&view=learning&size=6&layers=2&step=64','demo=three-sat&view=circuit&size=4&variant=1','demo=photonic&view=state&size=3&variant=0&step=12','demo=photonic&view=results&size=3&variant=1','demo=photonic&view=fabric&size=6&variant=0']) {
+   await page.goto(`${base}?${query}`);await ready();
+   const d=await diag();assert.equal(d.config_valid,true);
+   await roundTrip(`application configuration ${query}`);
+   await page.screenshot({path:path.join(out,`configured-${query.replaceAll(/[?&=]/g,'-')}.png`)});
   }
   report.adapter=await page.evaluate(async()=>{const a=await navigator.gpu.requestAdapter();return {vendor:a.info.vendor,architecture:a.info.architecture,description:a.info.description};});
   await page.goto(`${base}?demo=bell&step=0`);await ready();
@@ -199,7 +205,7 @@ const report = {url:base, timestamp:new Date().toISOString(), demos:[], interact
   await page.screenshot({path:path.join(out,'mixed-3d-trails.png'),fullPage:true});
   await page.setViewportSize({width:390,height:1000});
   await page.goto(`${base}?demo=photonic&view=fabric`);await ready();
-  {const d=await diag();assert.equal(d.plot_hits.filter(h=>h.action.startsWith('Node(')).length,4);for(const h of d.plot_hits){assert.ok(h.rect[0]>=d.canvas[0]&&h.rect[2]<=d.canvas[2],'mobile fabric components fit horizontally');}}
+  {const d=await diag();assert.equal(d.plot_hits.filter(h=>h.action.startsWith('Node(')).length,5);for(const h of d.plot_hits){assert.ok(h.rect[0]>=d.canvas[0]&&h.rect[2]<=d.canvas[2],'mobile fabric components fit horizontally');}}
   await page.screenshot({path:path.join(out,'photonic-mobile.png'),fullPage:true});
   report.register_groups={before:groupBefore,after:groupAfter};
   report.interactions.push('12 simultaneous qubits, direct q9 selection, focused inspection, explicit 13-qubit run, oversize rejection, mobile groups');

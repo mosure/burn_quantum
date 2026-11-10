@@ -1,0 +1,3 @@
+# Preserve the original UCI fixture bytes and published SHA-256 provenance.
+crates/burn_quantum/src/qml/benchmarks/data/wine.data -text
+crates/burn_quantum/src/qml/benchmarks/data/wine.names -text -whitespace

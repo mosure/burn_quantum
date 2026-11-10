@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- Add real UCI Wine classification with 4–8 entangling qubits, all thirteen
+  measured features, train-only preprocessing, validation checkpoint selection,
+  held-out predictions/confusion and majority/linear-ridge controls. Bundle the
+  attributed CC BY 4.0 dataset, share async core training with the CLI/viewer,
+  and export validated portable checkpoints for inference on new measurements.
+- Add configurable multi-spin Ising VQE with an independent exact ground energy
+  and product-state baseline, plus exact-3SAT examples with explicit clauses,
+  reversible work qubits, analytic amplification and verified witnesses.
+- Make the MPS QAOA executable configurable from 4 to 256 qubits, retaining
+  analytic cut checks, explicit host-SVD work and bounded approximation/storage.
+- Expand the explorer to eighteen experiments with structured study results and
+  actual optimization histories. Default photonic resources to logical dual-rail
+  qubits; retain optional vacuum levels, configurable Bell chains and unconditional
+  loss/fusion/delivery accounting. Keep simulator, scaling and QPU claims distinct.
 - Add circuit hover explanations for gates, control/target symbols, measurements,
   classical feedback and wires, with bounded tooltips shared by native and WebGPU.
 

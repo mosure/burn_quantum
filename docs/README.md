@@ -27,6 +27,8 @@ contracts, native/browser delivery and GPU interoperability boundaries.
 
 - [Core package](../crates/burn_quantum/README.md): library usage, features and packaged demos.
 - [Example suite](../crates/burn_quantum_example/README.md): one file per canonical application.
+- [Application benchmarks](application-benchmarks.md): real Wine classification,
+  Ising VQE, exact-3SAT, photonic logical qubits, baselines and reproducible limits.
 - [Boolean SAT](sat.md): CNF/DIMACS, reversible oracles and bounded search semantics.
 - [Quantum natural SPSA](qnspsa.md): fidelity geometry, optimizer API, checkpoints and numerical limits.
 - [Photonic foundations](photonic-fbqc.md): dual-rail encoding, loss, resource/fusion

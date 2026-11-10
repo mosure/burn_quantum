@@ -65,6 +65,9 @@ before wire 0. Matrices use row-major `[output, input]` storage.
 - Reproducible terminal measurement with a local seeded RNG and allocation budgets.
 - Reusable QML encoding/circuit templates, probability losses, pure-state fidelity
   and differentiable fidelity kernels in `burn_quantum::qml`.
+- Shared application benchmarks: real UCI Wine classification with train-only
+  preprocessing and held-out/classical controls, plus multi-qubit Ising VQE.
+  Enable the core `benchmarks` feature for these bounded async training pipelines.
 - Fidelity-based quantum natural SPSA with a regularized Fubini–Study metric,
   seeded perturbations, loss blocking, schedules, and portable checkpoints.
 - Boolean CNF/DIMACS SAT search with reversible clause oracles, Grover amplification,
@@ -77,9 +80,10 @@ before wire 0. Matrices use row-major `[output, input]` storage.
 
 ## Interactive quantum explorer
 
-Open the [live quantum explorer](https://mosure.github.io/burn_quantum/) for fifteen
-experiments, from Bell/GHZ entanglement and mixed qubit/qudit registers to
-teleportation, QFT, QPE, Grover, QAOA, error correction and photonic routing.
+Open the [live quantum explorer](https://mosure.github.io/burn_quantum/).
+The workspace catalog contains eighteen experiments, from Bell/GHZ entanglement
+and canonical algorithms to real-data Wine classification, Ising energy
+minimization, exact-3SAT constraints and configurable photonic Bell-resource chains.
 The [`burn_quantum_visualization`](crates/burn_quantum_visualization/README.md)
 crate shares a Bevy/Feathers interface between native and WebGPU browsers:
 compact parallel Bloch panels, canonical circuit diagrams, physical routing,
@@ -116,6 +120,10 @@ machine**, **hybrid regression**, **qutrit multiclass classification**,
 **Grover SAT search**, **quantum natural SPSA VQE**, and **lossy photonic Bell swapping**.
 Additional configurable examples cover **teleportation**, **Toffoli**, **QFT**,
 **Deutsch–Jozsa**, **phase estimation**, **Grover search** and the **bit-flip code**.
+The larger application examples add **4–8-qubit Wine classification**, **4–8-spin
+Ising VQE**, and **exact-three-literal SAT** with an independent small-instance
+reference. Wine uses 178 real chemical analyses, all thirteen features, a fixed
+stratified train/validation/test split, and both majority and linear-ridge controls.
 Each has an explicit problem, execution or training procedure, numerical
 acceptance criteria, a test, and a JSON result report.
 
@@ -123,6 +131,9 @@ acceptance criteria, a test, and a JSON result report.
 cargo run --locked -p burn_quantum_example --bin vqe
 cargo run --locked -p burn_quantum_example --bin born_machine
 cargo run --locked -p burn_quantum_example --bin qnspsa_vqe
+cargo run --locked -p burn_quantum_example --bin wine_classifier -- 6 2 64 731
+cargo run --locked -p burn_quantum_example --bin ising_vqe -- 6 2
+cargo run --locked -p burn_quantum_example --bin three_sat -- 5 sat
 cargo run --locked -p burn_quantum_example --bin fbqc_bell_swap
 bash scripts/run_examples.sh
 bash scripts/validate_backend.sh wgpu

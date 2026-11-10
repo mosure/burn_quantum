@@ -16,7 +16,7 @@ fusion = ["burn_quantum/fusion", "burn/fusion"]
 
 [dependencies]
 pollster = "0.4"
-burn_quantum.workspace = true
+burn_quantum = { workspace = true, features = ["benchmarks"] }
 burn = { workspace = true, features = ["flex", "autodiff", "optim"] }
 serde.workspace = true
 serde_json.workspace = true

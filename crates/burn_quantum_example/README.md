@@ -2,10 +2,10 @@
 
 Executable quantum AI/ML, search and photonic implementations using Burn's native
 tensors, optimizers and the `burn_quantum` simulator. Each executable lives in one
-file under `src/bin/`, with its problem definition, training or execution procedure,
-independent evaluation, `main` and acceptance tests. Reusable circuits and quantum
-operations live in the core crate. This package is a workspace member and is not
-published; run it from a repository checkout.
+file under `src/bin/`, with its configuration, independent evaluation, `main` and
+acceptance tests. Reusable circuits, quantum operations and application pipelines
+shared with the explorer live in the core crate. This package has 47 executables
+and is an unpublished workspace member; run it from a repository checkout.
 
 ## Examples
 
@@ -26,6 +26,9 @@ published; run it from a repository checkout.
 | Binary / source | Implementation | Independent evaluation |
 | --- | --- | --- |
 | [`vqe`](src/bin/vqe.rs) | Two-qubit VQE for `H = XX + YY + ZZ`, RY/CNOT ansatz, Adam | Energy against the analytic -3 ground energy and fidelity against the singlet |
+| [`wine_classifier`](src/bin/wine_classifier.rs) | Real UCI Wine: 13 chemical features, three cultivars, 4–8 entangling qubits, data reuploading and jointly trained linear head | Stratified train/validation/test split, train-only scaler, validation-selected checkpoint, held-out confusion matrix, majority and validation-tuned all-feature ridge baselines |
+| [`ising_vqe`](src/bin/ising_vqe.rs) | 4–8-spin open transverse-field Ising chain, 1–3 entangling layers and Adam | Independent dense ground energy, variational bound, energy per spin and uniform-product-state baseline |
+| [`three_sat`](src/bin/three_sat.rs) | 3–6 Boolean variables, exact-three-literal clauses, satisfiable/contradictory variants and a reversible Grover round | Exhaustive bounded reference, analytic amplification, clean ancillas and classically verified witness |
 | [`qaoa_maxcut`](src/bin/qaoa_maxcut.rs) | Depth-one QAOA with shared gamma/beta, ZZ cost evolution and X mixer | Exact enumeration of triangle cuts, optimal probability and sampled best cut |
 | [`variational_classifier`](src/bin/variational_classifier.rs) | Angle encoding, variational entangling layer, Pauli-Z binary readout, cross-entropy | Disjoint continuous-parity test grid and majority baseline |
 | [`quantum_kernel`](src/bin/quantum_kernel.rs) | Product RY feature map, fidelity Gram matrix, kernel ridge classifier | Gram invariants, classical solve residual and disjoint parity test grid |
@@ -74,7 +77,7 @@ published; run it from a repository checkout.
 
 | Binary / source | Implementation | Independent evaluation |
 | --- | --- | --- |
-| [`mps_qaoa`](src/bin/mps_qaoa.rs) | Non-Clifford QAOA on an 80-qubit MPS ring | Analytic cut law, random control, Schmidt storage and approximation bounds |
+| [`mps_qaoa`](src/bin/mps_qaoa.rs) | Non-Clifford QAOA on a configurable 4–256-qubit MPS ring (default 80) | Analytic cut law, random control, Schmidt storage and approximation bounds |
 | [`distributed_mps`](src/bin/distributed_mps.rs) | One entangled state owned by one/three real worker processes | Complete dense amplitudes, streamed correlations and injected commit recovery |
 | [`psiqdk_interop`](src/bin/psiqdk_interop.rs) | Bounded OpenQASM 3 export for local PsiQDK interoperability | Native state normalization and synthesis budget; SDK fixtures are checked separately |
 
@@ -93,6 +96,25 @@ optical learning, scheduling/control, logical-memory studies and process workers
 Each names its physical assumptions; none demonstrates quantum advantage.
 
 ## Configurable canonical circuit examples
+
+The application benchmarks share their actual execution pipelines with the
+explorer; they are not animations of prerecorded ideal results. Run them with:
+
+```sh
+cargo run --locked -p burn_quantum_example --bin wine_classifier -- 4 2 64 731
+cargo run --locked -p burn_quantum_example --bin ising_vqe -- 6 2
+cargo run --locked -p burn_quantum_example --bin three_sat -- 5 sat
+cargo run --locked -p burn_quantum_example --bin three_sat -- 5 unsat
+```
+
+Wine arguments are qubits (4–8), layers (1–3), Adam updates (1–128) and split /
+initialization seed. Ising takes qubits (4–8) and layers (1–3). SAT takes variables
+(3–6) and `sat`/`unsat`; the explorer uses a smaller 3–5-variable trace budget.
+The [application guide](../../docs/application-benchmarks.md) explains the
+datasets, measurement semantics, baselines, costs and qualification scope.
+The Wine report also includes a portable `model` checkpoint: restore
+`qml::benchmarks::wine::WineModel` with serde and call its async `predict` on new
+raw thirteen-feature measurements without training again.
 
 Each algorithm has one executable file and reuses `burn_quantum::algorithms`.
 The optional positional size argument has the following meaning and bounds.
@@ -213,6 +235,11 @@ Reusable quantum operations live in [`burn_quantum::qml`](../burn_quantum/src/qm
 - `distribution_cross_entropy`: differentiable probability loss for one-hot or
   soft targets, shared by binary, generative and qutrit models.
 - `fidelity_kernel`: differentiable batched Gram/cross-kernel construction.
+- `preprocessing::Standardizer`: explicit train-only standardization without
+  refitting on validation/test observations.
+- `benchmarks::{wine, ising}` behind the `benchmarks` feature: bounded async
+  training pipelines, parameter histories, circuit builders and independent
+  evaluation shared with the explorer. UCI Wine is bundled with CC BY 4.0 attribution.
 
 [`StateVector::fidelity`](../burn_quantum/src/state.rs) supports state-overlap objectives
 and reference checks. `QuantumLayerConfig` accepts empty observables for

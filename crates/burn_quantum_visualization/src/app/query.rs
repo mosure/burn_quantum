@@ -173,6 +173,7 @@ impl QueryState {
                 ViewMode::Circuit => "circuit",
                 ViewMode::Fabric => "fabric",
                 ViewMode::Learning => "learning",
+                ViewMode::Results => "results",
             }
         );
         put!(
@@ -317,6 +318,9 @@ mod tests {
             let q = parse(&format!("bloch={mode}"));
             assert_eq!(q, parse(&q.encode()));
         }
+        let results = parse("demo=photonic&view=results&size=3&variant=1&frame=4");
+        assert_eq!(results.view, ViewMode::Results);
+        assert_eq!(results, parse(&results.encode()));
     }
     #[test]
     fn protocol_selection_uses_instruction_count_including_measurements() {

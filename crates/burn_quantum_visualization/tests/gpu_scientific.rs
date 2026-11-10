@@ -95,6 +95,11 @@ fn expanded_configurations_match_cpu_on_real_wgpu() {
     let gpu = gpu();
     pollster::block_on(async {
         for (kind, size, depth, variant) in [
+            (DemoKind::WineClassifier, 6, 2, 0),
+            (DemoKind::Vqe, 6, 3, 0),
+            (DemoKind::ThreeSat, 4, 2, 1),
+            (DemoKind::PhotonicRouting, 3, 2, 1),
+            (DemoKind::PhotonicRouting, 6, 2, 0),
             (DemoKind::Ghz, 12, 1, 0),
             (DemoKind::Qft, 8, 1, 1),
             (DemoKind::Qpe, 6, 1, 1),

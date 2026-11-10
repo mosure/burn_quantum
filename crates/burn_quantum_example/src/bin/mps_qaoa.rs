@@ -1,4 +1,4 @@
-//! Non-Clifford QAOA on an 80-qubit ring, checked against its independent p=1 law.
+//! Non-Clifford QAOA on a configurable 4–256-qubit ring (default 80), checked against its independent p=1 law.
 //! MPS contractions use the selected Burn device; complex SVD is explicit host work.
 use burn::tensor::DType;
 use burn_quantum::{
@@ -62,7 +62,11 @@ fn trial(n: usize, beta: f64, gamma: f64) -> ExampleResult<(f64, usize, f64)> {
     )?;
     Ok((cut, state.storage_elements(), (cut - analytic).abs()))
 }
-fn run() -> ExampleResult<Report> {
+fn run(qubits: usize) -> ExampleResult<Report> {
+    ensure(
+        (4..=256).contains(&qubits),
+        "mps_qaoa supports 4–256 qubits",
+    )?;
     // A bounded parameter search is a transparent derivative-free variational loop;
     // no autodiff derivative through the host SVD is implied.
     let mut best = 0.5;
@@ -74,22 +78,23 @@ fn run() -> ExampleResult<Report> {
             worst_error = worst_error.max(error);
         }
     }
-    let (large, elements, error) = trial(80, PI / 8., PI / 4.)?;
+    let (large, elements, error) = trial(qubits, PI / 8., PI / 4.)?;
     worst_error = worst_error.max(error);
     ensure(
         (best - 0.75).abs() < 2e-5 && (large - 0.75).abs() < 2e-5,
         "QAOA beats random 0.5 cut fraction at both sizes",
     )?;
     ensure(
-        elements < 80 * 2 * 16 * 16,
-        "MPS stored bounded entanglement instead of 2^80 amplitudes",
+        elements < qubits * 2 * 16 * 16,
+        "MPS stored bounded entanglement instead of an exponential state",
     )?;
     Report::new(
         "mps_qaoa",
         0,
         9,
         &[
-            ("qubits", 80.),
+            ("qubits", qubits as f64),
+            ("dense_amplitude_count_log2", qubits as f64),
             ("cut_fraction", large),
             ("random_cut_fraction", 0.5),
             ("complex_state_elements", elements as f64),
@@ -98,12 +103,15 @@ fn run() -> ExampleResult<Report> {
     )
 }
 fn main() -> ExampleResult<()> {
-    run()?.print()
+    let mut args = std::env::args().skip(1);
+    let qubits = args.next().map(|s| s.parse()).transpose()?.unwrap_or(80);
+    ensure(args.next().is_none(), "usage: mps_qaoa [qubits 4..256]")?;
+    run(qubits)?.print()
 }
 #[cfg(test)]
 mod tests {
     #[test]
     fn qaoa_nonclifford_scaling() {
-        super::run().unwrap();
+        super::run(80).unwrap();
     }
 }

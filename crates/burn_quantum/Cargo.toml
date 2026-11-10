@@ -22,6 +22,7 @@ autodiff = ["burn/autodiff"]
 wgpu = ["burn/wgpu"]
 cuda = ["burn/cuda"]
 fusion = ["burn/fusion"]
+benchmarks = ["autodiff", "burn/optim"]
 
 [dependencies]
 serde_json.workspace = true

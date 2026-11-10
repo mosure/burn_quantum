@@ -74,7 +74,7 @@ pub(super) fn update(
         "query": crate::app::query::QueryState::capture(&state, &experiment).encode(),
         "config_valid":state.config_valid,
         "config_note":state.config_note,
-        "view": match state.view {ViewMode::State=>"state",ViewMode::Circuit=>"circuit",ViewMode::Fabric=>"fabric",ViewMode::Learning=>"learning"},
+        "view": match state.view {ViewMode::State=>"state",ViewMode::Circuit=>"circuit",ViewMode::Fabric=>"fabric",ViewMode::Learning=>"learning",ViewMode::Results=>"results"},
         "ready": experiment.document.is_some(),
         "frame": state.frame,
         "tick": state.tick,
@@ -103,6 +103,7 @@ pub(super) fn update(
         "title": experiment.document.as_ref().map(|d|d.title.as_str()),
         "status":state.status,
     });
+    value["drawing_dropped_lines"] = serde_json::json!(cache.dropped_lines);
     value["hover_regions"] = cache.hover_regions.iter().map(|h|serde_json::json!({"title":h.title,"summary":h.summary,"rect":[h.rect.min.x,h.rect.min.y,h.rect.max.x,h.rect.max.y]})).collect();
     value["tooltip"] = hover.shown.as_ref().zip(hover.rect).and_then(|(h,_)| {
         let (node,transform,visibility)=tooltip.single().ok()?;

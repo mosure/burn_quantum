@@ -180,7 +180,8 @@ impl VisualizationDocument {
             let frame = &self.trace.frames[i];
             if p.iteration != i
                 || p.parameters.len() != self.parameters.len()
-                || p.metric.len() != p.parameters.len() * p.parameters.len()
+                || (!p.metric.is_empty()
+                    && p.metric.len() != p.parameters.len() * p.parameters.len())
                 || !finite(&p.parameters)
                 || !finite(&p.metric)
                 || !p.loss.is_finite()
@@ -202,6 +203,9 @@ impl VisualizationDocument {
         }
         if let Some(fabric) = &self.fabric {
             fabric.validate()?;
+        }
+        if let Some(study) = &self.study {
+            study.validate(self.trace.frames.len())?;
         }
         Ok(())
     }

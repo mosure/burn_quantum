@@ -3,6 +3,7 @@
 //! Clauses compile into reversible compute/phase/uncompute circuits, without
 //! enumerating solutions or constructing a truth-table oracle. This is a dense
 //! simulation, not a polynomial-time SAT algorithm or a solver for QMA quantum SAT.
+pub mod benchmarks;
 mod cnf;
 mod oracle;
 mod search;

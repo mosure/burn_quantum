@@ -6,6 +6,7 @@ mod input;
 mod inspection;
 mod learning;
 mod plot;
+mod results;
 mod state;
 pub(crate) mod theme;
 mod tooltip;

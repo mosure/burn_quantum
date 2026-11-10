@@ -1,6 +1,6 @@
 # Configurable quantum experiment catalog
 
-The catalog combines fifteen scientific experiments with parallel subsystem
+The catalog combines eighteen scientific experiments with parallel subsystem
 views and configurable algorithm complexity. Release qualification covers the
 delivery gates below.
 
@@ -40,6 +40,10 @@ delivery gates below.
 | Grover search | Search width and iteration count | Analytic marked-state success probability |
 | QAOA MaxCut | Graph size and ansatz layers | Independently evaluated cut expectation and parameter bindings |
 | Bit-flip code | Code size and injected error | Logical recovery, syndrome and failure assumptions |
+| Wine classification | 4–8 qubits, 1–3 reuploading layers | Real held-out cultivars, train-only preprocessing, validation selection and linear-ridge / majority controls |
+| Ising VQE | 4–8 spins, 1–3 entangling layers | Independent exact ground energy, variational bound and uniform-product-state reference |
+| Exact-3SAT | 3–5 Boolean variables; satisfiable or contradictory constraints | Independent bounded enumeration, analytic Grover law, clean work qubits and verified witnesses |
+| Photonic Bell chain | 2–6 Bell resources, logical qubit or optional vacuum representation | Compiled resource/fabric ownership, unconditional analytic/sample loss and delivery, conditional corrected output fidelity |
 
 ## Delivery gates
 
@@ -89,8 +93,11 @@ estimation to the finite geometric-series distribution, Grover to its rotation
 formula, and QAOA to independent diagonal-cost and tensor-product mixer evolution.
 They check every one/two-transfer teleportation branch and all correctable error
 patterns for repetition lengths 3, 5 and 7, including a beyond-distance failure.
-Full-document CPU/WGPU comparison includes all fifteen default demos, branch
+The earlier full-document CPU/WGPU qualification covered fifteen default demos, branch
 likelihoods, local density matrices, amplitudes and QN-SPSA history.
+New application qualification must be recorded separately; historical results do
+not establish runtime support for new training loops. See the
+[application guide](application-benchmarks.md) for current evidence and methods.
 
 Browser qualification covers every catalog entry, 12 simultaneous Bloch panels,
 direct selection, focus, explicit 13-qubit execution, oversize rejection, narrow

@@ -12,6 +12,30 @@ pub(super) fn describe(state: &Explorer, document: Option<&VisualizationDocument
         return String::new();
     };
     match state.view {
+        ViewMode::Results => {
+            let Some(study) = &doc.study else {
+                return "No study report attached.".into();
+            };
+            let metrics = study
+                .metrics
+                .iter()
+                .map(|m| format!("{}\n{:.5} {}", m.label, m.value, m.unit))
+                .collect::<Vec<_>>()
+                .join("\n\n");
+            let formula = study.sat.as_ref().map(|sat| {
+                let clauses = sat.clauses.iter().enumerate().map(|(i,clause)| {
+                    format!("C{}: ({})",i+1,clause.iter().map(|l| format!("{}x{}",if *l<0 {"!"}else{""},l.unsigned_abs())).collect::<Vec<_>>().join(" OR "))
+                }).collect::<Vec<_>>().join("\n");
+                let witness = sat.witness.as_ref().map(|bits| bits.iter().enumerate().map(|(i,b)| format!("x{}={}",i+1,usize::from(*b))).collect::<Vec<_>>().join(" ")).unwrap_or_else(|| "None; exact enumeration finds zero satisfying assignments.".into());
+                format!("\n\n3SAT FORMULA (all clauses AND)\n\n{clauses}\n\nVerified witness\n{witness}")
+            }).unwrap_or_default();
+            format!(
+                "{}\n\n{}\n\n{metrics}{formula}\n\nASSUMPTIONS & PROVENANCE\n\n{}",
+                study.title,
+                study.summary,
+                study.notes.join("\n\n")
+            )
+        }
         ViewMode::Circuit => {
             let Some(index) = state.gate else {
                 return "INITIAL STATE\n\nThe register starts before\nany operation is applied."
@@ -166,12 +190,17 @@ pub(super) fn describe(state: &Explorer, document: Option<&VisualizationDocument
                 .collect::<Vec<_>>()
                 .join("\n");
             format!(
-                "ITERATE {}\n\nParameters{}\n{parameters}\n\nMetric diagonal\n{diagonal}\n\nObjective {:.6}\n\n{} loss probes\n{} fidelity probes",
+                "ITERATE {}\n\nParameters{}\n{parameters}\n\n{}\n\nObjective {:.6}\n\n{} loss probes\n{} fidelity probes",
                 point.iteration,
                 if point.parameters.len() > 4 {
                     " (first 4)"
                 } else {
                     ""
+                },
+                if point.metric.is_empty() {
+                    "Metric not recorded\nThis optimizer did not supply a Fisher metric.".into()
+                } else {
+                    format!("Metric diagonal\n{diagonal}")
                 },
                 point.loss,
                 point.loss_evaluations,
@@ -190,9 +219,9 @@ pub(super) fn describe(state: &Explorer, document: Option<&VisualizationDocument
                     format!("P(0)  {:.2}%\nP(1)  {:.2}%\nPhase  {phase}\nCoherence  {:.3}\n\nx  {:+.3}\ny  {:+.3}\nz  {:+.3}",
                         r.probabilities[0]*100., r.probabilities[1]*100., r.coherence, v[0], v[1], v[2])
                 })
-                .unwrap_or_else(|| {
-                    "Qudits use level\npopulations, not a\nqubit Bloch sphere.".into()
-                });
+                .unwrap_or_else(|| if q.dimension == 3 && super::state::includes_vacuum(doc) {
+                    format!("Dual-rail qubit + loss\n|10> = logical 0: {:.2}%\n|01> = logical 1: {:.2}%\n|00> = vacuum: {:.2}%\n\nThe third level is photon-loss bookkeeping.",q.probabilities[0]*100.,q.probabilities[1]*100.,q.probabilities[2]*100.)
+                } else { "Qudits use level\npopulations, not a\nqubit Bloch sphere.".into() });
             format!(
                 "SUBSYSTEM q{}\n\n{} levels\nPurity {:.4}\n\n{xyz}\n\nState norm {:.6}",
                 q.wire, q.dimension, q.purity, frame.norm

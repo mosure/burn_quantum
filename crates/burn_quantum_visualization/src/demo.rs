@@ -1,13 +1,18 @@
 //! Small, actual experiments with explicit scientific scope and cached trajectories.
 mod catalog;
 mod optimization;
+mod photonic;
+mod sat;
+mod training;
+mod vqe;
+mod wine;
 use crate::{
     model::*,
     simulation::{TraceLimits, simulate},
 };
 use burn::tensor::Device;
 use burn_quantum::{
-    Angle, Circuit, Matrix, Operation, Register, Result, Rotation, Unitary, gate::Axis, photonic::*,
+    Angle, Circuit, Matrix, Operation, Register, Result, Rotation, Unitary, gate::Axis,
 };
 pub use catalog::{DemoConfig, Preview, build_configured, preview};
 use serde::{Deserialize, Serialize};
@@ -15,6 +20,12 @@ use serde::{Deserialize, Serialize};
 /// Stable gallery identifiers.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum DemoKind {
+    /// Held-out three-class classification of measured wine chemistry.
+    WineClassifier,
+    /// Exact-three-literal Boolean constraints with reversible amplitude amplification.
+    ThreeSat,
+    /// Variational many-body ground-state approximation.
+    Vqe,
     /// Bell-pair entanglement.
     Bell,
     /// Configurable GHZ correlations.
@@ -50,11 +61,14 @@ impl DemoKind {
     /// Stable gallery order.
     pub fn all() -> &'static [Self] {
         &[
+            Self::WineClassifier,
+            Self::ThreeSat,
+            Self::Vqe,
+            Self::PhotonicRouting,
             Self::Bell,
             Self::Ghz,
             Self::Interference,
             Self::Qutrit,
-            Self::PhotonicRouting,
             Self::MixedRegister,
             Self::Teleportation,
             Self::Toffoli,
@@ -70,6 +84,9 @@ impl DemoKind {
     /// URL/export identifier.
     pub fn id(self) -> &'static str {
         match self {
+            Self::WineClassifier => "wine",
+            Self::ThreeSat => "three-sat",
+            Self::Vqe => "vqe",
             Self::Bell => "bell",
             Self::Ghz => "ghz",
             Self::Interference => "interference",
@@ -94,11 +111,14 @@ impl DemoKind {
     /// Gallery heading.
     pub fn title(self) -> &'static str {
         match self {
+            Self::WineClassifier => "Wine chemistry classifier",
+            Self::ThreeSat => "3SAT · constraint solving",
+            Self::Vqe => "VQE · quantum spin chain",
             Self::Bell => "Bell entanglement",
             Self::Ghz => "GHZ correlations",
             Self::Interference => "Phase interference",
             Self::Qutrit => "Qutrit Fourier",
-            Self::PhotonicRouting => "Photonic routing",
+            Self::PhotonicRouting => "Photonic fusion network",
             Self::MixedRegister => "Qubits & qutrits",
             Self::Teleportation => "Quantum teleportation",
             Self::Toffoli => "Toffoli / controlled X",
@@ -114,6 +134,15 @@ impl DemoKind {
     /// Physical assumptions and experiment purpose.
     pub fn description(self) -> &'static str {
         match self {
+            Self::WineClassifier => {
+                "A multi-qubit variational classifier learns three wine cultivars from real measured chemistry. Train-only preprocessing, a validation-selected iterate, untouched test metrics and a classical reference make generalization inspectable."
+            }
+            Self::ThreeSat => {
+                "Exact-three-literal Boolean clauses compile into a reversible compute/mark/uncompute oracle. One Grover round amplifies valid configurations; witness verification, an exhaustive small-instance reference and clean-work-qubit checks explain the result."
+            }
+            Self::Vqe => {
+                "An entangling multi-qubit variational circuit approximates the ground state of a transverse-field Ising spin chain. Compare measured energy and correlations with an independent small-system reference while tuning qubits and ansatz depth."
+            }
             Self::Bell => {
                 "A Hadamard and CNOT prepare a Bell pair. Each entangled qubit has a maximally mixed reduced state at the Bloch-ball center, despite the pure global state."
             }
@@ -127,7 +156,7 @@ impl DemoKind {
                 "A dimension-three Fourier transform, a sign on level two, and inverse Fourier transform. Qutrit reduced density matrices and probabilities are shown without assigning a qubit Bloch sphere."
             }
             Self::PhotonicRouting => {
-                "Two ideally supplied dual-rail Bell resources and their actual compiled packet/fusion schedule. Quantum frames show resource preparation only; link transmission is scheduling metadata, not an applied loss channel. No fusion success or output quantum state is assumed."
+                "A configurable chain of dual-rail Bell resources routes photons into destructive fusions. Logical qubits are the default; optional vacuum levels model photon loss. The ideal preparation timeline and unconditional sampled fusion/loss outcomes are reported separately."
             }
             Self::MixedRegister => {
                 "Two entangled pairs with different local dimensions, alongside two pure qubits. Qudit panels show populations; their density matrices and purity retain coherence information."
@@ -186,14 +215,8 @@ async fn build_basic(
             vec![std::f64::consts::PI],
         ),
         DemoKind::Qutrit => (Circuit::new(Register::new(vec![3])?, 0, 0), vec![], vec![]),
-        DemoKind::PhotonicRouting => (
-            Circuit::new(Register::new(vec![3; 4])?, 0, 0),
-            vec![],
-            vec![],
-        ),
         _ => (Circuit::new(Register::qubits(2)?, 0, 0), vec![], vec![]),
     };
-    let mut fabric = None;
     match kind {
         DemoKind::Bell | DemoKind::Ghz => {
             circuit.unitary(vec![0], Unitary::h())?;
@@ -222,65 +245,6 @@ async fn build_basic(
             circuit.unitary(vec![0], Unitary::fourier(3)?.adjoint())?;
             labels = vec!["F3".into(), "Phase on level 2".into(), "F3 inverse".into()];
         }
-        DemoKind::PhotonicRouting => {
-            let resource = ResourceState::bell_pair();
-            for offset in [0, 2] {
-                for op in resource.circuit()?.operations() {
-                    let mapped = match op {
-                        Operation::Unitary { wires, gate } => Operation::Unitary {
-                            wires: wires.iter().map(|q| q + offset).collect(),
-                            gate: gate.clone(),
-                        },
-                        Operation::PhaseFlip { controls } => Operation::PhaseFlip {
-                            controls: controls.iter().map(|&(q, l)| (q + offset, l)).collect(),
-                        },
-                        _ => {
-                            return Err(burn_quantum::Error::Unsupported(
-                                "unexpected resource preparation instruction".into(),
-                            ));
-                        }
-                    };
-                    circuit.push(mapped)?;
-                    labels.push(format!(
-                        "Bell resource {}: operation {}",
-                        offset / 2 + 1,
-                        labels.len() + 1
-                    ));
-                }
-            }
-            let mut program = FusionProgram::new();
-            let a = program.add_resource(resource.clone(), NodeId(0))?;
-            let b = program.add_resource(resource, NodeId(1))?;
-            program.fuse(a[1], b[0], NodeId(3))?;
-            let physical = Fabric::new(
-                vec![
-                    NodeKind::Source,
-                    NodeKind::Source,
-                    NodeKind::Switch,
-                    NodeKind::Fusion,
-                ]
-                .into_iter()
-                .map(|kind| FabricNode {
-                    kind,
-                    storage: RailTransmission::uniform(0.999).unwrap(),
-                })
-                .collect(),
-                [(0, 2, 2, 0.98), (1, 2, 3, 0.97), (2, 3, 2, 0.96)]
-                    .into_iter()
-                    .map(|(from, to, ticks, eta)| {
-                        Ok(FabricLink {
-                            from: NodeId(from),
-                            to: NodeId(to),
-                            ticks,
-                            transmission: RailTransmission::uniform(eta)?,
-                        })
-                    })
-                    .collect::<Result<_>>()?,
-            )?;
-            fabric = Some(FabricSnapshot::from_compiled(
-                &program.compile(&physical, CompileOptions::default())?,
-            ));
-        }
         _ => unreachable!("configurable demos are handled by the catalog"),
     }
     let trace = simulate(&circuit, &parameters, &[], &labels, device, limits).await?;
@@ -293,9 +257,10 @@ async fn build_basic(
         inputs: vec![],
         operation_labels: labels,
         trace,
-        fabric,
+        fabric: None,
         optimization: vec![],
         protocol: None,
+        study: None,
     };
     document.validate_with(limits)?;
     Ok(document)

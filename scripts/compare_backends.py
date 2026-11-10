@@ -10,6 +10,7 @@ from example_catalog import example_names
 # These are measured host/transport diagnostics, not numerical quantum outputs.
 # Keep both values in the report without imposing artificial device timing parity.
 DIAGNOSTICS = {
+    "wine_classifier": {"elapsed_seconds"},
     "fbqc_remote": {"remote_seconds"},
     "fbqc_four_star_memory": {f"distance{d}_{phase}_seconds"
                               for d in (2, 3, 4)

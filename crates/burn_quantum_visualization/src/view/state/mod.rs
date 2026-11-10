@@ -11,6 +11,12 @@ use crate::{
     model::{VisualizationDocument, aggregate_probabilities},
 };
 use bevy::prelude::*;
+pub(super) fn includes_vacuum(doc: &VisualizationDocument) -> bool {
+    doc.study
+        .as_ref()
+        .and_then(|s| s.photonic.as_ref())
+        .is_some_and(|p| p.includes_vacuum)
+}
 pub(super) fn build(
     p: &mut PlotCache,
     bounds: Rect,
@@ -56,7 +62,13 @@ pub(super) fn build(
     };
     p.text(
         Vec2::new(sphere.center().x, sphere.min.y + 20.),
-        if sphere.width() < 230. {
+        if q.dimension == 3 && includes_vacuum(doc) {
+            if sphere.width() < 230. {
+                format!("q{} · +vacuum", q.wire)
+            } else {
+                format!("q{} · dual rail + vacuum", q.wire)
+            }
+        } else if sphere.width() < 230. {
             format!("q{} · {} levels", q.wire, q.dimension)
         } else {
             format!("q{} · {}-level subsystem", q.wire, q.dimension)
@@ -142,7 +154,16 @@ pub(super) fn build(
                     CYAN,
                 );
                 let label = if bin.end - bin.start == 1 {
-                    format!("|{}>", bin.start)
+                    if q.dimension == 3 && includes_vacuum(doc) {
+                        if sphere.width() < 230. {
+                            ["0: |10>", "1: |01>", "vac: |00>"][bin.start].into()
+                        } else {
+                            ["|10> · logical 0", "|01> · logical 1", "|00> · vacuum"][bin.start]
+                                .into()
+                        }
+                    } else {
+                        format!("|{}>", bin.start)
+                    }
                 } else {
                     format!("levels {}–{}", bin.start, bin.end - 1)
                 };
@@ -291,9 +312,13 @@ fn basis_label(index: usize, doc: &VisualizationDocument) -> String {
             "|{}>",
             digits
                 .iter()
-                .map(|v| v.to_string())
+                .map(|v| if includes_vacuum(doc) && *v == 2 {
+                    "vac".into()
+                } else {
+                    v.to_string()
+                })
                 .collect::<Vec<_>>()
-                .join(if dims.iter().any(|d| *d > 10) {
+                .join(if includes_vacuum(doc) || dims.iter().any(|d| *d > 10) {
                     ","
                 } else {
                     ""

@@ -26,9 +26,10 @@ cargo run --locked -p burn_quantum_visualization --example embedded
 
 ## Explore
 
-Fifteen experiments cover Bell/GHZ states, mixed qubit/qutrit registers, interference,
+Eighteen experiments cover Bell/GHZ states, mixed qubit/qutrit registers, interference,
 teleportation, Toffoli, QFT, Deutsch–Jozsa, QPE, Grover, QAOA MaxCut, bit-flip
-correction, compiled photonic routing and quantum natural SPSA.
+correction, compiled photonic routing, quantum natural SPSA, real UCI Wine
+classification, multi-spin Ising VQE and exact-3SAT constraints.
 Each loaded configuration is simulated once through core Burn APIs. Changing
 views or scrubbing a cached timeline does not rerun its simulation.
 
@@ -37,13 +38,28 @@ views or scrubbing a cached timeline does not rerun its simulation.
 | State | Parallel reduced-state panels, direct subsystem selection, qudit populations; focused joint probabilities and amplitude phase |
 | Circuit | Semantic gate symbols, conservative parallel columns, SWAPs, control levels, measurement and double classical wires |
 | Photonic fabric | Resource ownership, held outputs, paired optical rails, switches, destructive fusion analyzers and per-photon travel/wait timelines |
-| Learning | Actual QN-SPSA parameter iterates, objective history and cumulative probe costs |
+| Learning | Actual Adam or QN-SPSA iterates, objective history, independent evaluation and stated costs |
 
 Entangled qubits can lie inside the Bloch sphere. Qudits use populations instead
 of a misleading three-dimensional qubit representation. Adjacent probability
 bins retain all mass; aggregation does not pretend to retain one complex phase.
-The photonic demo separates resource preparation from physical routing: moving
-dots show scheduled travel, not sampled photon detection or a successful fusion.
+The photonic demo defaults to logical dual-rail qubits. Its optional third local
+level represents vacuum after photon loss; this does not make the encoded
+computer a qutrit processor. It separates ideal Bell-resource preparation from
+physical routing and sampled lossy fusion-chain outcomes: moving dots show the
+schedule, while the study reports unconditional loss/failure/delivery frequencies.
+
+Wine uses all thirteen measured chemical features, 4–8 qubits and 1–3 data
+reuploading layers, with a train-only scaler, validation-selected checkpoint and
+held-out predictions/confusion alongside a classical ridge baseline. Its Bloch
+timeline shows one fixed held-out input through actual parameter iterates;
+dataset-wide metrics are reported separately. Ising minimizes a 4–8-spin energy
+and compares with independent exact diagonalization and a product-state reference.
+The 3SAT view shows explicit clauses, variable/work-qubit roles, clean-ancilla
+probability and verified witnesses. See the
+[application guide](https://github.com/mosure/burn_quantum/blob/main/docs/application-benchmarks.md)
+for limits and reproducible CLI equivalents. These examples demonstrate bounded
+simulation and evaluation, not quantum advantage or a hardware result.
 
 Use the experiment list, view tabs, clickable subsystem panels and timeline.
 Narrow browser windows use an experiment selector; compact native windows use
@@ -114,6 +130,9 @@ cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --dem
 cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --demo mixed --step 6 --bloch 2d
 cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --demo qpe --size 6 --variant 1 --view circuit
 cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --demo qaoa --size 8 --layers 3 --view circuit
+cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --demo wine --size 6 --layers 2 --view learning
+cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --demo vqe --size 6 --layers 2 --view learning
+cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --demo three-sat --size 5 --view circuit
 ```
 
 Browser links accept the same settings, for example
@@ -273,7 +292,7 @@ is installed outside the repository, `CHROME_BIN` for a browser executable,
 of platform-specific launch flags. The default `web-release` profile uses size
 optimization and thin LTO; `BURN_QUANTUM_WEB_PROFILE=release` selects the standard
 release profile for comparison. `VISUALIZATION_URL` selects a local or deployed
-site. The script renders all fifteen experiments and checks real widget clicks,
+site. The script renders the experiment catalog and checks real widget clicks,
 keyboard focus, import/export, complete URL restoration, bounded entity counts,
 responsive layouts, touch input, unsupported graphics and device loss. It writes
 results under `artifacts/visualization/browser`; `VISUALIZATION_ARTIFACTS` changes

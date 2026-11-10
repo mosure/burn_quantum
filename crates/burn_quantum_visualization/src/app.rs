@@ -27,15 +27,24 @@ pub enum ViewMode {
     Fabric,
     /// Optimization objective history.
     Learning,
+    /// Task outcomes, independent references and explicit resource costs.
+    Results,
 }
 impl ViewMode {
-    pub(crate) const ALL: [Self; 4] = [Self::State, Self::Circuit, Self::Fabric, Self::Learning];
+    pub(crate) const ALL: [Self; 5] = [
+        Self::Results,
+        Self::State,
+        Self::Circuit,
+        Self::Fabric,
+        Self::Learning,
+    ];
     pub(crate) fn title(self) -> &'static str {
         match self {
             Self::State => "State",
             Self::Circuit => "Circuit",
             Self::Fabric => "Fabric",
             Self::Learning => "Learning",
+            Self::Results => "Results",
         }
     }
     fn parse(value: &str) -> Self {
@@ -43,6 +52,7 @@ impl ViewMode {
             "circuit" => Self::Circuit,
             "fabric" => Self::Fabric,
             "learning" | "optimization" => Self::Learning,
+            "results" => Self::Results,
             _ => Self::State,
         }
     }
@@ -420,6 +430,7 @@ fn accept_document(
     let initial = launch.step.take().unwrap_or(0);
     if (state.view == ViewMode::Fabric && document.fabric.is_none())
         || (state.view == ViewMode::Learning && document.optimization.is_empty())
+        || (state.view == ViewMode::Results && document.study.is_none())
     {
         state.view = ViewMode::State;
     }

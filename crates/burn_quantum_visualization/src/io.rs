@@ -26,15 +26,21 @@ pub fn parse_document(text: &str) -> IoResult<VisualizationDocument> {
 }
 
 /// Validate and serialize a bounded experiment for storage or another viewer.
+/// Small records are indented; large trajectories use compact JSON when that
+/// preserves the same document within the unchanged byte budget.
 pub fn document_json(document: &VisualizationDocument) -> IoResult<String> {
     document.validate()?;
     let value = serde_json::to_value(document)?;
     preflight::check(&value)?;
     let text = serde_json::to_string_pretty(&value)?;
-    if text.len() > MAX_DOCUMENT_BYTES {
+    if text.len() <= MAX_DOCUMENT_BYTES {
+        return Ok(text);
+    }
+    let compact = serde_json::to_string(&value)?;
+    if compact.len() > MAX_DOCUMENT_BYTES {
         return Err("experiment JSON exceeds the 16 MiB export budget".into());
     }
-    Ok(text)
+    Ok(compact)
 }
 
 /// Read a native experiment file with a bounded reader, including growing files.

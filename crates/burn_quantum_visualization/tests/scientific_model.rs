@@ -154,9 +154,9 @@ fn actual_photonic_schedule_and_untrusted_document_checks_are_bounded() {
                 fabric.routes.len(),
                 fabric.fusions.len()
             ),
-            (2, 4, 2, 1)
+            (3, 6, 4, 2)
         );
-        assert_eq!(fabric.outputs, vec![0, 3]);
+        assert_eq!(fabric.outputs, vec![0, 5]);
         assert!(fabric.routes.iter().all(|r| r.transmission[0] < 1.));
         let mut bad = doc.clone();
         bad.fabric.as_mut().unwrap().routes[0].hops[0].arrival += 1;
@@ -312,7 +312,7 @@ fn fabric_locations_include_waiting_destructive_consumption_and_held_outputs() {
         .await
         .unwrap();
         let f = doc.fabric.as_ref().unwrap();
-        assert_eq!(f.resources.len(), 2);
+        assert_eq!(f.resources.len(), 3);
         for r in &f.routes {
             for h in &r.hops {
                 assert_eq!(
@@ -342,8 +342,8 @@ fn fabric_locations_include_waiting_destructive_consumption_and_held_outputs() {
             Some(PhotonLocation::Node(0))
         );
         assert_eq!(
-            f.photon_location(3, f.finish_tick as f64),
-            Some(PhotonLocation::Node(1))
+            f.photon_location(5, f.finish_tick as f64),
+            Some(PhotonLocation::Node(2))
         );
         let mut bad = doc.clone();
         bad.fabric.as_mut().unwrap().resources[0].photons[0] = 3;

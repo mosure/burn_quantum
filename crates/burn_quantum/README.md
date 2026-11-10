@@ -40,6 +40,9 @@ fn main() -> burn_quantum::Result<()> {
 - Serializable circuits, native autodiff, qudit-aware parameter-shift
   references, and `QuantumLayer` integration with Burn modules and records.
 - Reusable encodings, circuit templates, probability losses and fidelity kernels.
+- Train-only feature standardization and optional shared Wine classification /
+  multi-spin Ising VQE benchmark pipelines, with actual optimization histories
+  and independent held-out or exact-reference evaluation.
 - Quantum natural SPSA with a regularized Fubini–Study metric and checkpoints.
 - Boolean CNF/DIMACS SAT search with reversible oracles and verified witnesses.
 - `photonic` adds dual-rail/vacuum encoding, loss,
@@ -53,6 +56,11 @@ fn main() -> burn_quantum::Result<()> {
 Default features are `flex` and `autodiff`. Optional `wgpu`, `cuda` and `fusion`
 features select accelerator capabilities; callers supply the execution device.
 F32/F64 availability depends on the device. GPU qualification uses F32.
+The optional `benchmarks` feature enables `qml::benchmarks::{wine, ising}` and
+Burn optimizers. Their async APIs use the caller's device and are shared by the
+CLI examples and native/browser explorer. The bundled UCI Wine data carry a
+separate CC BY 4.0 license and attribution; see the
+[application guide](https://github.com/mosure/burn_quantum/blob/main/docs/application-benchmarks.md).
 
 Dense simulation uses exponential state storage: for batch B and Hilbert
 dimension N, pure states store 2BN real scalars and density matrices store 2BN².
@@ -90,7 +98,8 @@ cargo run --locked -p burn_quantum --features wgpu --example wgpu_smoke
 
 The unpublished sibling `burn_quantum_example` package contains single-file
 applications, including canonical circuits, VQE, QAOA, classifiers, a Born
-machine, hybrid regression, Grover SAT, QN-SPSA VQE, physical photonic optimization,
+machine, real Wine classification, Ising energy minimization, exact-3SAT,
+hybrid regression, Grover SAT, QN-SPSA VQE, physical photonic optimization,
 finite-boundary QEC studies, magic-state distillation and distributed MPS workloads.
 Run it from a repository checkout:
 
@@ -112,4 +121,6 @@ Try the [interactive gallery](https://mosure.github.io/burn_quantum/).
 
 ## License
 
-MIT OR Apache-2.0. Both license texts are included in this package.
+Rust code: MIT OR Apache-2.0. Both license texts are included in this package.
+The bundled [UCI Wine dataset](src/qml/benchmarks/data/README.md) is CC BY 4.0;
+its attribution, original source and SHA-256 hashes are included separately.

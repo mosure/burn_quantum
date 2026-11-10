@@ -941,11 +941,12 @@ pub(super) fn apply(
             state.preview_config();
         }
         Action::Depth(delta) => {
+            let maximum = DemoConfig::max_depth(state.demo);
             state.config.depth = state
                 .config
                 .depth
                 .saturating_add_signed(delta as isize)
-                .clamp(1, 6);
+                .clamp(1, maximum);
             state.preview_config();
         }
         Action::Variant => {
@@ -1142,6 +1143,10 @@ pub(super) fn responsive(
                             .document
                             .as_ref()
                             .is_some_and(|d| !d.optimization.is_empty()),
+                        ViewMode::Results => experiment
+                            .document
+                            .as_ref()
+                            .is_some_and(|d| d.study.is_some()),
                         _ => true,
                     },
                     Responsive::BlochTools => experiment
@@ -1154,7 +1159,10 @@ pub(super) fn responsive(
                             && !state.show_details
                             && state.show_settings
                     }
-                    Responsive::DepthSetting => state.demo == DemoKind::Qaoa,
+                    Responsive::DepthSetting => matches!(
+                        state.demo,
+                        DemoKind::Qaoa | DemoKind::WineClassifier | DemoKind::Vqe
+                    ),
                     Responsive::VariantSetting => DemoConfig::variants(state.demo) > 1,
                     Responsive::StateTools => {
                         state.view == ViewMode::State
@@ -1257,6 +1265,11 @@ pub(super) fn responsive(
                 }
             }
             Responsive::Footer => {
+                node.display = if state.view == ViewMode::Results {
+                    Display::None
+                } else {
+                    Display::Flex
+                };
                 node.flex_shrink = 0.;
                 let padding = UiRect::axes(px(if compact { 12. } else { 24. }), px(16.));
                 if node.padding != padding {
@@ -1288,11 +1301,12 @@ pub(super) fn sync_controls(
         Field::Step=>{let count=doc.map(|d|timeline_len(&state,d)).unwrap_or(1);format!("{} {} / {}   ·   {}   ·   ×{}",if state.view==ViewMode::Fabric{"Schedule tick"}else{"Step"},cursor(&state),count.saturating_sub(1),if state.playing{"Playing"}else{"Paused"},state.speed)},
         Field::Inspection=>super::inspection::describe(&state,doc),
         Field::Context=>doc.map(|d|format!("CONTEXT\n\n{}",d.description)).unwrap_or_default(),
-        Field::ViewNote=>match state.view{ViewMode::State=>if state.bloch_mode == BlochMode::Planar {"Disk area = P(1); hand angle = phase, length = coherence. Purity distinguishes mixtures. Focus reveals joint probabilities."}else{"Each panel is a reduced subsystem. Qubits show Bloch vectors; qudits show level populations. Focus reveals joint probabilities."},ViewMode::Circuit=>if doc.is_some_and(|d|d.trace.kind==crate::model::TraceKind::Optimization){"Parameterized ansatz at the selected optimizer iterate. Hover for gate help; click to inspect its actual parameter binding."}else{"Read left to right; the highlighted prefix has executed. Hover for gate help; click to inspect and seek. Drag to pan."},ViewMode::Fabric=>"Physical schedule time is independent of the circuit prefix. Moving dots follow compiled routes; links show rail transmission.",ViewMode::Learning=>"Actual parameter iterates, objective values and evaluation costs. Scrub to compare the current iterate with its history."}.into(),
+        Field::ViewNote=>match state.view{ViewMode::State=>if state.bloch_mode == BlochMode::Planar {"Disk area = P(1); hand angle = phase, length = coherence. Purity distinguishes mixtures. Focus reveals joint probabilities."}else{"Each panel is a reduced subsystem. Qubits show Bloch vectors; qudits show level populations. Focus reveals joint probabilities."},ViewMode::Circuit=>if doc.is_some_and(|d|d.trace.kind==crate::model::TraceKind::Optimization){"Parameterized ansatz at the selected optimizer iterate. Hover for gate help; click to inspect its actual parameter binding."}else{"Read left to right; the highlighted prefix has executed. Hover for gate help; click to inspect and seek. Drag to pan."},ViewMode::Fabric=>"Physical schedule time is independent of the circuit prefix. Moving dots follow compiled routes; links show rail transmission.",ViewMode::Learning=>"Actual parameter iterates, objective values and evaluation costs. Scrub to compare the current iterate with its history.",ViewMode::Results=>"Task outcomes retain their baselines, survival conditions and resource costs. Details contains every metric and model assumption."}.into(),
         Field::Stats=>cache.description.clone(),
         Field::ViewSummary=>match state.view {
             ViewMode::State=>format!("{} · {}",if state.state_overview { "Register".into() } else { format!("q{}",state.wire) }, if doc.is_some_and(|d|d.circuit.register().dimensions().contains(&2)) { match state.bloch_mode {BlochMode::Spatial=>"3D spheres".into(),BlochMode::Planar=>"2D probability / phase".into(),BlochMode::Projection=>format!("Projection {}",state.bloch_plane.axes()[..2].join("").to_uppercase())} } else {"Populations".into()}),
             ViewMode::Circuit=>"Hover symbols for help".into(),
+            ViewMode::Results=>"Measured outcomes · references · scope in Details".into(),
             _=>"Drag to pan · scroll to zoom".into(),
         },
         Field::PlaneName=>state.bloch_plane.axes()[..2].join("").to_uppercase(),

@@ -1,12 +1,12 @@
 //! Configurable algorithm catalog. Preflight allocates only the small circuit definition.
 use super::*;
 use burn_quantum::algorithms::{self, AlgorithmCircuit};
-/// Portable settings. `size` and `variant` have experiment-specific labels; `depth` is QAOA layers.
+/// Portable settings. `size` and `variant` have experiment-specific labels; `depth` is variational layers.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DemoConfig {
     /// Qubits, input bits, precision bits, controls or independent transfers, as labeled by the catalog.
     pub size: usize,
-    /// Variational ansatz layers (QAOA only).
+    /// Variational ansatz layers (QAOA, Wine, and VQE).
     pub depth: usize,
     /// Discrete oracle/direction/error/branch choice.
     pub variant: usize,
@@ -16,6 +16,9 @@ impl DemoConfig {
     pub fn for_demo(kind: DemoKind) -> Self {
         Self {
             size: match kind {
+                DemoKind::WineClassifier | DemoKind::Vqe => 4,
+                DemoKind::ThreeSat => 5,
+                DemoKind::PhotonicRouting => 3,
                 DemoKind::Ghz => 6,
                 DemoKind::Toffoli => 2,
                 DemoKind::Teleportation => 1,
@@ -32,6 +35,9 @@ impl DemoConfig {
     /// Inclusive selectable size range and increment. Actual retained-state limits apply as well.
     pub fn range(kind: DemoKind) -> (usize, usize, usize) {
         match kind {
+            DemoKind::WineClassifier | DemoKind::Vqe => (4, 8, 1),
+            DemoKind::ThreeSat => (3, 5, 1),
+            DemoKind::PhotonicRouting => (2, 6, 1),
             DemoKind::Ghz => (2, 16, 1),
             DemoKind::Teleportation => (1, 5, 1),
             DemoKind::Toffoli => (2, 15, 1),
@@ -46,6 +52,8 @@ impl DemoConfig {
     /// Human-readable meaning of size.
     pub fn size_label(kind: DemoKind) -> &'static str {
         match kind {
+            DemoKind::ThreeSat => "Boolean variables",
+            DemoKind::PhotonicRouting => "Bell resources",
             DemoKind::Teleportation => "transfers",
             DemoKind::Toffoli => "controls",
             DemoKind::DeutschJozsa => "input bits",
@@ -56,6 +64,7 @@ impl DemoConfig {
     /// Number of useful discrete settings for this catalog entry.
     pub fn variants(kind: DemoKind) -> usize {
         match kind {
+            DemoKind::ThreeSat | DemoKind::PhotonicRouting => 2,
             DemoKind::Teleportation => 4,
             DemoKind::Toffoli
             | DemoKind::Qft
@@ -69,6 +78,18 @@ impl DemoConfig {
     /// Label for the selected variant, independent of simulation output.
     pub fn variant_label(self, kind: DemoKind) -> String {
         match kind {
+            DemoKind::ThreeSat => if self.variant == 0 {
+                "Satisfiable constraints"
+            } else {
+                "Contradictory constraints"
+            }
+            .into(),
+            DemoKind::PhotonicRouting => if self.variant == 0 {
+                "Logical dual-rail qubits"
+            } else {
+                "Qubits + vacuum loss level"
+            }
+            .into(),
             DemoKind::Teleportation => format!("Branch {:02b} / transfer", 3 - self.variant.min(3)),
             DemoKind::Toffoli => if self.variant == 0 {
                 "Controls |+>"
@@ -110,6 +131,14 @@ impl DemoConfig {
             _ => "Default".into(),
         }
     }
+    /// Largest selectable ansatz depth, shared by controls and validation.
+    pub fn max_depth(kind: DemoKind) -> usize {
+        if matches!(kind, DemoKind::WineClassifier | DemoKind::Vqe) {
+            3
+        } else {
+            6
+        }
+    }
     /// Validate settings without constructing a tensor or exponential state.
     pub fn validate(self, kind: DemoKind) -> Result<()> {
         let (min, max, step) = Self::range(kind);
@@ -117,7 +146,7 @@ impl DemoConfig {
             || self.size > max
             || !(self.size - min).is_multiple_of(step)
             || self.depth == 0
-            || self.depth > 6
+            || self.depth > Self::max_depth(kind)
             || self.variant >= Self::variants(kind)
         {
             return Err(burn_quantum::Error::InvalidValue(
@@ -245,6 +274,14 @@ fn preview_algorithm(a: &AlgorithmCircuit, limits: TraceLimits) -> Result<Previe
 }
 /// Check an algorithm configuration before launching a simulation. None marks a fixed-size foundational demo.
 pub fn preview(kind: DemoKind, config: DemoConfig, limits: TraceLimits) -> Result<Option<Preview>> {
+    config.validate(kind)?;
+    match kind {
+        DemoKind::WineClassifier => return super::wine::preview(config, limits).map(Some),
+        DemoKind::ThreeSat => return super::sat::preview(config, limits).map(Some),
+        DemoKind::Vqe => return super::vqe::preview(config, limits).map(Some),
+        DemoKind::PhotonicRouting => return super::photonic::preview(config, limits).map(Some),
+        _ => {}
+    }
     algorithm(kind, config)?
         .map(|a| preview_algorithm(&a, limits))
         .transpose()
@@ -256,6 +293,14 @@ pub async fn build_configured(
     device: &Device,
     limits: TraceLimits,
 ) -> Result<VisualizationDocument> {
+    config.validate(kind)?;
+    match kind {
+        DemoKind::WineClassifier => return super::wine::build(config, device, limits).await,
+        DemoKind::ThreeSat => return super::sat::build(config, device, limits).await,
+        DemoKind::Vqe => return super::vqe::build(config, device, limits).await,
+        DemoKind::PhotonicRouting => return super::photonic::build(config, device, limits).await,
+        _ => {}
+    }
     let Some(a) = algorithm(kind, config)? else {
         return super::build_basic(kind, device, limits).await;
     };
@@ -300,6 +345,7 @@ pub async fn build_configured(
         fabric: None,
         optimization: vec![],
         protocol,
+        study: None,
     };
     document.validate_with(limits)?;
     Ok(document)
