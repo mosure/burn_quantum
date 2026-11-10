@@ -94,7 +94,7 @@ pub(super) fn build(
             let color = if survival < 0.99 {
                 GOLD.with_alpha(0.55)
             } else {
-                BORDER
+                GUIDE
             };
             p.line(a, b, color);
             p.arrow(a.lerp(b, 0.48), a.lerp(b, 0.65), color);

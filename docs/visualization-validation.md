@@ -1,5 +1,34 @@
 # Visualization validation
 
+## Controller theme follow-up (2026-11-10)
+
+The native and browser UI now follows the `burn_gekko` controller palette:
+charcoal surfaces, rose selections and focus indicators, subdued series colors,
+thin panel borders and compact typography. Visual review also caught a native
+layout overflow: the root now reserves a separate grid row for the timeline,
+while the inspector scrolls within the remaining space.
+Overlapping plot rectangles now have explicit painter order, preventing a
+qutrit population fill from being hidden behind its background track.
+
+Strict viewer Clippy, formatting, the optimized WASM build and the existing full
+browser interaction runner passed. All six examples ran on Chrome 156.0.8078.79
+with NVIDIA Blackwell WebGPU, including the 390px layout, Details scrolling,
+keyboard/touch controls, JSON I/O, 12-qubit import and device-loss fallback.
+Native captures at 1440×960 and 390×800 were reviewed along with the browser
+state, circuit, fabric and learning views. The paused browser scene retained
+542 entities after 16 view switches; the final 120-frame sample had a 17.0 ms
+median and 18.4 ms p95 interval on this workstation. An earlier browser attempt
+failed a Details-click assertion; the complete rerun passed without application
+changes or browser errors.
+
+The local [browser result](../artifacts/visualization/controller-theme/browser/results.json),
+[desktop capture](../artifacts/visualization/controller-theme/browser/bell.png),
+[narrow capture](../artifacts/visualization/controller-theme/browser/narrow.png),
+and [native capture](../artifacts/visualization/controller-theme/native-fabric.png)
+record this follow-up. The original numerical qualification below is unchanged.
+
+## Initial qualification
+
 This report records completed local checks on 2026-11-10 for
 `burn_quantum_visualization`. The committed [result record](visualization-results.json)
 contains source hashes and compact measurements. Full logs and captures are local,

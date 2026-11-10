@@ -37,7 +37,7 @@ pub(super) fn build(
                 let left = (x - half).clamp(bounds.min.x + 50., bounds.max.x - 15.);
                 let right = (x + half).clamp(bounds.min.x + 50., bounds.max.x - 15.);
                 if left > cursor {
-                    p.line(Vec2::new(cursor, y), Vec2::new(left, y), BORDER);
+                    p.line(Vec2::new(cursor, y), Vec2::new(left, y), GUIDE);
                 }
                 cursor = cursor.max(right);
             }
@@ -46,7 +46,7 @@ pub(super) fn build(
             p.line(
                 Vec2::new(cursor, y),
                 Vec2::new(bounds.max.x - 15., y),
-                BORDER,
+                GUIDE,
             );
         }
         p.text(

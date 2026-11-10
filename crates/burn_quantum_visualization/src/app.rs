@@ -6,7 +6,7 @@ use crate::{
     view,
 };
 use bevy::{
-    feathers::{FeathersPlugins, dark_theme::create_dark_theme, theme::UiTheme},
+    feathers::FeathersPlugins,
     prelude::*,
     tasks::{AsyncComputeTaskPool, Task, futures_lite::future},
     window::WindowResolution,
@@ -211,7 +211,7 @@ pub fn run() {
         }))
         .insert_non_send(UiMainThread(std::marker::PhantomData))
         .add_plugins(FeathersPlugins)
-        .insert_resource(UiTheme(create_dark_theme()))
+        .insert_resource(view::theme::controller_theme())
         .insert_resource(bevy::render::error_handler::RenderErrorHandler(
             report_render_error,
         ))

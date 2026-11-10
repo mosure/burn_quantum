@@ -3,75 +3,76 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%230a1020'/%3E%3Ccircle cx='20' cy='20' r='11' fill='none' stroke='%23a0f1d4' stroke-width='2'/%3E%3Ccircle cx='20' cy='20' r='4' fill='%23a0f1d4'/%3E%3C/svg%3E">
-  <meta name="theme-color" content="#0a1020">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%23111014'/%3E%3Ccircle cx='20' cy='20' r='11' fill='none' stroke='%23d87c7c' stroke-width='2'/%3E%3Ccircle cx='20' cy='20' r='4' fill='%23d87c7c'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#111014">
   <meta name="description" content="Explore quantum states, interference, photonic routing, and quantum learning through interactive, executable simulations.">
   <title>burn_quantum — Quantum laboratory</title>
   <style>
-    :root { color-scheme:dark; --bg:#0a1020; --panel:#10192c; --border:#26334a; --text:#eef4ff; --muted:#9caec8; --accent:#a0f1d4; --violet:#b5adff; }
+    /* Keep surfaces/accents aligned with view/theme.rs and burn_gekko's controller. */
+    :root { color-scheme:dark; --bg:#111014; --panel:#19181e; --inset:#141318; --border:#333039; --text:#f2edef; --muted:#aaa3af; --accent:#d87c7c; --accent-soft:#d87c7c14; --accent-line:#d87c7c55; --amber:#e7c18c; --red:#ff9c86; --cyan:#8ecacb; --mono:ui-monospace,SFMono-Regular,Consolas,monospace; font-synthesis:none; }
     * { box-sizing:border-box; }
     [hidden] { display:none!important; }
-    body { margin:0; background:radial-gradient(ellipse at 80% 0%,#172445 0,transparent 47%),var(--bg); color:var(--text); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.5; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.5; }
     a { color:inherit; text-decoration:none; }
     button,a { -webkit-tap-highlight-color:transparent; }
     a:focus-visible,button:focus-visible,canvas:focus-visible { outline:2px solid var(--accent); outline-offset:5px; }
-    .shell { max-width:1580px; margin:auto; padding:0 48px; }
-    header { min-height:96px; display:flex; align-items:center; justify-content:space-between; gap:24px; border-bottom:1px solid var(--border); }
-    .brand { display:flex; align-items:center; gap:13px; font-size:18px; font-weight:650; letter-spacing:-.6px; }
-    .brand-mark { width:34px; height:34px; color:var(--accent); }
+    .shell { max-width:1512px; margin:auto; padding:0 44px; }
+    header { min-height:78px; display:flex; align-items:center; justify-content:space-between; gap:24px; border-bottom:1px solid var(--border); }
+    .brand { display:flex; align-items:center; gap:11px; font-size:17px; font-weight:600; letter-spacing:-.6px; }
+    .brand-mark { width:28px; height:28px; color:var(--accent); }
     .brand small { color:var(--muted); font-weight:450; }
     nav { display:flex; align-items:center; gap:28px; font-size:13px; color:var(--muted); }
     nav a:hover { color:var(--text); }
     .external::after { content:" ↗"; opacity:.65; }
-    .hero { padding:43px 0 32px; display:flex; align-items:flex-end; justify-content:space-between; gap:40px; }
-    .eyebrow { display:flex; align-items:center; gap:9px; color:var(--accent); font-size:11px; font-weight:600; letter-spacing:2.1px; text-transform:uppercase; }
+    .hero { padding:32px 0 28px; display:flex; align-items:flex-end; justify-content:space-between; gap:40px; }
+    .eyebrow { display:flex; align-items:center; gap:9px; color:var(--muted); font:10px var(--mono); letter-spacing:1.7px; text-transform:uppercase; }
     .dot { width:6px; height:6px; border-radius:50%; background:currentColor; display:inline-block; }
-    h1 { font-size:clamp(28px,3.2vw,46px); font-weight:500; line-height:1.12; letter-spacing:-1.8px; margin:12px 0 0; }
-    .intro { color:var(--muted); font-size:14px; max-width:430px; margin:0 0 3px; }
+    h1 { font-size:clamp(26px,2.6vw,35px); font-weight:520; line-height:1.12; letter-spacing:-1.25px; margin:12px 0 0; }
+    .intro { color:var(--muted); font-size:13px; max-width:430px; margin:0 0 3px; }
     .lab { display:grid; grid-template-columns:260px minmax(0,1fr); gap:20px; align-items:stretch; }
     .experiments { display:flex; flex-direction:column; gap:8px; }
-    .section-label { font-size:10px; letter-spacing:1.6px; text-transform:uppercase; color:var(--muted); margin:0 0 6px; padding:0 12px; }
-    .experiment { display:grid; grid-template-columns:24px 1fr; column-gap:10px; border:1px solid transparent; border-radius:11px; padding:16px 14px; transition:background .16s,border-color .16s; }
-    .experiment:hover { background:#142038; border-color:#2b3b57; }
-    .experiment[aria-current="page"] { background:linear-gradient(125deg,#1a3040,#17243c); border-color:#4c766e; box-shadow:inset 3px 0 var(--accent); }
-    .number { color:#7389a6; font:11px ui-monospace,SFMono-Regular,Consolas,monospace; padding-top:3px; }
+    .section-label { font:10px var(--mono); letter-spacing:1.7px; text-transform:uppercase; color:var(--muted); margin:0 0 6px; padding:0 12px; }
+    .experiment { display:grid; grid-template-columns:24px 1fr; column-gap:10px; border:1px solid transparent; border-radius:8px; padding:14px 14px; transition:background .16s,border-color .16s; }
+    .experiment:hover { background:var(--panel); border-color:var(--border); }
+    .experiment[aria-current="page"] { background:var(--accent-soft); border-color:var(--accent-line); box-shadow:inset 2px 0 var(--accent); }
+    .number { color:var(--muted); font:11px var(--mono); padding-top:3px; }
     .experiment[aria-current="page"] .number { color:var(--accent); }
     .experiment strong { font-weight:560; font-size:14px; }
     .experiment span:last-child { display:block; font-size:11px; color:var(--muted); line-height:1.5; margin-top:5px; }
-    .stage { min-width:0; border:1px solid var(--border); border-radius:14px; overflow:hidden; background:#0c1424; box-shadow:0 22px 70px #03071244; }
-    .stage-top { padding:16px 21px; display:flex; align-items:center; justify-content:space-between; gap:14px; background:#111c30; border-bottom:1px solid var(--border); }
+    .stage { min-width:0; border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--bg); }
+    .stage-top { padding:16px 21px; display:flex; align-items:center; justify-content:space-between; gap:14px; background:var(--panel); border-bottom:1px solid var(--border); }
     h2 { font-size:14px; font-weight:550; margin:0; }
-    .status { display:flex; align-items:center; gap:7px; color:var(--muted); font-size:10px; letter-spacing:.7px; white-space:nowrap; text-transform:uppercase; }
-    .status[data-state="ready"] { color:var(--accent); }
-    .status[data-state="error"] { color:#ffc8a6; }
+    .status { display:flex; align-items:center; gap:7px; color:var(--muted); font:10px var(--mono); white-space:nowrap; padding:5px 8px; border:1px solid var(--border); border-radius:5px; }
+    .status[data-state="ready"] { color:var(--accent); border-color:var(--accent-line); background:var(--accent-soft); }
+    .status[data-state="error"] { color:var(--red); }
     .viewport { position:relative; height:660px; min-height:420px; }
     #quantum-canvas { width:100%; height:100%; display:block; touch-action:none; }
-    .overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:36px; background:radial-gradient(ellipse at 50% 45%,#19283f,#0c1424 75%); z-index:2; }
+    .overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:36px; background:var(--inset); z-index:2; }
     .overlay[hidden] { display:none; }
     .loading-content { text-align:center; max-width:440px; }
-    .orbit { width:90px; height:90px; margin:0 auto 25px; position:relative; border:1px solid #42667a; border-radius:50%; transform:rotate(-35deg); }
-    .orbit::before { content:""; position:absolute; inset:15px -13px; border:1px solid var(--violet); border-radius:50%; transform:rotate(65deg); opacity:.7; }
-    .orbit::after { content:""; position:absolute; inset:37px; border-radius:50%; background:var(--accent); box-shadow:0 0 32px #a0f1d466; }
-    .orbit i { position:absolute; height:7px; width:7px; border-radius:50%; background:var(--violet); left:40px; top:-4px; transform-origin:4px 48px; animation:orbit 2.2s linear infinite; }
+    .orbit { width:90px; height:90px; margin:0 auto 25px; position:relative; border:1px solid var(--accent-line); border-radius:50%; transform:rotate(-35deg); }
+    .orbit::before { content:""; position:absolute; inset:15px -13px; border:1px solid var(--cyan); border-radius:50%; transform:rotate(65deg); opacity:.7; }
+    .orbit::after { content:""; position:absolute; inset:37px; border-radius:50%; background:var(--accent);  }
+    .orbit i { position:absolute; height:7px; width:7px; border-radius:50%; background:var(--cyan); left:40px; top:-4px; transform-origin:4px 48px; animation:orbit 2.2s linear infinite; }
     @keyframes orbit { to { transform:rotate(360deg); } }
     .loading-content h3 { font-size:21px; font-weight:500; letter-spacing:-.4px; margin:0 0 10px; }
     .loading-content p { color:var(--muted); font-size:13px; margin:0; }
-    .action { display:inline-block; margin-top:22px; background:var(--accent); color:#112b28; padding:10px 17px; border-radius:7px; font-size:12px; font-weight:650; border:0; cursor:pointer; }
+    .action { display:inline-block; margin-top:22px; background:var(--accent-soft); color:var(--accent); padding:10px 17px; border-radius:6px; font-size:12px; font-weight:550; border:1px solid var(--accent-line); cursor:pointer; }
     details { margin-top:19px; color:var(--muted); text-align:left; font-size:11px; }
     details pre { white-space:pre-wrap; word-break:break-word; max-height:150px; overflow:auto; }
     .stage-bottom { padding:12px 21px; border-top:1px solid var(--border); display:flex; justify-content:space-between; gap:14px; color:var(--muted); font-size:11px; }
     .tools { display:flex; align-items:center; gap:9px; }
-    .tool { border:1px solid #35445f; border-radius:6px; color:#dce8fb; background:#162138; padding:6px 10px; font:inherit; font-size:10px; cursor:pointer; }
+    .tool { border:1px solid var(--border); border-radius:6px; color:var(--text); background:var(--panel); padding:6px 10px; font:inherit; font-size:10px; cursor:pointer; }
     .tool:hover:not(:disabled) { border-color:var(--accent); color:var(--accent); }
     .tool:disabled { opacity:.4; cursor:wait; }
-    #io-notice { margin:0; padding:10px 21px; font-size:11px; color:var(--accent); background:#142333; border-top:1px solid var(--border); }
-    #io-notice[data-error="true"] { color:#ffc8a6; }
-    kbd { border:1px solid #35425a; border-radius:3px; padding:1px 5px; font:10px ui-monospace,SFMono-Regular,monospace; color:#ccd9ec; }
+    #io-notice { margin:0; padding:10px 21px; font-size:11px; color:var(--accent); background:var(--inset); border-top:1px solid var(--border); }
+    #io-notice[data-error="true"] { color:var(--red); }
+    kbd { border:1px solid var(--border); border-radius:3px; padding:1px 5px; font:10px var(--mono); color:var(--muted); }
     .notes { display:grid; grid-template-columns:repeat(3,1fr); gap:28px; padding:30px 0; }
     .note { border-top:1px solid var(--border); padding-top:17px; }
     .note h3 { font-weight:550; font-size:12px; margin:0 0 7px; }
     .note p { font-size:11px; color:var(--muted); margin:0; line-height:1.7; }
-    footer { color:#7e91ac; font-size:10px; padding:18px 0 30px; display:flex; justify-content:space-between; gap:20px; border-top:1px solid var(--border); }
+    footer { color:var(--muted); font-size:10px; padding:18px 0 30px; display:flex; justify-content:space-between; gap:20px; border-top:1px solid var(--border); }
     footer a { text-decoration:underline; text-underline-offset:3px; }
     .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
     @media(max-width:1100px) { .shell { padding:0 26px; } .lab { grid-template-columns:220px minmax(0,1fr); } .viewport { height:620px; } .hero { align-items:flex-start; } .intro { max-width:330px; } }
@@ -89,7 +90,7 @@
     <nav aria-label="Project"><a class="external" href="https://docs.rs/burn_quantum">Documentation</a><a class="external" href="https://github.com/mosure/burn_quantum">GitHub</a></nav>
   </header>
   <section class="hero" aria-labelledby="page-title">
-    <div><div class="eyebrow"><span class="dot"></span> Interactive quantum laboratory</div><h1 id="page-title">Quantum computation,<br>made visible.</h1></div>
+    <div><div class="eyebrow"><span class="dot"></span> Experiment / simulation</div><h1 id="page-title">Quantum laboratory</h1></div>
     <p class="intro">Follow a quantum state through each operation. Explore interference, entanglement, photonic circuits, and learning with simulations you can pause and inspect.</p>
   </section>
   <main class="lab">

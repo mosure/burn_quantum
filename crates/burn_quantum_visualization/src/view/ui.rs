@@ -92,9 +92,17 @@ fn button(
     primary: bool,
     width: Val,
 ) -> Entity {
+    let tab = matches!(action, Action::View(_));
+    let border = if tab {
+        UiRect::bottom(px(2))
+    } else {
+        UiRect::all(px(1))
+    };
+    let radius = BorderRadius::all(px(if tab { 0. } else { 6. }));
     commands.spawn_scene(bsn!{
         @FeathersButton { @variant:{ButtonVariant::selected(primary)}, @caption:bsn!{@caption(label)} }
-        Node {height:px(36),min_height:px(36),width:{width},padding:UiRect::horizontal(px(12)),}
+        Node {height:px(36),min_height:px(36),width:{width},padding:UiRect::horizontal(px(12)),border:{border},border_radius:{radius}}
+        BorderColor::all(BORDER)
         action
         ChildOf(parent)
         on(activate)
@@ -103,13 +111,15 @@ fn button(
 pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
     commands.spawn((Camera2d, IsDefaultUiCamera));
     let font = assets.load(fonts::REGULAR);
-    let bold = assets.load(fonts::BOLD);
     let mono = assets.load(fonts::MONO);
     let root = commands
         .spawn(Node {
+            display: Display::Grid,
             width: percent(100),
             height: percent(100),
-            flex_direction: FlexDirection::Column,
+            // A zero-minimum middle track keeps long inspector content from
+            // taking space reserved for the header and playback controls.
+            grid_template_rows: vec![GridTrack::auto(), GridTrack::flex(1.), GridTrack::auto()],
             ..default()
         })
         .id();
@@ -117,6 +127,7 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         &mut commands,
         root,
         Node {
+            grid_row: GridPlacement::start(1),
             height: px(88),
             min_height: px(88),
             padding: UiRect::axes(px(24), px(16)),
@@ -125,7 +136,7 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
             border: UiRect::bottom(px(1)),
             ..default()
         },
-        Some(PANEL),
+        Some(INSET),
     );
     commands
         .entity(header)
@@ -145,7 +156,7 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         brand,
         "BURN / QUANTUM",
         11.,
-        CYAN,
+        MUTED,
         mono.clone(),
     );
     let brand_title = text(
@@ -154,7 +165,7 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         "Quantum explorer",
         25.,
         TEXT,
-        bold.clone(),
+        font.clone(),
     );
     commands.entity(brand_title).insert(BrandTitle);
     let headright = node(
@@ -190,6 +201,7 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         &mut commands,
         root,
         Node {
+            grid_row: GridPlacement::start(2),
             flex_grow: 1.,
             flex_basis: px(0),
             min_height: px(0),
@@ -289,7 +301,7 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         "Preparing your experiment",
         26.,
         TEXT,
-        bold.clone(),
+        font.clone(),
     );
     commands.entity(title).insert(Field::Title);
     let description = text(
@@ -399,6 +411,7 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
             width: px(240),
             min_width: px(240),
             padding: UiRect::all(px(18)),
+            border: UiRect::all(px(1)),
             border_radius: BorderRadius::all(px(12)),
             flex_direction: FlexDirection::Column,
             row_gap: px(15),
@@ -406,15 +419,17 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         },
         Some(PANEL),
     );
-    commands
-        .entity(inspector)
-        .insert((Responsive::Inspector, bevy::ui_widgets::ScrollArea));
+    commands.entity(inspector).insert((
+        Responsive::Inspector,
+        bevy::ui_widgets::ScrollArea,
+        BorderColor::all(BORDER),
+    ));
     let inspector_heading = text(
         &mut commands,
         inspector,
         "INSPECTOR",
         11.,
-        CYAN,
+        MUTED,
         mono.clone(),
     );
     commands.entity(inspector_heading).insert(Node {
@@ -537,6 +552,7 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         &mut commands,
         root,
         Node {
+            grid_row: GridPlacement::start(3),
             min_height: px(112),
             padding: UiRect::axes(px(24), px(18)),
             border: UiRect::top(px(1)),
@@ -847,7 +863,7 @@ pub(super) fn sync_controls(
     experiment: Res<Experiment>,
     cache: Res<PlotCache>,
     mut fields: Query<(&Field, &mut Text)>,
-    mut buttons: Query<(&Action, &mut ButtonVariant)>,
+    mut buttons: Query<(&Action, &mut ButtonVariant, &mut BorderColor)>,
     sliders: Query<(Entity, &SliderValue, &SliderRange), With<Scrubber>>,
 ) {
     let doc = experiment.document.as_ref();
@@ -864,7 +880,7 @@ pub(super) fn sync_controls(
             text.0 = next;
         }
     }
-    for (action, mut variant) in &mut buttons {
+    for (action, mut variant, mut border) in &mut buttons {
         let selected = match action {
             Action::Demo(k) => *k == state.demo,
             Action::View(v) => *v == state.view,
@@ -875,6 +891,17 @@ pub(super) fn sync_controls(
         let next = ButtonVariant::selected(selected);
         if *variant != next {
             *variant = next;
+        }
+        let color = if matches!(action, Action::View(_)) {
+            if selected { ACCENT } else { BORDER }
+        } else if selected {
+            ACCENT_LINE
+        } else {
+            BORDER
+        };
+        let next_border = BorderColor::all(color);
+        if *border != next_border {
+            *border = next_border;
         }
     }
     for (entity, value, range) in &sliders {

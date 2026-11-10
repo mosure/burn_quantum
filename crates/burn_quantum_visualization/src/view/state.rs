@@ -75,13 +75,13 @@ pub(super) fn build(
                     };
                     let pt = project(v);
                     if let Some(a) = last {
-                        p.line(a, pt, BORDER);
+                        p.line(a, pt, GUIDE);
                     }
                     last = Some(pt);
                 }
             }
         }
-        p.circle(center, radius, BORDER);
+        p.circle(center, radius, GUIDE);
         for (axis, label, color) in [
             (Vec3::Z, "|0>", TEXT),
             (-Vec3::Z, "|1>", MUTED),
@@ -90,7 +90,7 @@ pub(super) fn build(
         ] {
             let end = project(axis);
             if state.grid {
-                p.line(center, end, BORDER);
+                p.line(center, end, GUIDE);
             }
             p.text(center + (end - center) * 1.12, label, 14., color);
         }
@@ -217,7 +217,7 @@ pub(super) fn build(
             p.line(
                 Vec2::new(bars.min.x, y),
                 Vec2::new(bars.max.x, y),
-                BORDER.with_alpha(0.55),
+                GUIDE.with_alpha(0.55),
             );
         }
     }

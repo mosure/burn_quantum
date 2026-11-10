@@ -151,10 +151,13 @@ pub(super) fn rebuild(
         );
     }
     let world = |p: Vec2| Vec2::new(p.x - bounds.window.x / 2., bounds.window.y / 2. - p.y);
-    for (rect, color) in &cache.boxes {
+    for (layer, (rect, color)) in cache.boxes.iter().enumerate() {
         commands.spawn((
             Sprite::from_color(*color, rect.size()),
-            Transform::from_translation(world(rect.center()).extend(-1.)),
+            // Preserve painter order for overlapping tracks and fills. Equal-Z
+            // sprite sorting can otherwise hide a probability bar behind its
+            // track after entities are recycled during a view change.
+            Transform::from_translation(world(rect.center()).extend(-2. + layer as f32 * 0.001)),
             PlotEntity,
         ));
     }

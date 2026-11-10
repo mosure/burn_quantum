@@ -67,7 +67,7 @@ pub(super) fn build(
         for i in 0..=4 {
             let v = lo + range * i as f64 / 4.;
             let y = to_point(0, v).y;
-            p.line(Vec2::new(area.min.x, y), Vec2::new(area.max.x, y), BORDER);
+            p.line(Vec2::new(area.min.x, y), Vec2::new(area.max.x, y), GUIDE);
             p.text(
                 Vec2::new(area.min.x - 35., y),
                 if scale > 1e5 {
@@ -110,9 +110,9 @@ pub(super) fn build(
     for (i, point) in points.iter().enumerate().take(current + 1).step_by(stride) {
         let xy = to_point(i, point.loss / scale);
         if let Some(prev) = last {
-            p.line(prev, xy, CYAN);
+            p.line(prev, xy, ACCENT);
         }
-        p.dot(xy, 2., CYAN);
+        p.dot(xy, 2., ACCENT);
         last = Some(xy);
     }
     let selected = &points[current];

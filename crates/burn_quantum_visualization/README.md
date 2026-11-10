@@ -42,6 +42,14 @@ sphere to orbit; drag other diagrams to pan; scroll to zoom. The speed control
 cycles through 0.5–4×. The timeline stops at the final frame. Fabric playback uses
 schedule ticks independently of quantum circuit steps.
 
+The native controls and browser shell follow the `burn_gekko` controller theme:
+warm charcoal surfaces, muted rose selections, thin borders and compact labels.
+[`view/theme.rs`](src/view/theme.rs) owns the Feathers semantic colors, including
+hover, pressed, disabled and keyboard-focus states; [`web/index.html`](../../web/index.html)
+mirrors the surface and accent tokens. Scientific plots retain separate cyan,
+amber and blue series and a cyclic phase legend. Plot guides use a brighter
+neutral than panel borders so fine geometry remains visible.
+
 ## Integrate an experiment
 
 The core simulation crate has no Bevy dependency. `model::VisualizationDocument`
