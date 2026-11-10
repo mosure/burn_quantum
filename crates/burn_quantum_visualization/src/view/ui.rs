@@ -134,6 +134,22 @@ fn button(
         UiRect::all(px(1))
     };
     let radius = BorderRadius::all(px(if tab { 0. } else { 6. }));
+    // Navigation is a text list: a shared leading edge and content-sized rows
+    // keep long experiment titles legible instead of centering or squeezing them.
+    if navigation {
+        return commands.spawn_scene(bsn!{
+            @FeathersButton { @variant:{ButtonVariant::selected(primary)}, @caption:bsn!{
+                @caption(label)
+                Node {width:percent(100),min_width:px(0)}
+                TextLayout::justify(Justify::Left)
+            } }
+            Node {height:Val::Auto,min_height:px(36),flex_shrink:0.,width:{width},padding:UiRect::axes(px(12),px(8)),justify_content:JustifyContent::FlexStart,border:{border},border_radius:{radius}}
+            BorderColor::all(BORDER)
+            action
+            ChildOf(parent)
+            on(activate)
+        }).id();
+    }
     commands.spawn_scene(bsn!{
         @FeathersButton { @variant:{ButtonVariant::selected(primary)}, @caption:bsn!{@caption(label)} }
         Node {height:px(36),min_height:px(36),width:{width},padding:UiRect::horizontal(px(12)),border:{border},border_radius:{radius}}
@@ -143,6 +159,7 @@ fn button(
         on(activate)
     }).id()
 }
+
 pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
     commands.spawn((Camera2d, IsDefaultUiCamera));
     let font = assets.load(fonts::REGULAR);
@@ -254,9 +271,10 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
             overflow: Overflow::scroll_y(),
             width: px(218),
             min_width: px(218),
+            min_height: px(0),
             padding: UiRect::all(px(18)),
             flex_direction: FlexDirection::Column,
-            row_gap: px(9),
+            row_gap: px(4),
             border: UiRect::right(px(1)),
             ..default()
         },
@@ -267,7 +285,7 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         BorderColor::all(BORDER),
         bevy::ui_widgets::ScrollArea,
     ));
-    text(
+    let list_heading = text(
         &mut commands,
         sidebar,
         "EXPERIMENTS",
@@ -275,6 +293,11 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         MUTED,
         mono.clone(),
     );
+    commands.entity(list_heading).insert(Node {
+        flex_shrink: 0.,
+        margin: UiRect::bottom(px(8)),
+        ..default()
+    });
     for &kind in DemoKind::all() {
         button(
             &mut commands,
@@ -285,32 +308,6 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
             percent(100),
         );
     }
-    let spacer = node(
-        &mut commands,
-        sidebar,
-        Node {
-            flex_grow: 1.,
-            ..default()
-        },
-        None,
-    );
-    let _ = spacer;
-    text(
-        &mut commands,
-        sidebar,
-        "A small lab for\nlarge quantum ideas.",
-        18.,
-        TEXT,
-        font.clone(),
-    );
-    text(
-        &mut commands,
-        sidebar,
-        "Every state comes from Burn.\nProbability, phase and reduced\nstates are shown separately.",
-        12.,
-        MUTED,
-        font.clone(),
-    );
     let main = node(
         &mut commands,
         body,

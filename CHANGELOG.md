@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Align experiment navigation titles, allow wrapped rows to grow, and keep browser
+  titles/descriptions in a consistent column. Remove the clipped native sidebar footer.
+
 - Add probability/phase disks with area-correct P(1) fills, coherence hands, and
   explicit mixed-state purity; retain Cartesian projections and label 3D basis poles.
 - Encode the full explorer view in URLs, including selected wire/gate/node, independent
