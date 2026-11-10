@@ -1,0 +1,277 @@
+{
+  "schema": 1,
+  "date": "2026-11-10",
+  "scope": "Local qualification of this source tree; deployment provenance is published separately as build.json. Raw logs and captures are in ignored artifacts/visualization.",
+  "source_sha256": {
+    "Cargo.lock": "ab868843992ab0606e6a8836e0443e390135c4871e972838a25486f3eab466af",
+    "Cargo.toml": "8ace6b2b3188572233f89debafb1121d4444e864bc872a229844c9db13e4beec",
+    "crates/burn_quantum/src/photonic/optics/allocation.rs": "480c27663114adebb678a89518eca172b580e7cc0ce06a7c45a2bccc8ad18263",
+    "crates/burn_quantum_visualization/Cargo.toml": "82e64a9f0f5130db483e892872b121102e6503b279dd981b16e21b95183b7e10",
+    "crates/burn_quantum_visualization/examples/embedded.rs": "8c973b7b20f9c63e7828e0bec6ddfbf8ae978c09c3d759b1a1f0d8524cdcb1ae",
+    "crates/burn_quantum_visualization/examples/trace_profile.rs": "2a43597903e402437c52511f5dd4fe7754caae29194a4f01116f0363d89de323",
+    "crates/burn_quantum_visualization/src/app.rs": "6910be6b505fac87b5987e06ef65039cbf62c3bddbfc18d07098043355430b65",
+    "crates/burn_quantum_visualization/src/bin/explorer.rs": "d9edbcb3dae03209c6a6088ea2a22568b64ad4993a1ee42739a1cb8204046bd0",
+    "crates/burn_quantum_visualization/src/bridge.rs": "d865e5a35756e986448b25340ae317f71c5442cc8c3e75f88fda24fbbea11e30",
+    "crates/burn_quantum_visualization/src/demo/optimization.rs": "4de868aee25f12cdb7414343a21882797a1b8f419b1b8ecf5c44cb9b01612bfc",
+    "crates/burn_quantum_visualization/src/demo.rs": "7a1d2dc8988ecf658b906baf69c55bd214580b9e0b25fb4c8a8e98d64f9a5096",
+    "crates/burn_quantum_visualization/src/io/preflight.rs": "8019b2638f3a8b4f807382f8e8f181abe66ee5127a2f2bc671f3c7c858764c0e",
+    "crates/burn_quantum_visualization/src/io.rs": "9e3394e2aa965db17d9e02f70151ff29ee7bc5247824b414a617cbff06a9ca9f",
+    "crates/burn_quantum_visualization/src/lib.rs": "529ec8f5bce1ff0e0aee1549264b0069227fa58f5853a205f29b91c39bc05373",
+    "crates/burn_quantum_visualization/src/model/fabric.rs": "60cffec071bf4ecf13b5388eff6a6380f27099a496e0f8c5edb10686092c018f",
+    "crates/burn_quantum_visualization/src/model/mod.rs": "0615a025b7866c6967f94b33b73ffd4081b96d7d45ee0a6096e4c5494b85ca10",
+    "crates/burn_quantum_visualization/src/model/validation.rs": "588a623dde94ca3c304ed947d549b65bf9627aca105157346977e51452b3fd28",
+    "crates/burn_quantum_visualization/src/simulation/mod.rs": "d4ce7c9d2902801b765c09662d909857fa9490ddea3cda11944c9868f3abc658",
+    "crates/burn_quantum_visualization/src/view/circuit.rs": "1320cec73da8a8615aa97cb09c36f256ba49596bde6e479046175742d5817ed2",
+    "crates/burn_quantum_visualization/src/view/diagnostics.rs": "63cc3ef98b9f12a3b5d63fb454aea1452bab683b42a563ad719f65c012dd9129",
+    "crates/burn_quantum_visualization/src/view/fabric.rs": "2169f17208df8ee02f2b1e55162704aa90ab81a733959b0147e54e6f410e9d37",
+    "crates/burn_quantum_visualization/src/view/input.rs": "c5eacbc899930cf80b0404648b6c10509a24d0505147bfe3286e8066a4cceaa2",
+    "crates/burn_quantum_visualization/src/view/inspection.rs": "38feb6e6b078b8a43b430623e65579bd709dc72996a16c82fa8e797217a51331",
+    "crates/burn_quantum_visualization/src/view/learning.rs": "bc5f021652d5c1233bc6dbc293b28d11eba4c9984aeb7072301319c8c4fc82e3",
+    "crates/burn_quantum_visualization/src/view/mod.rs": "e8fb4fcce723ec617bd659cdcc9dfa9367960c839452115b3c8cfb4e3c8c197b",
+    "crates/burn_quantum_visualization/src/view/plot.rs": "ae260aab6a1452ea10653a9ec5a320494ee5cd06df9c1cd4c5bfaa7745e25398",
+    "crates/burn_quantum_visualization/src/view/state.rs": "7a17ba17d7771bf336a202536aa5475acb3be74eb110bc3f6530c006ea78bdcf",
+    "crates/burn_quantum_visualization/src/view/theme.rs": "aa0122844d7b6ffcc5553365bfe35bd51351004352ed60257db3113b7f24b5f2",
+    "crates/burn_quantum_visualization/src/view/ui.rs": "9b8839bdc9d8af26d31c2faf1136758a17990e975c94d5e82d7e196a7229be3f",
+    "crates/burn_quantum_visualization/tests/gpu_bridge.rs": "e8d790755e220e78e67b49543c09ded6e745f574a802b6d069581f3c73ee5013",
+    "crates/burn_quantum_visualization/tests/gpu_scientific.rs": "aa944f01684910160b77f83bdc2fc54352ddfe2135acf94b5016783f0651d347",
+    "crates/burn_quantum_visualization/tests/interchange.rs": "21083e26e6138e4a523e13414d35da77fc8bae208fa2d4d9a564ce0bba90064a",
+    "crates/burn_quantum_visualization/tests/scientific_model.rs": "579df0cf7337c22a984d333a9f68a9fd80415aa6437c841f346d7381754ab3e2",
+    "rust-toolchain.toml": "24a5037a8f0a264369ef37bb46e019ade6c524beaead1c28f77a429f856a066b",
+    "scripts/build_visualization_web.sh": "1a94c864bb68859af3a39b97da574344595759dbc0aeb20c5ac080a2f1317983",
+    "scripts/validate_visualization.cjs": "228fee334cb4e0283fd3c40c2f9b99395a5f032f9df79ab805e0b1c9e321fc1f",
+    "web/index.html": "fa25a1b39a6f555a6da5af63cd96b99f0f18b5b85fd865e47447e3c990378d63"
+  },
+  "toolchain": "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+  "versions": {
+    "burn": "0.22.1",
+    "bevy": "0.20.0",
+    "bevy_internal": "0.20.1",
+    "wgpu": "30.0.1",
+    "wasm_bindgen": "0.2.129"
+  },
+  "cpu": "12th Gen Intel Core i9-12900K",
+  "gpu": {
+    "adapter": "NVIDIA RTX PRO 6000 Blackwell Workstation Edition",
+    "driver": "610.43.02",
+    "native_backend": "Vulkan"
+  },
+  "workspace_tests": {
+    "passed": 347,
+    "failed": 0,
+    "suites": 104
+  },
+  "headless_visualization_tests": 9,
+  "gpu_runtime_tests": {
+    "passed": 2,
+    "absolute_tolerance": 0.0005,
+    "maximum_errors": {
+      "bell": 0,
+      "ghz": 0,
+      "interference": 8.742277657347586e-08,
+      "qutrit": 0,
+      "photonic": 0,
+      "optimization": 1.8395522278780163e-05
+    },
+    "buffer_render_oracle": {
+      "size": [
+        4,
+        4
+      ],
+      "rgba8": [
+        51,
+        102,
+        153,
+        255
+      ]
+    }
+  },
+  "checks": {
+    "workspace_clippy": "pass",
+    "gpu_bridge_clippy": "pass",
+    "documentation_warnings_denied": "pass",
+    "core_rust_1_95_compile": "pass",
+    "workspace_wgpu_cuda_fusion_compile": "pass",
+    "wasm_optional_bridge_compile": "pass",
+    "python_tests": 5
+  },
+  "trace_profile": [
+    {
+      "dimension": 16,
+      "frames": 5,
+      "probability_bins": 16,
+      "qubits": 4,
+      "retained_probability_mass": 0.9999997615814351,
+      "serialized_trace_bytes": 8566,
+      "simulation_seconds": 0.003839922
+    },
+    {
+      "dimension": 256,
+      "frames": 9,
+      "probability_bins": 64,
+      "qubits": 8,
+      "retained_probability_mass": 0.9999997615814351,
+      "serialized_trace_bytes": 91537,
+      "simulation_seconds": 0.023506064
+    },
+    {
+      "dimension": 4096,
+      "frames": 13,
+      "probability_bins": 64,
+      "qubits": 12,
+      "retained_probability_mass": 0.9999997615814351,
+      "serialized_trace_bytes": 1603146,
+      "simulation_seconds": 0.471691291
+    }
+  ],
+  "browser": {
+    "passed": true,
+    "browser": "156.0.8078.79",
+    "adapter": {
+      "vendor": "nvidia",
+      "architecture": "blackwell",
+      "description": ""
+    },
+    "viewport": [
+      1600,
+      1200
+    ],
+    "narrow_viewport": [
+      390,
+      1000
+    ],
+    "demonstrations": [
+      {
+        "demo": "bell",
+        "frames": 3,
+        "startup_ms": 1685
+      },
+      {
+        "demo": "ghz",
+        "frames": 5,
+        "startup_ms": 902
+      },
+      {
+        "demo": "interference",
+        "frames": 4,
+        "startup_ms": 948
+      },
+      {
+        "demo": "qutrit",
+        "frames": 4,
+        "startup_ms": 1034
+      },
+      {
+        "demo": "photonic",
+        "frames": 9,
+        "startup_ms": 1031
+      },
+      {
+        "demo": "optimization",
+        "frames": 25,
+        "startup_ms": 1042
+      }
+    ],
+    "interactions": [
+      "physical schedule playback preserves quantum frame",
+      "step buttons and keyboard, view changes, qubit selection, stable entity count after 16 tab switches",
+      "zoom/reset and guides",
+      "actual JSON download, valid file import, invalid import preserves selected experiment",
+      "390px viewport retains timeline, qubit, view and scientific Details controls",
+      "actual 12-qubit / 4096-state import and timeline retain bounded draw entities",
+      "unsupported WebGPU displays native fallback",
+      "actual WebGPU device loss reports an error instead of leaving a silent frozen canvas"
+    ],
+    "steady_state": {
+      "raf_samples": 120,
+      "median_ms": 6.900000000001455,
+      "p95_ms": 7.099999999998545,
+      "app_frames_advanced": 109,
+      "entity_count": 542,
+      "revision_unchanged": true
+    },
+    "large_trace": {
+      "frame": 12,
+      "entity_count": 538,
+      "drawing": "6 probability bins / 4096 states\nSelected q0 \u00b7 norm 1.00000\n630 line segments \u00b7 22 labels",
+      "window_logical": [
+        1202,
+        660
+      ]
+    },
+    "errors": [],
+    "headless": false,
+    "launch_args": [
+      "--no-sandbox",
+      "--ignore-gpu-blocklist",
+      "--use-vulkan=native",
+      "--enable-unsafe-webgpu",
+      "--use-angle=vulkan",
+      "--enable-features=Vulkan",
+      "--disable-vulkan-surface"
+    ]
+  },
+  "touch": {
+    "passed": true,
+    "viewport": [
+      390,
+      1000
+    ],
+    "before_zoom": 1,
+    "after_pinch_zoom": 1.7999999523162842,
+    "details_after_touch": true
+  },
+  "wasm_size": {
+    "comparison": "Same-source standard release versus web-release; raw WASM and deterministic gzip level 9, mtime 0. Compression is a byte-size measurement, not a claim about the hosting server Content-Encoding.",
+    "profile": {
+      "inherits": "release",
+      "opt_level": "s",
+      "lto": "thin",
+      "codegen_units": 1,
+      "strip": "debuginfo"
+    },
+    "baseline": {
+      "wasm_bytes": 57828667,
+      "gzip_level9_bytes": 11522542
+    },
+    "web_release": {
+      "wasm_bytes": 35686826,
+      "gzip_level9_bytes": 7808242
+    },
+    "reduction": {
+      "wasm_bytes": {
+        "bytes": 22141841,
+        "fraction": 0.38288693391462747
+      },
+      "gzip_level9_bytes": {
+        "bytes": 3714300,
+        "fraction": 0.3223507451741118
+      }
+    },
+    "tested_files": {
+      "index.html": {
+        "bytes": 21338,
+        "sha256": "fa25a1b39a6f555a6da5af63cd96b99f0f18b5b85fd865e47447e3c990378d63"
+      },
+      "pkg/burn_quantum_visualization.js": {
+        "bytes": 117065,
+        "sha256": "0699ea0f9808bf17b03af8045bf0135f15ca33d9e308f716b22eefb19175f730"
+      },
+      "pkg/burn_quantum_visualization_bg.wasm": {
+        "bytes": 35686826,
+        "sha256": "41d3d5bb2c189d7e397027afb073cfeccf4db15442255562efc92b50f1dc538d"
+      }
+    }
+  },
+  "limitations": [
+    "Local CPU traces use cached host snapshots; they are not the optional zero-host-value-copy GPU-buffer path.",
+    "Browser rendering was executed on NVIDIA WebGPU; browser GPU tensor computation is not runtime-qualified.",
+    "SwiftShader browser startup encountered device loss; software browser support is not claimed.",
+    "Dense traces and graph/document/draw budgets remain explicit.",
+    "Frame interval measurements are single-run requestAnimationFrame samples on this workstation, not universal frame-rate or total-memory guarantees."
+  ],
+  "pages": {
+    "url": "https://mosure.github.io/burn_quantum/",
+    "provenance_url": "https://mosure.github.io/burn_quantum/build.json",
+    "workflow": ".github/workflows/pages.yml"
+  }
+}

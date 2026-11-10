@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%230a1020'/%3E%3Ccircle cx='20' cy='20' r='11' fill='none' stroke='%23a0f1d4' stroke-width='2'/%3E%3Ccircle cx='20' cy='20' r='4' fill='%23a0f1d4'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#0a1020">
+  <meta name="description" content="Explore quantum states, interference, photonic routing, and quantum learning through interactive, executable simulations.">
+  <title>burn_quantum — Quantum laboratory</title>
+  <style>
+    :root { color-scheme:dark; --bg:#0a1020; --panel:#10192c; --border:#26334a; --text:#eef4ff; --muted:#9caec8; --accent:#a0f1d4; --violet:#b5adff; }
+    * { box-sizing:border-box; }
+    [hidden] { display:none!important; }
+    body { margin:0; background:radial-gradient(ellipse at 80% 0%,#172445 0,transparent 47%),var(--bg); color:var(--text); font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; line-height:1.5; }
+    a { color:inherit; text-decoration:none; }
+    button,a { -webkit-tap-highlight-color:transparent; }
+    a:focus-visible,button:focus-visible,canvas:focus-visible { outline:2px solid var(--accent); outline-offset:5px; }
+    .shell { max-width:1580px; margin:auto; padding:0 48px; }
+    header { min-height:96px; display:flex; align-items:center; justify-content:space-between; gap:24px; border-bottom:1px solid var(--border); }
+    .brand { display:flex; align-items:center; gap:13px; font-size:18px; font-weight:650; letter-spacing:-.6px; }
+    .brand-mark { width:34px; height:34px; color:var(--accent); }
+    .brand small { color:var(--muted); font-weight:450; }
+    nav { display:flex; align-items:center; gap:28px; font-size:13px; color:var(--muted); }
+    nav a:hover { color:var(--text); }
+    .external::after { content:" ↗"; opacity:.65; }
+    .hero { padding:43px 0 32px; display:flex; align-items:flex-end; justify-content:space-between; gap:40px; }
+    .eyebrow { display:flex; align-items:center; gap:9px; color:var(--accent); font-size:11px; font-weight:600; letter-spacing:2.1px; text-transform:uppercase; }
+    .dot { width:6px; height:6px; border-radius:50%; background:currentColor; display:inline-block; }
+    h1 { font-size:clamp(28px,3.2vw,46px); font-weight:500; line-height:1.12; letter-spacing:-1.8px; margin:12px 0 0; }
+    .intro { color:var(--muted); font-size:14px; max-width:430px; margin:0 0 3px; }
+    .lab { display:grid; grid-template-columns:260px minmax(0,1fr); gap:20px; align-items:stretch; }
+    .experiments { display:flex; flex-direction:column; gap:8px; }
+    .section-label { font-size:10px; letter-spacing:1.6px; text-transform:uppercase; color:var(--muted); margin:0 0 6px; padding:0 12px; }
+    .experiment { display:grid; grid-template-columns:24px 1fr; column-gap:10px; border:1px solid transparent; border-radius:11px; padding:16px 14px; transition:background .16s,border-color .16s; }
+    .experiment:hover { background:#142038; border-color:#2b3b57; }
+    .experiment[aria-current="page"] { background:linear-gradient(125deg,#1a3040,#17243c); border-color:#4c766e; box-shadow:inset 3px 0 var(--accent); }
+    .number { color:#7389a6; font:11px ui-monospace,SFMono-Regular,Consolas,monospace; padding-top:3px; }
+    .experiment[aria-current="page"] .number { color:var(--accent); }
+    .experiment strong { font-weight:560; font-size:14px; }
+    .experiment span:last-child { display:block; font-size:11px; color:var(--muted); line-height:1.5; margin-top:5px; }
+    .stage { min-width:0; border:1px solid var(--border); border-radius:14px; overflow:hidden; background:#0c1424; box-shadow:0 22px 70px #03071244; }
+    .stage-top { padding:16px 21px; display:flex; align-items:center; justify-content:space-between; gap:14px; background:#111c30; border-bottom:1px solid var(--border); }
+    h2 { font-size:14px; font-weight:550; margin:0; }
+    .status { display:flex; align-items:center; gap:7px; color:var(--muted); font-size:10px; letter-spacing:.7px; white-space:nowrap; text-transform:uppercase; }
+    .status[data-state="ready"] { color:var(--accent); }
+    .status[data-state="error"] { color:#ffc8a6; }
+    .viewport { position:relative; height:660px; min-height:420px; }
+    #quantum-canvas { width:100%; height:100%; display:block; touch-action:none; }
+    .overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:36px; background:radial-gradient(ellipse at 50% 45%,#19283f,#0c1424 75%); z-index:2; }
+    .overlay[hidden] { display:none; }
+    .loading-content { text-align:center; max-width:440px; }
+    .orbit { width:90px; height:90px; margin:0 auto 25px; position:relative; border:1px solid #42667a; border-radius:50%; transform:rotate(-35deg); }
+    .orbit::before { content:""; position:absolute; inset:15px -13px; border:1px solid var(--violet); border-radius:50%; transform:rotate(65deg); opacity:.7; }
+    .orbit::after { content:""; position:absolute; inset:37px; border-radius:50%; background:var(--accent); box-shadow:0 0 32px #a0f1d466; }
+    .orbit i { position:absolute; height:7px; width:7px; border-radius:50%; background:var(--violet); left:40px; top:-4px; transform-origin:4px 48px; animation:orbit 2.2s linear infinite; }
+    @keyframes orbit { to { transform:rotate(360deg); } }
+    .loading-content h3 { font-size:21px; font-weight:500; letter-spacing:-.4px; margin:0 0 10px; }
+    .loading-content p { color:var(--muted); font-size:13px; margin:0; }
+    .action { display:inline-block; margin-top:22px; background:var(--accent); color:#112b28; padding:10px 17px; border-radius:7px; font-size:12px; font-weight:650; border:0; cursor:pointer; }
+    details { margin-top:19px; color:var(--muted); text-align:left; font-size:11px; }
+    details pre { white-space:pre-wrap; word-break:break-word; max-height:150px; overflow:auto; }
+    .stage-bottom { padding:12px 21px; border-top:1px solid var(--border); display:flex; justify-content:space-between; gap:14px; color:var(--muted); font-size:11px; }
+    .tools { display:flex; align-items:center; gap:9px; }
+    .tool { border:1px solid #35445f; border-radius:6px; color:#dce8fb; background:#162138; padding:6px 10px; font:inherit; font-size:10px; cursor:pointer; }
+    .tool:hover:not(:disabled) { border-color:var(--accent); color:var(--accent); }
+    .tool:disabled { opacity:.4; cursor:wait; }
+    #io-notice { margin:0; padding:10px 21px; font-size:11px; color:var(--accent); background:#142333; border-top:1px solid var(--border); }
+    #io-notice[data-error="true"] { color:#ffc8a6; }
+    kbd { border:1px solid #35425a; border-radius:3px; padding:1px 5px; font:10px ui-monospace,SFMono-Regular,monospace; color:#ccd9ec; }
+    .notes { display:grid; grid-template-columns:repeat(3,1fr); gap:28px; padding:30px 0; }
+    .note { border-top:1px solid var(--border); padding-top:17px; }
+    .note h3 { font-weight:550; font-size:12px; margin:0 0 7px; }
+    .note p { font-size:11px; color:var(--muted); margin:0; line-height:1.7; }
+    footer { color:#7e91ac; font-size:10px; padding:18px 0 30px; display:flex; justify-content:space-between; gap:20px; border-top:1px solid var(--border); }
+    footer a { text-decoration:underline; text-underline-offset:3px; }
+    .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    @media(max-width:1100px) { .shell { padding:0 26px; } .lab { grid-template-columns:220px minmax(0,1fr); } .viewport { height:620px; } .hero { align-items:flex-start; } .intro { max-width:330px; } }
+    @media(max-width:760px) { .shell { padding:0 16px; } header { min-height:76px; } nav { gap:15px; font-size:11px; } .hero { display:block; padding:28px 0 23px; } h1 { letter-spacing:-1px; } .intro { margin-top:18px; max-width:560px; font-size:12px; } .lab { display:flex; flex-direction:column; gap:14px; } .experiments { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; } .section-label { grid-column:1/-1; padding-left:3px; } .experiment { padding:10px 8px; grid-template-columns:1fr; } .number { display:none; } .experiment strong { font-size:11px; } .experiment span:last-child { display:none; } .viewport { height:560px; } .stage-top,.stage-bottom { padding:13px; } .stage-bottom { flex-wrap:wrap; } .notes { gap:15px; } footer { flex-wrap:wrap; } }
+    @media(prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <a class="brand" href="?demo=bell" aria-label="burn quantum laboratory home">
+      <svg class="brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M20 3 35 12v16l-15 9L5 28V12Z" stroke="currentColor" stroke-width="1.5"/><path d="m5 12 15 9 15-9M20 21v16M20 3v18" stroke="currentColor" stroke-opacity=".5"/><circle cx="20" cy="21" r="4" fill="currentColor"/></svg>
+      <span>burn<small>_</small>quantum</span>
+    </a>
+    <nav aria-label="Project"><a class="external" href="https://docs.rs/burn_quantum">Documentation</a><a class="external" href="https://github.com/mosure/burn_quantum">GitHub</a></nav>
+  </header>
+  <section class="hero" aria-labelledby="page-title">
+    <div><div class="eyebrow"><span class="dot"></span> Interactive quantum laboratory</div><h1 id="page-title">Quantum computation,<br>made visible.</h1></div>
+    <p class="intro">Follow a quantum state through each operation. Explore interference, entanglement, photonic circuits, and learning with simulations you can pause and inspect.</p>
+  </section>
+  <main class="lab">
+    <aside class="experiments" aria-label="Choose an experiment">
+      <p class="section-label">Explore six experiments</p>
+      <a class="experiment" href="?demo=bell" data-demo="bell"><span class="number">01</span><div><strong>Bell entanglement</strong><span>Two qubits. One correlated state.</span></div></a>
+      <a class="experiment" href="?demo=ghz" data-demo="ghz"><span class="number">02</span><div><strong>GHZ correlations</strong><span>Watch entanglement spread.</span></div></a>
+      <a class="experiment" href="?demo=interference" data-demo="interference"><span class="number">03</span><div><strong>Phase interference</strong><span>Phase becomes probability.</span></div></a>
+      <a class="experiment" href="?demo=qutrit" data-demo="qutrit"><span class="number">04</span><div><strong>Qutrit Fourier</strong><span>Beyond two-level systems.</span></div></a>
+      <a class="experiment" href="?demo=photonic&amp;view=fabric" data-demo="photonic"><span class="number">05</span><div><strong>Photonic routing</strong><span>Follow photons through a fabric.</span></div></a>
+      <a class="experiment" href="?demo=optimization&amp;view=learning" data-demo="optimization"><span class="number">06</span><div><strong>Quantum natural SPSA</strong><span>A quantum learning trajectory.</span></div></a>
+    </aside>
+    <section class="stage" aria-labelledby="experiment-title">
+      <div class="stage-top"><h2 id="experiment-title">Bell entanglement</h2><span class="status" id="status" role="status" aria-live="polite"><span class="dot"></span><span id="status-text">Checking graphics</span></span></div>
+      <div class="viewport">
+        <canvas id="quantum-canvas" tabindex="0" aria-label="Interactive quantum simulation. Use the controls within the scene to inspect the state."></canvas>
+        <div class="overlay" id="overlay">
+          <div class="loading-content"><div class="orbit" id="orbit" aria-hidden="true"><i></i></div><h3 id="loading-title">Preparing your laboratory</h3><p id="loading-description">Checking WebGPU support in this browser.</p><button class="action" id="retry" hidden>Try again</button><a class="action" id="native-link" href="https://github.com/mosure/burn_quantum/tree/main/crates/burn_quantum_visualization" hidden>Run the native laboratory ↗</a><details id="error-details" hidden><summary>Technical details</summary><pre id="error-message"></pre></details></div>
+        </div>
+      </div>
+      <div class="stage-bottom"><span>Use the scene controls to step through the experiment.</span><div class="tools"><span id="capability">WebGPU rendering · local simulation</span><button class="tool" id="import-button" disabled>Import JSON</button><button class="tool" id="export-button" disabled>Export JSON</button><input id="import-file" type="file" accept=".json,application/json" hidden></div></div>
+      <p id="io-notice" role="status" aria-live="polite" hidden></p>
+    </section>
+  </main>
+  <section class="notes" aria-label="About these experiments">
+    <div class="note"><h3>Computed, then visualized</h3><p>State amplitudes and probabilities come from burn_quantum. Playback reveals each recorded operation without changing its result.</p></div>
+    <div class="note"><h3>More than qubits</h3><p>Explore multi-level states, photonic routing, and quantum learning alongside familiar circuit building blocks.</p></div>
+    <div class="note"><h3>Open and inspectable</h3><p>Each experiment has a bounded simulation model. The source, numerical tests, and assumptions are available in the repository.</p></div>
+  </section>
+  <footer><span>burn_quantum · A laboratory for quantum AI and simulation.</span><span>Built with Burn + Bevy · <a href="https://github.com/mosure/burn_quantum">Explore the source</a></span></footer>
+</div>
+<noscript><p style="padding:24px">JavaScript is required to run this interactive laboratory. The documentation and source links remain available.</p></noscript>
+<script type="module">
+  const names = { bell:"Bell entanglement", ghz:"GHZ correlations", interference:"Phase interference", qutrit:"Qutrit Fourier", photonic:"Photonic routing", optimization:"Quantum natural SPSA" };
+  const params = new URLSearchParams(location.search);
+  const requested = params.get("demo") || "bell";
+  let demo = Object.hasOwn(names, requested) ? requested : "bell";
+  if (demo !== requested) { params.set("demo", demo); history.replaceState(null,"",`${location.pathname}?${params}`); }
+  document.title = `${names[demo]} — burn_quantum`;
+  document.getElementById("experiment-title").textContent = names[demo];
+  document.querySelector(`[data-demo="${demo}"]`).setAttribute("aria-current","page");
+  const overlay = document.getElementById("overlay"), status = document.getElementById("status");
+  let phase = "checking", ready = false, api, diagnosticsTimer;
+  // This reads the application's cached snapshot; it performs no simulation work.
+  function syncDiagnostics() {
+    if (phase !== "ready" || typeof api?.diagnostics_json !== "function") return;
+    const text = api.diagnostics_json();
+    if (!text) return;
+    const snapshot = JSON.parse(text);
+    if (!snapshot.ready || !Object.hasOwn(names, snapshot.demo)) return;
+    demo = snapshot.demo;
+    const title = typeof snapshot.title === "string" && snapshot.title ? snapshot.title : names[demo];
+    document.getElementById("experiment-title").textContent = title;
+    document.title = `${title} — burn_quantum`;
+    for (const link of document.querySelectorAll("[data-demo]")) {
+      if (link.dataset.demo === demo) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    }
+    const current = new URL(location.href);
+    current.searchParams.set("demo", demo);
+    if (["state", "circuit", "fabric", "learning"].includes(snapshot.view)) current.searchParams.set("view", snapshot.view);
+    if (current.href !== location.href) history.replaceState(null, "", current);
+    window.__burnQuantumStatus = { state:"ready", demo, view:snapshot.view, title };
+  }
+  const progress = (title, description, label) => {
+    document.getElementById("loading-title").textContent = title;
+    document.getElementById("loading-description").textContent = description;
+    document.getElementById("status-text").textContent = label;
+  };
+  function failure(error, unavailable = false) {
+    phase = "failed"; clearInterval(diagnosticsTimer); overlay.hidden = false; status.dataset.state = "error";
+    document.getElementById("import-button").disabled = true;
+    document.getElementById("export-button").disabled = true;
+    document.getElementById("orbit").hidden = true;
+    progress(unavailable ? "A WebGPU browser is needed" : "The laboratory could not start", unavailable ? "This browser could not provide a WebGPU adapter. You can still explore the project or run the native laboratory." : "The simulation or graphics initialization stopped. Reload to retry, or use the native laboratory.", unavailable ? "Graphics unavailable" : "Unable to load");
+    document.getElementById("retry").hidden = unavailable;
+    document.getElementById("native-link").hidden = !unavailable;
+    document.getElementById("error-details").hidden = false;
+    document.getElementById("error-message").textContent = String(error?.message || error);
+    window.__burnQuantumStatus = { state:"error", demo, message:String(error?.message || error) };
+  }
+  document.getElementById("retry").onclick = () => location.reload();
+  const notice = (text, error = false) => {
+    const node = document.getElementById("io-notice"); node.hidden = false;
+    node.dataset.error = String(error); node.textContent = text;
+  };
+  const input = document.getElementById("import-file");
+  document.getElementById("import-button").onclick = () => input.click();
+  input.addEventListener("change", async () => {
+    const file = input.files[0]; if (!file) return;
+    try {
+      if (file.size > 16 * 1024 * 1024) throw new Error("Experiment JSON exceeds the 16 MiB input budget.");
+      const text = new TextDecoder("utf-8", { fatal:true }).decode(await file.arrayBuffer());
+      api.load_document_json(text);
+      notice("Validated experiment imported. The scene will update on its next frame.");
+      document.getElementById("experiment-title").textContent = "Imported experiment";
+    } catch (error) { notice(`Import failed: ${error?.message || error}`, true); }
+    finally { input.value = ""; }
+  });
+  document.getElementById("export-button").onclick = () => {
+    try {
+      const blob = new Blob([api.export_document_json()], { type:"application/json;charset=utf-8" });
+      if (blob.size > 16 * 1024 * 1024) throw new Error("Experiment JSON exceeds the 16 MiB export budget.");
+      const url = URL.createObjectURL(blob), link = document.createElement("a");
+      link.href = url; link.download = "burn-quantum-experiment.json"; document.body.append(link);
+      link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+      notice("Validated experiment exported as JSON.");
+    } catch (error) { notice(`Export failed: ${error?.message || error}`, true); }
+  };
+  window.addEventListener("burn-quantum-ready", () => {
+    if (phase === "failed") return;
+    ready = true; phase = "ready"; overlay.hidden = true; status.dataset.state = "ready";
+    document.getElementById("status-text").textContent = "Live experiment";
+    window.__burnQuantumStatus = { state:"ready", demo };
+    document.getElementById("import-button").disabled = false;
+    document.getElementById("export-button").disabled = false;
+    syncDiagnostics();
+    clearInterval(diagnosticsTimer);
+    diagnosticsTimer = setInterval(syncDiagnostics, 250);
+  });
+  window.addEventListener("burn-quantum-error", event => failure(event.detail || "The graphics application reported an error and stopped. Consult the browser console for the device error, or retry with a different WebGPU-capable browser."));
+  window.addEventListener("burn-quantum-stopped", () => failure("The graphics application has stopped. Reload to start another session."));
+  window.addEventListener("error", event => failure(event.error || event.message));
+  window.addEventListener("unhandledrejection", event => failure(event.reason));
+  window.__burnQuantumStatus = { state:"checking", demo };
+  try {
+    if (!isSecureContext || !navigator.gpu) throw new Error("WebGPU requires a secure context (HTTPS or localhost) and browser/device support.");
+    const adapter = await navigator.gpu.requestAdapter();
+    if (!adapter) throw new Error("navigator.gpu.requestAdapter() returned no adapter.");
+    phase = "loading";
+    window.__burnQuantumStatus = { state:"loading", demo };
+    progress("Loading the simulation", "The first visit downloads the WebAssembly engine. Subsequent visits can use your browser cache.", "Loading engine");
+    api = await import("./pkg/burn_quantum_visualization.js");
+    const init = api.default;
+    progress("Starting your experiment", "Preparing the quantum trace and graphics pipelines.", "Starting renderer");
+    const slow = setTimeout(() => { if (!ready && phase !== "failed") document.getElementById("loading-description").textContent = "Initialization is taking longer than usual. This page is still waiting for the application's first frames."; }, 45000);
+    await init({ module_or_path: new URL("./pkg/burn_quantum_visualization_bg.wasm", import.meta.url) });
+    if (ready) clearTimeout(slow);
+  } catch (error) { failure(error, phase === "checking"); }
+</script>
+</body>
+</html>

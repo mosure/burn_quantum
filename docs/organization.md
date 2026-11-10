@@ -253,3 +253,13 @@ coordinator transactions have separate files under `distributed/`. Local and
 remote observable contractions share the same core implementation. The reusable
 frame transport is shared with photonic shot workers; no provider dependency or
 CLI environment selection enters the public core.
+
+## Visualization
+
+`crates/burn_quantum_visualization` depends on the core library; the core never
+imports Bevy. `model/` owns validated serializable scientific records,
+`simulation/` adapts Burn readouts, `demo/` builds canonical experiments, `io.rs`
+owns bounded interchange, `app.rs` manages execution/selection and `view/` renders
+each scientific lens. `bridge.rs` is optional shared-device GPU interoperability.
+`web/` supplies the gallery shell; `scripts/build_visualization_web.sh` and the
+Pages workflow build and deploy the same Bevy application.

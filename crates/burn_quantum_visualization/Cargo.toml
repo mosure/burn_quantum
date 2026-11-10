@@ -1,0 +1,45 @@
+[package]
+name = "burn_quantum_visualization"
+version.workspace = true
+edition.workspace = true
+rust-version = "1.97.1"
+license.workspace = true
+repository.workspace = true
+description = "Interactive Bevy workbench for quantum circuits, states, photonic fabrics and optimization"
+readme = "README.md"
+
+[features]
+default = ["viewer"]
+viewer = ["dep:bevy", "dep:wasm-bindgen", "dep:wasm-bindgen-futures", "dep:web-sys"]
+gpu-bridge = ["viewer", "burn/wgpu", "dep:burn-wgpu", "dep:burn-cubecl"]
+
+[dependencies]
+burn_quantum = { path = "../burn_quantum", default-features = false }
+burn = { workspace = true, features = ["flex"] }
+serde.workspace = true
+serde_json.workspace = true
+bevy = { version = "=0.20.0", default-features = false, features = ["std", "default_app", "2d_bevy_render", "ui_bevy_render", "bevy_feathers", "bevy_winit", "default_font", "png", "x11", "webgpu", "ui_picking", "picking", "scene", "bevy_input_focus", "bevy_gizmos", "custom_cursor"], optional = true }
+burn-wgpu = { version = "=0.22.1", default-features = false, features = ["std"], optional = true }
+burn-cubecl = { version = "=0.22.1", default-features = false, features = ["std"], optional = true }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom03 = { package = "getrandom", version = "0.3", features = ["wasm_js"] }
+getrandom04 = { package = "getrandom", version = "0.4", features = ["wasm_js"] }
+wasm-bindgen = { version = "0.2", optional = true }
+wasm-bindgen-futures = { version = "0.4", optional = true }
+web-sys = { version = "0.3", features = ["Window", "Document", "Location", "HtmlElement", "HtmlCanvasElement", "UrlSearchParams", "Blob", "Url", "HtmlAnchorElement", "CustomEvent", "EventTarget"], optional = true }
+
+[dev-dependencies]
+pollster = "0.4"
+
+[[bin]]
+name = "quantum_explorer"
+path = "src/bin/explorer.rs"
+required-features = ["viewer"]
+
+[[example]]
+name = "embedded"
+required-features = ["viewer"]
+
+[lints]
+workspace = true

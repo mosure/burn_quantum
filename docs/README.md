@@ -1,5 +1,10 @@
 # Documentation
 
+The [interactive quantum workbench](../crates/burn_quantum_visualization/README.md)
+adds Bevy/Feathers state, circuit, photonic fabric and learning views. Its
+[architecture and acceptance plan](visualization-plan.md) records the scientific
+contracts, native/browser delivery and GPU interoperability boundaries.
+
 - [Current photonic implementation](photonic-status.md): local simulation expansion,
   PsiQuantum direction, acceptance evidence and explicit model boundaries.
 
@@ -57,3 +62,6 @@ older record's file paths and hashes can predate subsequent reorganizations.
 
 Local command output and generated reports live under ignored `artifacts/`;
 compiled code and packaged archives live under ignored `target/`.
+
+The [visualization validation record](visualization-validation.md) records numerical,
+GPU bridge, render and browser evidence with explicit resource limits.

@@ -1,7 +1,8 @@
 # burn_quantum
 
 Differentiable qubit and qudit simulation using Burn 0.22's native tensors,
-devices, modules, parameters, optimizers, and weight records. Rust 1.95+.
+devices, modules, parameters, optimizers, and weight records. Core: Rust 1.95+.
+The visualization workspace uses Rust 1.97.1 / Bevy 0.20.
 
 This is a working finite-dimensional quantum execution layer with a dense
 reference engine. Burn 0.22's dispatch catalog does not support registering
@@ -35,6 +36,26 @@ See [Burn's migration guide](https://burn.dev/books/burn/migrating-to-0.22.html)
 - Photonic computing in this **unreleased checkout**: dual-rail/Fock optics,
   calibrated standard/boosted fusion, universal bounded gate synthesis, finite
   fabric routing, encoded QEC references, measured learning protocols and local jobs.
+
+## Interactive quantum explorer
+
+Open the [live quantum explorer](https://mosure.github.io/burn_quantum/) to inspect
+Bell/GHZ entanglement, interference, qutrits, photonic routing and quantum natural
+SPSA. The new [`burn_quantum_visualization`](crates/burn_quantum_visualization/README.md)
+crate shares a Bevy/Feathers interface between native and WebGPU browsers: Bloch
+balls, circuit diagrams, physical routing, optimizer history and a synchronized
+timeline. Validated JSON documents connect your own experiments to the same views.
+
+```sh
+cargo run --locked -p burn_quantum_visualization --bin quantum_explorer
+cargo run --locked -p burn_quantum_visualization --example embedded
+```
+
+Snapshots are computed once and bounded explicitly. An optional shared-WGPU
+bridge lets a renderer read eligible Burn tensor buffers on the same GPU device;
+the tutorial gallery itself uses portable CPU simulation. See the
+[architecture and acceptance plan](docs/visualization-plan.md) for the data,
+rendering and future scale-out contracts.
 
 ## Canonical quantum AI/ML examples
 
@@ -282,10 +303,13 @@ Read the [architecture and initial plan](docs/architecture.md),
 
 ## Repository organization
 
-The repository root is a virtual Cargo workspace. Both packages live under
+The repository root is a virtual Cargo workspace. The packages live under
 `crates/`: [`burn_quantum`](crates/burn_quantum/README.md) owns the public library,
 integration tests and simulator demos; [`burn_quantum_example`](crates/burn_quantum_example/README.md)
-contains one executable source file per application. Circuit, SAT, QN-SPSA and photonic
+contains one executable source file per application;
+[`burn_quantum_visualization`](crates/burn_quantum_visualization/README.md) owns
+experiment traces, visualization adapters and the native/browser workbench.
+Circuit, SAT, QN-SPSA and photonic
 internals are split by responsibility behind stable public exports. Shared
 metadata, dependency versions and lints live in the root manifest. Repository
 guides, validation scripts and CI stay at the root; runner and comparison

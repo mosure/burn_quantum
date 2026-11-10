@@ -1,0 +1,66 @@
+name: visualization-pages
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'crates/burn_quantum/**'
+      - 'crates/burn_quantum_visualization/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'rust-toolchain.toml'
+      - 'web/**'
+      - 'scripts/build_visualization_web.sh'
+      - '.github/workflows/pages.yml'
+  pull_request:
+    paths:
+      - 'crates/burn_quantum/**'
+      - 'crates/burn_quantum_visualization/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - 'rust-toolchain.toml'
+      - 'web/**'
+      - 'scripts/build_visualization_web.sh'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: visualization-pages-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.97.1
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: visualization-web
+          workspaces: ". -> target/viz-wasm"
+      - name: Install the locked wasm-bindgen CLI
+        shell: bash
+        run: |
+          version="$(python3 -c 'import tomllib; print(next(p["version"] for p in tomllib.load(open("Cargo.lock", "rb"))["package"] if p["name"] == "wasm-bindgen"))')"
+          cargo install wasm-bindgen-cli --version "$version" --locked
+      - name: Build the actual browser application
+        run: scripts/build_visualization_web.sh
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: target/visualization-web
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy the built gallery
+        id: deployment
+        uses: actions/deploy-pages@v4

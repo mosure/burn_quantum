@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/burn_quantum", "crates/burn_quantum_example"]
+members = ["crates/burn_quantum", "crates/burn_quantum_example", "crates/burn_quantum_visualization"]
 default-members = ["crates/burn_quantum", "crates/burn_quantum_example"]
 resolver = "3"
 
@@ -21,3 +21,11 @@ rand_chacha = "0.9"
 [workspace.lints.rust]
 unsafe_code = "forbid"
 missing_docs = "warn"
+
+# The browser gallery is measured separately from native numerical workloads.
+[profile.web-release]
+inherits = "release"
+opt-level = "s"
+lto = "thin"
+codegen-units = 1
+strip = "debuginfo"

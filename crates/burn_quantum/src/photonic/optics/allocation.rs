@@ -50,7 +50,7 @@ impl ShotAllocationPolicy {
             || self.minimum_per_item < 2
             || self.maximum_per_item < self.minimum_per_item
             || self.round_budget == 0
-            || self.total_budget > 1usize << 40
+            || self.total_budget as u64 > 1u64 << 40
             || !self.variance_floor.is_finite()
             || self.variance_floor <= 0.
             || items.iter().any(|x| {
