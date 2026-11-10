@@ -92,14 +92,19 @@ measurement results. Its source circuits come from the single-file
 The SDK output is independently computed; native amplitudes are not copied into
 the fixture. Rust guards require all five package versions, the recorded Python
 version, schema, phase/wire contracts, all four named cases, and their audited
-SHA256 identities, in addition to regenerating the exact program text. The
-generator computes the hashes; Rust tests require no hashing subprocess.
+SHA256 identities, in addition to regenerating the complete instruction stream.
+Gate names, wire identities, order and all non-rotation text match exactly;
+rotation literals allow at most four F64 ULPs of host roundoff. GitHub's runner
+and the fixture host differed by one ULP in a synthesized Fourier rotation.
+The fixture bytes and audited hashes remain unchanged. Negative tests reject
+larger angle errors, nonfinite values and changed gates or wires. The generator
+computes the hashes; Rust tests require no hashing subprocess.
 
 The four cases exercise asymmetric wire usage and affine bindings with a general
 complex U(2), mixed-polarity multicontrols and non-Clifford gates, a dense Fourier
 gate on reordered wires with reversed rotation levels, and nontrivial terminal
 measurement order. `psiqdk_interop` integration tests deserialize the source,
-regenerate the exact OpenQASM text, execute it natively on the selected Burn
+regenerate the OpenQASM program, execute it natively on the selected Burn
 device, map SDK indices, align global phase, and compare every amplitude with
 absolute tolerance **3e-6**. The deterministic readout example returns `[4,1,0]`
 for wires `[2,0,1]`, decoded as `[true,true,false]`.

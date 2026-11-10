@@ -7,6 +7,80 @@ use burn_quantum::{gate::Axis, photonic::interop::*, *};
 use common::values;
 use num_complex::Complex64 as C;
 
+// Euler synthesis uses host transcendental functions. Keep the complete QASM
+// instruction stream exact while allowing at most four F64 ULPs in a rotation
+// literal; CI and the fixture host differ by one ULP for the dense Fourier case.
+fn compare_programs(actual: &str, expected: &str) -> std::result::Result<(), String> {
+    fn rotation(line: &str) -> Option<(&str, f64, &str)> {
+        let (gate, tail) = line.split_once('(')?;
+        if !matches!(gate, "rx" | "ry" | "rz") {
+            return None;
+        }
+        let (angle, suffix) = tail.split_once(')')?;
+        Some((gate, angle.parse().ok()?, suffix))
+    }
+    let actual: Vec<_> = actual.split('\n').collect();
+    let expected: Vec<_> = expected.split('\n').collect();
+    if actual.len() != expected.len() {
+        return Err("QASM line count differs".into());
+    }
+    for (i, (actual, expected)) in actual.iter().zip(expected).enumerate() {
+        let matches = match (rotation(actual), rotation(expected)) {
+            (Some((a_gate, a, a_suffix)), Some((b_gate, b, b_suffix))) => {
+                a_gate == b_gate
+                    && a_suffix == b_suffix
+                    && a.is_finite()
+                    && b.is_finite()
+                    && (a == b
+                        || (a.is_sign_negative() == b.is_sign_negative()
+                            && a.to_bits().abs_diff(b.to_bits()) <= 4))
+            }
+            _ => *actual == expected,
+        };
+        if !matches {
+            return Err(format!(
+                "QASM line {} differs beyond host roundoff: {actual:?} vs {expected:?}",
+                i + 1
+            ));
+        }
+    }
+    Ok(())
+}
+
+#[test]
+fn qasm_fixture_comparison_only_accepts_bounded_rotation_roundoff() {
+    compare_programs(
+        "ry(7.13724378944765592e-1) q[2];\n",
+        "ry(7.13724378944765703e-1) q[2];\n",
+    )
+    .unwrap();
+    let angle = 0.7_f64;
+    let program = |value: f64| format!("ry({value:.17e}) q[2];\ncx q[0], q[2];\n");
+    let reference = program(angle);
+    compare_programs(&program(f64::from_bits(angle.to_bits() + 4)), &reference).unwrap();
+    for value in [
+        f64::from_bits(angle.to_bits() + 5),
+        angle + 1e-10,
+        -angle,
+        f64::NAN,
+        f64::INFINITY,
+        f64::NEG_INFINITY,
+    ] {
+        assert!(compare_programs(&program(value), &reference).is_err());
+    }
+    for changed in [
+        reference.replace("ry(", "rz("),
+        reference.replace("q[2]", "q[1]"),
+        reference.replace("cx ", "cz "),
+        reference.replace("cx q[0], q[2];\n", ""),
+        format!("{reference}reset q[0];\n"),
+    ] {
+        assert!(compare_programs(&changed, &reference).is_err());
+    }
+    compare_programs(&program(-angle.next_up()), &program(-angle)).unwrap();
+    compare_programs("rz(-0.0) q[0];\n", "rz(0.0) q[0];\n").unwrap();
+}
+
 #[test]
 fn pinned_sdk_complex_states_and_terminal_readouts_match_native_execution() {
     let fixture: serde_json::Value =
@@ -36,7 +110,8 @@ fn pinned_sdk_complex_states_and_terminal_readouts_match_native_execution() {
     assert_eq!(fixture["cases"].as_array().unwrap().len(), 4);
     // These externally audited program hashes pin each independently simulated
     // fixture. The Python generator computes SHA256; Rust also regenerates and
-    // compares the entire exact program below, without a new hashing dependency.
+    // compares the complete instruction stream below, allowing only bounded
+    // host roundoff in rotation literals. The fixture and its hashes stay intact.
     let identities = [
         (
             "asymmetric_bound_u2",
@@ -67,10 +142,11 @@ fn pinned_sdk_complex_states_and_terminal_readouts_match_native_execution() {
             OpenQasm3::export(&source, &parameters, &inputs, &readouts, Default::default())
                 .unwrap();
         // Catch a stale fixture or changes to exported gates/bindings/readout order.
-        assert_eq!(
+        compare_programs(
             exported.program(),
-            case["export"]["program"].as_str().unwrap()
-        );
+            case["export"]["program"].as_str().unwrap(),
+        )
+        .unwrap();
         assert_eq!(
             exported.qubits(),
             case["export"]["qubits"].as_u64().unwrap() as usize
