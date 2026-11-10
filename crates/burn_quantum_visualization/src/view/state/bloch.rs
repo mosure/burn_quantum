@@ -1,7 +1,10 @@
 //! Shared spatial/projection mathematics for focused and parallel reduced-qubit views.
 use crate::{
     app::Explorer,
-    model::{VisualizationDocument, bloch::BlochMode},
+    model::{
+        VisualizationDocument,
+        bloch::{BlochMode, BlochReadout},
+    },
     view::{plot::PlotCache, theme::*},
 };
 use bevy::prelude::*;
@@ -35,6 +38,24 @@ pub(super) fn draw(
         axes,
         trail,
     } = style;
+    let readout = BlochReadout::from_vector(vector);
+    if state.bloch_mode == BlochMode::Planar {
+        probability_disk(p, center, radius, color, axes && state.grid, &readout);
+        if trail > 0 {
+            let start = (state.frame + 1).saturating_sub(trail);
+            let mut last = None;
+            for frame in &doc.trace.frames[start..=state.frame] {
+                if let Some(v) = frame.subsystems.get(wire).and_then(|q| q.bloch) {
+                    let tip = center + Vec2::new(v[0] as f32, -v[1] as f32) * radius;
+                    if let Some(previous) = last {
+                        p.line(previous, tip, color.with_alpha(0.20));
+                    }
+                    last = Some(tip);
+                }
+            }
+        }
+        return;
+    }
     let spatial = state.bloch_mode == BlochMode::Spatial;
     let rotate =
         |v: Vec3| Quat::from_rotation_x(state.pitch) * (Quat::from_rotation_z(state.yaw) * v);
@@ -49,7 +70,16 @@ pub(super) fn draw(
             center + Vec2::new(v[0] as f32, -v[1] as f32) * radius
         }
     };
-    p.disc(center, radius, color, spatial);
+    p.disc(
+        center,
+        radius,
+        if spatial {
+            color
+        } else {
+            color.with_alpha(0.12)
+        },
+        spatial,
+    );
     p.circle(center, radius, color.with_alpha(0.35));
     if spatial {
         if state.grid {
@@ -78,17 +108,17 @@ pub(super) fn draw(
             }
         }
         for (axis, label) in [
-            (Vec3::Z, "+z"),
-            (-Vec3::Z, "−z"),
-            (Vec3::X, "x"),
-            (Vec3::Y, "y"),
+            (Vec3::Z, "|0>"),
+            (-Vec3::Z, "|1>"),
+            (Vec3::X, "+x"),
+            (Vec3::Y, "+y"),
         ] {
             let tip = project(axis);
             if state.grid {
                 p.line(center, tip, color.with_alpha(0.12));
             }
             if axes {
-                p.text(center + (tip - center) * 0.91, label, 10., MUTED);
+                p.text(center + (tip - center) * 1.12, label, 10., MUTED);
             }
         }
     } else {
@@ -118,6 +148,23 @@ pub(super) fn draw(
             MUTED,
         );
     }
+    if spatial {
+        let z_tip = project(Vec3::new(0., 0., vector[2] as f32));
+        if state.grid {
+            let tip = project(Vec3::new(
+                vector[0] as f32,
+                vector[1] as f32,
+                vector[2] as f32,
+            ));
+            p.line(z_tip, tip, color.with_alpha(0.25));
+        }
+        p.text(
+            center + Vec2::Y * (radius + 19.),
+            format!("P(1) {:.0}%", readout.probabilities[1] * 100.),
+            10.,
+            color,
+        );
+    }
     if trail > 0 {
         let start = (state.frame + 1).saturating_sub(trail);
         let mut last = None;
@@ -141,4 +188,62 @@ pub(super) fn draw(
     }
     p.dot(center, 1.5, MUTED);
     p.dot(tip, if radius < 40. { 2.5 } else { 3.5 }, color);
+}
+
+/// A probability disk is a different encoding from a Cartesian Bloch projection.
+/// Filled area / reference area = P(1), and the hand is the XY coherence vector.
+fn probability_disk(
+    p: &mut PlotCache,
+    center: Vec2,
+    radius: f32,
+    color: Color,
+    guides: bool,
+    r: &BlochReadout,
+) {
+    p.disc(center, radius, color.with_alpha(0.08), false);
+    p.disc(
+        center,
+        radius * r.probability_radius as f32,
+        color.with_alpha(0.50),
+        false,
+    );
+    p.circle(center, radius, color.with_alpha(0.45));
+    if guides {
+        // Equal-probability area contours, not equally spaced radii.
+        p.circle(center, radius * 0.5_f32.sqrt(), color.with_alpha(0.15));
+        for (angle, label) in [
+            (0., "0"),
+            (std::f32::consts::FRAC_PI_2, "π/2"),
+            (std::f32::consts::PI, "π"),
+        ] {
+            let axis = Vec2::new(angle.cos(), -angle.sin());
+            p.line(
+                center + axis * (radius - 3.),
+                center + axis * (radius + 3.),
+                MUTED,
+            );
+            p.text(center + axis * (radius + 11.), label, 9., MUTED);
+        }
+    }
+    if let Some(phase) = r.phase {
+        let direction = Vec2::new(phase.cos() as f32, -phase.sin() as f32);
+        let tip = center + direction * (radius * r.coherence as f32);
+        if tip.distance(center) > 10. {
+            p.arrow(center, tip, color);
+        } else {
+            p.line(center, tip, color);
+        }
+        p.dot(tip, 2.5, color);
+    }
+    p.dot(center, 1.5, MUTED);
+    let phase = r
+        .phase
+        .map(|v| format!("φ {:.0}°", v.to_degrees()))
+        .unwrap_or_else(|| "φ —".into());
+    p.text(
+        center + Vec2::Y * (radius + 16.),
+        format!("P(1) {:.0}% · {phase}", r.probabilities[1] * 100.),
+        10.,
+        color,
+    );
 }

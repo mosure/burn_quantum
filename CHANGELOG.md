@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Add probability/phase disks with area-correct P(1) fills, coherence hands, and
+  explicit mixed-state purity; retain Cartesian projections and label 3D basis poles.
+- Encode the full explorer view in URLs, including selected wire/gate/node, independent
+  quantum/fabric time, camera, playback, panel settings, and unrun configuration drafts.
+  Imported-document links request the accompanying JSON instead of substituting catalog data.
+
 ## 0.3.0 — 2026-11-10
 
 - Publish `burn_quantum_visualization`: a reusable Bevy/Feathers native and WebGPU

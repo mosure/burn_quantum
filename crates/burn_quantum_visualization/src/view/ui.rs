@@ -564,7 +564,11 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         None,
     );
     commands.entity(mode_tools).insert(Responsive::BlochTools);
-    for (label, mode) in [("3D", BlochMode::Spatial), ("2D", BlochMode::Planar)] {
+    for (label, mode) in [
+        ("3D", BlochMode::Spatial),
+        ("2D probability", BlochMode::Planar),
+        ("Projection", BlochMode::Projection),
+    ] {
         button(
             &mut commands,
             mode_tools,
@@ -1147,7 +1151,7 @@ pub(super) fn responsive(
                         .document
                         .as_ref()
                         .is_some_and(|d| d.circuit.register().dimensions().contains(&2)),
-                    Responsive::PlaneSetting => state.bloch_mode == BlochMode::Planar,
+                    Responsive::PlaneSetting => state.bloch_mode == BlochMode::Projection,
                     Responsive::Configuration => {
                         DemoConfig::range(state.demo).0 != DemoConfig::range(state.demo).1
                             && !state.show_details
@@ -1287,10 +1291,10 @@ pub(super) fn sync_controls(
         Field::Step=>{let count=doc.map(|d|timeline_len(&state,d)).unwrap_or(1);format!("{} {} / {}   ·   {}   ·   ×{}",if state.view==ViewMode::Fabric{"Schedule tick"}else{"Step"},cursor(&state),count.saturating_sub(1),if state.playing{"Playing"}else{"Paused"},state.speed)},
         Field::Inspection=>super::inspection::describe(&state,doc),
         Field::Context=>doc.map(|d|format!("CONTEXT\n\n{}",d.description)).unwrap_or_default(),
-        Field::ViewNote=>match state.view{ViewMode::State=>"Each panel is a reduced subsystem. Qubits show Bloch vectors; qudits show level populations. Focus reveals joint probabilities.",ViewMode::Circuit=>if doc.is_some_and(|d|d.trace.kind==crate::model::TraceKind::Optimization){"Parameterized ansatz at the selected optimizer iterate. Click a gate to inspect its actual parameter binding."}else{"Read left to right. The highlighted prefix has already executed. Click a gate to inspect and seek; drag to pan."},ViewMode::Fabric=>"Physical schedule time is independent of the circuit prefix. Moving dots follow compiled routes; links show rail transmission.",ViewMode::Learning=>"Actual parameter iterates, objective values and evaluation costs. Scrub to compare the current iterate with its history."}.into(),
+        Field::ViewNote=>match state.view{ViewMode::State=>if state.bloch_mode == BlochMode::Planar {"Disk area = P(1); hand angle = phase, length = coherence. Purity distinguishes mixtures. Focus reveals joint probabilities."}else{"Each panel is a reduced subsystem. Qubits show Bloch vectors; qudits show level populations. Focus reveals joint probabilities."},ViewMode::Circuit=>if doc.is_some_and(|d|d.trace.kind==crate::model::TraceKind::Optimization){"Parameterized ansatz at the selected optimizer iterate. Click a gate to inspect its actual parameter binding."}else{"Read left to right. The highlighted prefix has already executed. Click a gate to inspect and seek; drag to pan."},ViewMode::Fabric=>"Physical schedule time is independent of the circuit prefix. Moving dots follow compiled routes; links show rail transmission.",ViewMode::Learning=>"Actual parameter iterates, objective values and evaluation costs. Scrub to compare the current iterate with its history."}.into(),
         Field::Stats=>cache.description.clone(),
         Field::ViewSummary=>match state.view {
-            ViewMode::State=>format!("{} · {}",if state.state_overview { "Register".into() } else { format!("q{}",state.wire) }, if doc.is_some_and(|d|d.circuit.register().dimensions().contains(&2)) { match state.bloch_mode {BlochMode::Spatial=>"3D spheres".into(),BlochMode::Planar=>format!("2D {}",state.bloch_plane.axes()[..2].join("").to_uppercase())} } else {"Populations".into()}),
+            ViewMode::State=>format!("{} · {}",if state.state_overview { "Register".into() } else { format!("q{}",state.wire) }, if doc.is_some_and(|d|d.circuit.register().dimensions().contains(&2)) { match state.bloch_mode {BlochMode::Spatial=>"3D spheres".into(),BlochMode::Planar=>"2D probability / phase".into(),BlochMode::Projection=>format!("Projection {}",state.bloch_plane.axes()[..2].join("").to_uppercase())} } else {"Populations".into()}),
             _=>"Drag to pan · scroll to zoom".into(),
         },
         Field::PlaneName=>state.bloch_plane.axes()[..2].join("").to_uppercase(),

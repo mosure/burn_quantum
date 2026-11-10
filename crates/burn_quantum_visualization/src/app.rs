@@ -1,4 +1,5 @@
 //! Native/WASM application, asynchronous document loading and interaction state.
+pub(crate) mod query;
 use crate::{
     demo::{self, DemoConfig, DemoKind},
     model::{
@@ -158,6 +159,8 @@ pub(crate) struct Experiment {
     pub document: Option<VisualizationDocument>,
     task: Option<Task<Result<VisualizationDocument, String>>>,
     generation: u64,
+    pub(crate) source_config: Option<DemoConfig>,
+    pub(crate) imported: bool,
 }
 #[derive(Resource, Default)]
 struct Launch {
@@ -168,6 +171,7 @@ struct Launch {
     #[cfg(not(target_arch = "wasm32"))]
     export: Option<String>,
     step: Option<usize>,
+    query: Option<query::QueryState>,
     ready_frames: u32,
     #[cfg(not(target_arch = "wasm32"))]
     capture_started: bool,
@@ -199,10 +203,10 @@ pub fn run() {
                     }
                 }
                 "--bloch" => {
-                    explorer.bloch_mode = if args.next().as_deref() == Some("2d") {
-                        BlochMode::Planar
-                    } else {
-                        BlochMode::Spatial
+                    explorer.bloch_mode = match args.next().as_deref() {
+                        Some("2d") => BlochMode::Planar,
+                        Some("projection") => BlochMode::Projection,
+                        _ => BlochMode::Spatial,
                     };
                 }
                 "--plane" => {
@@ -229,6 +233,18 @@ pub fn run() {
                     }
                 }
                 "--step" => launch.step = args.next().and_then(|s| s.parse().ok()),
+                "--query" => {
+                    if let Some(value) = args.next() {
+                        // Canonical queries emitted by the viewer contain URL-safe values only.
+                        let query = query::QueryState::parse(
+                            value.trim_start_matches('?').split('&').filter_map(|pair| {
+                                pair.split_once('=').map(|(k, v)| (k.into(), v.into()))
+                            }),
+                        );
+                        query.prepare(&mut explorer);
+                        launch.query = Some(query);
+                    }
+                }
                 "--width" => {
                     size.0 = args
                         .next()
@@ -255,37 +271,26 @@ pub fn run() {
         if let Some(window) = web_sys::window() {
             if let Ok(search) = window.location().search() {
                 if let Ok(params) = web_sys::UrlSearchParams::new_with_str(&search) {
-                    if let Some(v) = params.get("demo") {
-                        explorer.demo = parse_demo(&v);
-                        explorer.config = DemoConfig::for_demo(explorer.demo);
-                    }
-                    if let Some(v) = params.get("view") {
-                        explorer.view = ViewMode::parse(&v);
-                    }
-                    if let Some(n) = params.get("size").and_then(|v| v.parse().ok()) {
-                        explorer.config.size = n;
-                    }
-                    if let Some(n) = params.get("layers").and_then(|v| v.parse().ok()) {
-                        explorer.config.depth = n;
-                    }
-                    if let Some(n) = params.get("variant").and_then(|v| v.parse().ok()) {
-                        explorer.config.variant = n;
-                    }
-                    explorer.bloch_mode = if params.get("bloch").as_deref() == Some("2d") {
-                        BlochMode::Planar
-                    } else {
-                        BlochMode::Spatial
-                    };
-                    explorer.bloch_plane = match params.get("plane").as_deref() {
-                        Some("xy") => BlochPlane::Xy,
-                        Some("yz") => BlochPlane::Yz,
-                        _ => BlochPlane::Xz,
-                    };
-                    explorer.trails = params.get("trails").as_deref() == Some("1");
-                    launch.step = params.get("step").and_then(|v| v.parse().ok());
+                    let pairs = js_sys::try_iter(&params)
+                        .ok()
+                        .flatten()
+                        .into_iter()
+                        .flatten()
+                        .filter_map(Result::ok)
+                        .filter_map(|pair| {
+                            let pair = js_sys::Array::from(&pair);
+                            Some((pair.get(0).as_string()?, pair.get(1).as_string()?))
+                        });
+                    let query = query::QueryState::parse(pairs);
+                    query.prepare(&mut explorer);
+                    launch.query = Some(query);
                 }
             }
         }
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    if launch.input.is_some() {
+        explorer.requested = true;
     }
     explorer.preview_config();
     App::new()
@@ -346,6 +351,8 @@ fn load_documents(
 ) {
     if let Some(document) = crate::io::take_pending_document() {
         experiment.task = None;
+        experiment.imported = true;
+        experiment.source_config = None;
         accept_document(document, &mut state, &mut experiment, &mut launch);
         state.requested = false;
     }
@@ -355,11 +362,15 @@ fn load_documents(
     state.requested = false;
     state.playing = false;
     state.status = "Simulating with Burn…".into();
+    experiment.imported = false;
+    experiment.source_config = Some(state.config);
     experiment.generation += 1;
     experiment.document = None;
     state.touch();
     #[cfg(not(target_arch = "wasm32"))]
     if let Some(path) = launch.input.take() {
+        experiment.imported = true;
+        experiment.source_config = None;
         match crate::io::read_input(&path) {
             Ok(document) => accept_document(document, &mut state, &mut experiment, &mut launch),
             Err(error) => {
@@ -432,6 +443,9 @@ fn accept_document(
     state.status = document.trace.backend.clone();
     state.elapsed = 0.;
     state.reset_camera();
+    if let Some(query) = launch.query.take() {
+        query.restore(state, &document);
+    }
     crate::io::set_current_document(&document);
     #[cfg(not(target_arch = "wasm32"))]
     if let Some(path) = launch.export.take()

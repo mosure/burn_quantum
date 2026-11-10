@@ -184,7 +184,12 @@ pub(super) fn describe(state: &Explorer, document: Option<&VisualizationDocument
             };
             let xyz = q
                 .bloch
-                .map(|v| format!("x  {:+.3}\ny  {:+.3}\nz  {:+.3}", v[0], v[1], v[2]))
+                .map(|v| {
+                    let r = crate::model::bloch::BlochReadout::from_vector(v);
+                    let phase = r.phase.map(|p| format!("{:.1}°", p.to_degrees())).unwrap_or_else(|| "undefined".into());
+                    format!("P(0)  {:.2}%\nP(1)  {:.2}%\nPhase  {phase}\nCoherence  {:.3}\n\nx  {:+.3}\ny  {:+.3}\nz  {:+.3}",
+                        r.probabilities[0]*100., r.probabilities[1]*100., r.coherence, v[0], v[1], v[2])
+                })
                 .unwrap_or_else(|| {
                     "Qudits use level\npopulations, not a\nqubit Bloch sphere.".into()
                 });

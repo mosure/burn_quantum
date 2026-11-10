@@ -91,7 +91,7 @@ pub(super) fn build(
         bounds,
         frame.subsystems.len(),
         state.wire,
-        state.bloch_mode == crate::model::bloch::BlochMode::Planar,
+        state.bloch_mode != crate::model::bloch::BlochMode::Spatial,
     );
     p.overview_capacity = grid.capacity;
     p.text(
@@ -140,11 +140,7 @@ pub(super) fn build(
             if selected { ACCENT } else { TEXT },
         );
         if q.bloch.is_some() {
-            let reserve = if state.bloch_mode == crate::model::bloch::BlochMode::Planar {
-                78.
-            } else {
-                58.
-            };
+            let reserve = 88.;
             let maximum = ((rect.width() - 26.).min(rect.height() - reserve)) * 0.5;
             let radius = (maximum * state.zoom).min(maximum).max(4.);
             bloch::draw(
@@ -153,7 +149,7 @@ pub(super) fn build(
                 state,
                 doc,
                 bloch::Style {
-                    center: rect.center() + Vec2::new(0., -1.),
+                    center: rect.center() + Vec2::new(0., -6.),
                     radius,
                     color,
                     axes: radius > 38.,
@@ -172,7 +168,8 @@ pub(super) fn build(
         p.hit(rect, Hit::Wire(wire));
     }
     p.text(Vec2::new(bounds.center().x,bounds.max.y-9.),
-        if bounds.width() < 500. { "Shared timeline · Focus for joint probabilities" }
+        if state.bloch_mode == crate::model::bloch::BlochMode::Planar { "Area = P(1) · hand = phase / coherence" }
+        else if bounds.width() < 500. { "Shared timeline · Focus for joint probabilities" }
         else { "Reduced states share one timeline and camera. Local states alone do not show all joint correlations." },
         10., MUTED);
     p.description = format!(

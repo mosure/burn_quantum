@@ -76,6 +76,23 @@ const report = {url:base, timestamp:new Date().toISOString(), demos:[], interact
    }
    await page.waitForTimeout(300);
   }
+  const persistentFields=['demo','config','active_config','source','view','frame','tick','qubit','state_overview','bloch_mode','bloch_plane','trails','gate','node','playing','speed','zoom','pan','orbit','guides','show_details','show_settings'];
+  const persistentState=d=>Object.fromEntries(persistentFields.map(key=>[key,d[key]]));
+  async function querySynced() {
+   await page.waitForFunction(()=>{
+    const d=JSON.parse(window.__qaApi.diagnostics_json());
+    if(typeof d.query!=='string')return false;
+    const actual=new URLSearchParams(location.search),expected=new URLSearchParams(d.query);
+    return [...expected].every(([key,value])=>actual.get(key)===value);
+   });
+  }
+  async function roundTrip(label) {
+   await querySynced();
+   const before=persistentState(await diag()),url=page.url();
+   await page.goto(url);await ready();await querySynced();
+   assert.deepEqual(persistentState(await diag()),before,`${label}: copied URL restores complete paused view state`);
+   (report.url_round_trips??=[]).push({label,url,state:before});
+  }
   const cases=[['bell','state',2],['ghz','state',6],['mixed','state',6],['teleportation','circuit',10],['toffoli','circuit',3],['qft','circuit',0],['deutsch-jozsa','circuit',0],['qpe','circuit',0],['grover','state',5],['qaoa','circuit',0],['bit-flip','circuit',0],['interference','state',2],['qutrit','state',2],['photonic','fabric',0],['optimization','learning',16]];
   for (const [demo,view,step] of cases) {
    const start=Date.now();await page.goto(`${base}?demo=${demo}&view=${view}&step=${step}`);await ready();
@@ -168,13 +185,16 @@ const report = {url:base, timestamp:new Date().toISOString(), demos:[], interact
   await click('StateGroup(1)');const groupAfter=await diag();assert.ok(groupAfter.qubit>0);assert.ok(groupAfter.plot_hits.some(h=>h.action===`Wire(${groupAfter.qubit})`));
   await page.screenshot({path:path.join(out,'register-groups-mobile.png'),fullPage:true});
   await click('Settings');await click('BlochMode(Planar)');assert.equal((await diag()).bloch_mode,'Planar');
-  await click('Plane');assert.equal((await diag()).bloch_plane,'Yz');await click('Settings');
+  assert.ok(!(await diag()).controls.some(c=>c.action==='Plane'),'probability disks do not offer coordinate planes');
+  await click('Settings');
   await page.screenshot({path:path.join(out,'planar-mobile.png'),fullPage:true});
   await click('Settings');await click('BlochMode(Spatial)');assert.equal((await diag()).bloch_mode,'Spatial');await click('Settings');
   await page.setViewportSize({width:1600,height:1200});await page.waitForTimeout(500);
   await page.goto(`${base}?demo=mixed&step=6`);await ready();
   await click('Settings');await click('BlochMode(Planar)');await click('Settings');await page.screenshot({path:path.join(out,'mixed-2d.png'),fullPage:true});
-  await click('Settings');await click('Plane');await click('Plane');assert.equal((await diag()).bloch_plane,'Xy');
+  await click('Settings');await click('BlochMode(Projection)');assert.equal((await diag()).bloch_mode,'Projection');
+  await click('Plane');await click('Plane');assert.equal((await diag()).bloch_plane,'Xy');
+  await page.screenshot({path:path.join(out,'mixed-projection.png'),fullPage:true});
   await click('BlochMode(Spatial)');await click('Trails');assert.equal((await diag()).trails,true);await page.screenshot({path:path.join(out,'view-settings.png'),fullPage:true});await click('Settings');
   await page.screenshot({path:path.join(out,'mixed-3d-trails.png'),fullPage:true});
   await page.setViewportSize({width:390,height:1000});
@@ -183,6 +203,56 @@ const report = {url:base, timestamp:new Date().toISOString(), demos:[], interact
   await page.screenshot({path:path.join(out,'photonic-mobile.png'),fullPage:true});
   report.register_groups={before:groupBefore,after:groupAfter};
   report.interactions.push('12 simultaneous qubits, direct q9 selection, focused inspection, explicit 13-qubit run, oversize rejection, mobile groups');
+  // A copied URL restores the complete view, including values that used to
+  // reset when an asynchronous document finished loading.
+  await page.setViewportSize({width:1600,height:1200});
+  await page.goto(`${base}?demo=qaoa&size=4&layers=2&view=state&frame=3&step=3&wire=2&gate=1&overview=0&bloch=projection&plane=yz&trails=1&speed=2&yaw=0.4&pitch=-0.2&zoom=1.25&pan_x=5&pan_y=-9&guides=0&details=1&settings=0&playing=0&campaign=qa#share`);await ready();
+  {const d=await diag();assert.equal(d.demo,'qaoa');assert.equal(d.frame,3);assert.equal(d.qubit,2);assert.equal(d.gate,1);assert.equal(d.state_overview,false);assert.equal(d.bloch_mode,'Projection');assert.equal(d.bloch_plane,'Yz');assert.equal(d.trails,true);assert.equal(d.speed,2);assert.equal(d.zoom,1.25);assert.deepEqual(d.pan,[5,-9]);assert.equal(d.guides,false);assert.equal(d.show_details,true);}
+  await roundTrip('configured circuit, selection, inspection, camera and projection');
+  assert.equal(new URL(page.url()).searchParams.get('campaign'),'qa');assert.equal(new URL(page.url()).hash,'#share');
+  const scientificBefore=await page.evaluate(()=>window.__qaApi.export_document_json());
+  await click('Settings');await click('BlochMode(Planar)');await click('Speed');await click('Grid');
+  assert.equal(await page.evaluate(()=>window.__qaApi.export_document_json()),scientificBefore,'view controls preserve every scientific snapshot');
+  await roundTrip('live Settings edits and probability disk');
+  await click('Size(1)');await click('Depth(1)');
+  {const d=await diag();assert.deepEqual(d.config,{size:5,depth:3,variant:0});assert.deepEqual(d.active_config,{size:4,depth:2,variant:0});}
+  await roundTrip('unrun configuration drafts');
+  assert.equal(await page.evaluate(()=>JSON.parse(window.__qaApi.export_document_json()).circuit.register.length),4,'restoring a draft does not execute it');
+  await page.goto(`${base}?demo=qft&size=4&variant=1&view=circuit&frame=2&step=2&wire=3&gate=0&draft_variant=0&settings=1`);await ready();
+  assert.equal((await diag()).active_config.variant,1);assert.equal((await diag()).config.variant,0);
+  await roundTrip('algorithm variant draft and selected circuit gate');
+  await page.goto(`${base}?demo=teleportation&view=circuit&frame=10&step=10&gate=9&wire=2&details=1`);await ready();
+  assert.equal((await diag()).gate,9,'protocol selection includes measurement and feed-forward instructions');
+  await roundTrip('teleportation protocol instruction after measurements');
+  await page.goto(`${base}?demo=photonic&view=fabric&frame=1&step=2&tick=2.25&wire=1&node=2&gate=0&zoom=0.8&pan_x=-12&pan_y=7&details=1`);await ready();
+  {const d=await diag();assert.equal(d.frame,1);assert.equal(d.tick,2.25);assert.equal(d.node,2);assert.equal(d.gate,0);}
+  await roundTrip('independent circuit frame and physical fabric time');
+  await page.goto(`${base}?demo=photonic&view=fabric&tick=0.25&playing=1&speed=0.5`);await ready();
+  assert.equal((await diag()).playing,true);assert.ok((await diag()).tick>0.25,'restored playback advances physical time');
+  await page.waitForFunction(()=>new URLSearchParams(location.search).get('playing')==='1');
+  await click('Play');assert.equal((await diag()).playing,false);await roundTrip('paused position after restored playback');
+  report.interactions.push('copied URLs restore all settings, draft/applied configurations, selections, camera, and independent quantum/fabric timelines; view changes preserve scientific data');
+  // Local scientific documents are not silently replaced by catalog data when
+  // sharing a view link. The recipient supplies the exported document explicitly.
+  await page.locator('#import-file').setInputFiles(path.join(out,'export.json'));
+  await page.waitForFunction(()=>JSON.parse(window.__qaApi.diagnostics_json()).source==='imported');
+  await click('Step(1)');await click('Wire(1)');await click('ToggleFocus');
+  await click('Settings');await click('BlochMode(Planar)');await querySynced();
+  const importedState=persistentState(await diag()),importedUrl=page.url();
+  assert.equal(new URL(importedUrl).searchParams.get('source'),'imported');
+  await page.goto(importedUrl);
+  await page.waitForFunction(()=>window.__burnQuantumStatus?.state==='awaiting-import');
+  assert.equal(await page.locator('#import-button').isEnabled(),true);
+  // The import prompt is available as soon as WASM starts; Bevy publishes its
+  // first diagnostics snapshot on a later frame, before any document is loaded.
+  await page.evaluate(async()=>{window.__qaApi=await import('./pkg/burn_quantum_visualization.js');});
+  await page.waitForFunction(()=>window.__qaApi.diagnostics_json().length>0);
+  assert.equal((await diag()).ready,false,'an imported link must not display an unrelated catalog experiment');
+  await page.screenshot({path:path.join(out,'import-required.png'),fullPage:true});
+  await page.locator('#import-file').setInputFiles(path.join(out,'export.json'));await ready();await querySynced();
+  assert.deepEqual(persistentState(await diag()),importedState,'supplying the document restores its shared view');
+  report.imported_link={url:importedUrl,prompt:true,view_restored:true};
+  report.interactions.push('imported-document links require JSON and restore the encoded view after import');
   const unavailable=await browser.newPage();await unavailable.addInitScript(()=>Object.defineProperty(navigator,'gpu',{value:undefined}));await unavailable.goto(base);
   await unavailable.waitForFunction(()=>window.__burnQuantumStatus?.state==='error');
   assert.ok(await unavailable.locator('#native-link').isVisible());await unavailable.screenshot({path:path.join(out,'unsupported.png')});await unavailable.close();

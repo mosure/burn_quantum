@@ -33,7 +33,7 @@ fn texture(spatial: bool) -> Image {
             let shade = if spatial {
                 0.23 + 0.35 * Vec3::new(px, py, z).dot(light).max(0.) + 0.09 * (1. - z).powi(3)
             } else {
-                0.24 + 0.05 * (1. - r2).max(0.)
+                1. // Flat area encoding: no shading that could imply a radial probability gradient.
             };
             let value = (shade * 255.) as u8;
             bytes.extend([value, value, value, (alpha * 255.) as u8]);

@@ -48,8 +48,18 @@ viewport cannot fit them legibly. Focus retains joint probabilities.
 Shared orbit/zoom and playback update all visible states together. The tighter
 register grid centers compact tiles instead of stretching large boxes. **3D** uses
 an orthographic sphere with shaded surfaces, depth-cued great circles and orbit;
-**2D** uses selectable XY/XZ/YZ projection disks and labels the omitted coordinate.
-A short projected vector need not be mixed: use the full purity/hidden component.
+**2D probability** uses a phase disk: the colored area fraction equals the
+computational-basis probability `P(1) = (1-z)/2` (radius `R * sqrt(P(1))`).
+The hand angle is the coherence phase `atan2(y,x)` and its length is
+`R * sqrt(x²+y²) = R * 2|rho01|`. Phase is undefined at the poles and for
+incoherent mixtures, so no hand is drawn there. `P(1)`, phase, and purity are
+reported independently; a 50/50 pure superposition and a maximally mixed state
+have equal fill areas but different hands and purity. Trails trace earlier hand
+tips. This follows the local-state [phase-disk convention](https://quantum.cloud.ibm.com/docs/en/guides/composer#phase-disk), with explicit area scaling.
+**Projection** retains selectable XY/XZ/YZ coordinate disks and labels the
+omitted coordinate. A short projected vector need not be mixed: use the full
+purity/hidden component. 3D spheres label the computational poles `|0>` and
+`|1>` and retain the canonical Bloch vector inside the unit ball.
 **Settings** contains projection modes, planes, guides, trails, playback speed and experiment configuration. **Focus** toggles the selected subsystem and joint probabilities. The default toolbar shows only the relevant views and primary actions. **Trails** enables history explicitly. Qudit population panels retain their meaning
 in either mode. Two shared analytic surface textures are uploaded once; no
 per-qubit render targets, cameras or tensor readbacks are introduced. Click the
@@ -80,18 +90,44 @@ The UI does not guess available VRAM or silently reduce a requested circuit.
 
 ```sh
 cargo run -p burn_quantum_visualization --bin quantum_explorer -- --demo ghz --size 12 --step 12
-cargo run -p burn_quantum_visualization --bin quantum_explorer -- --demo mixed --step 6 --bloch 2d --plane xy
+cargo run -p burn_quantum_visualization --bin quantum_explorer -- --demo mixed --step 6 --bloch 2d
 cargo run -p burn_quantum_visualization --bin quantum_explorer -- --demo qpe --size 6 --variant 1 --view circuit
 cargo run -p burn_quantum_visualization --bin quantum_explorer -- --demo qaoa --size 8 --layers 3 --view circuit
 ```
 
 Browser links accept the same settings, for example
 [twelve qubits in 3D](https://mosure.github.io/burn_quantum/?demo=ghz&size=12&step=12)
-or [a mixed register in 2D](https://mosure.github.io/burn_quantum/?demo=mixed&step=6&bloch=2d&plane=xy).
+or [a mixed register in 2D](https://mosure.github.io/burn_quantum/?demo=mixed&step=6&bloch=2d).
 
-Browser links accept the same `demo`, `size`, `layers`, `variant`, `view` and `step`
-query parameters. `bloch=2d&plane=xy&trails=1` selects a planar presentation;
-native equivalents are `--bloch 2d --plane xy --trails`. `demo::build_configured` and `demo::preview` expose the catalog
+The address bar tracks the complete durable view state. Copying the URL restores
+the selected example, applied configuration, pending edits, both timelines,
+selection, camera, playback, and display settings after the simulation loads.
+Back/Forward restores through the same initialization path. Display preferences
+also survive switching experiments; experiment-specific settings reset to that
+example's defaults.
+
+| Query parameters | Meaning |
+| --- | --- |
+| `demo`, `size`, `layers`, `variant` | Applied experiment and configuration |
+| `draft_size`, `draft_layers`, `draft_variant` | Unrun Settings edits, when different from the applied configuration |
+| `view`, `frame`, `tick` | Scientific view, quantum frame, and independent physical fabric time |
+| `step` | Legacy shorthand for the active timeline; explicit `frame`/`tick` take precedence |
+| `wire`, `gate`, `node` | Selected subsystem, operation, and fabric component (`none` clears an optional selection) |
+| `overview`, `bloch`, `plane`, `trails` | Register/focus mode, `3d`/`2d`/`projection`, projection plane, and trails |
+| `playing`, `speed` | Playback state and multiplier |
+| `yaw`, `pitch`, `zoom`, `pan_x`, `pan_y` | Shared camera, with finite bounded values |
+| `guides`, `details`, `settings` | Guide and panel visibility |
+| `source`, `v` | `catalog`/`imported` document source and query format version |
+
+Boolean values are `0` or `1`. `bloch=2d` selects probability/phase disks;
+`bloch=projection&plane=xy&trails=1` selects a Cartesian projection. Native
+flags include `--bloch projection --plane xy --trails`; `--query '<query>'`
+accepts the canonical query emitted by the viewer. For an imported experiment,
+share its exported JSON alongside the URL. The link explicitly asks for that
+file before restoring the view, since scientific payloads are not embedded in
+query parameters. Native imports can combine `--query` with `--input`.
+
+`demo::build_configured` and `demo::preview` expose the catalog
 without UI boilerplate. Algorithm definitions live in `burn_quantum::algorithms`;
 `burn_quantum::protocol::BranchExecution` supplies real projective collapse and
 classical feed-forward. Teleportation displays an explicitly selected branch and

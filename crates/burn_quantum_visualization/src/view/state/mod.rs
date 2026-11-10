@@ -65,8 +65,10 @@ pub(super) fn build(
         TEXT,
     );
     if let Some(bloch) = q.bloch {
-        let radius = (sphere.width().min(sphere.height() - 95.) * 0.36 * state.zoom).max(25.);
-        let center = sphere.center() + Vec2::new(0., -12.) + state.pan;
+        let radius = (sphere.width().min(sphere.height() - 140.) * 0.36 * state.zoom).max(25.);
+        // Keep probability and purity on separate rows, including short canvases.
+        let center_y = (sphere.center().y - 12.).min(sphere.max.y - 91. - radius);
+        let center = Vec2::new(sphere.center().x, center_y) + state.pan;
         let v = Vec3::new(bloch[0] as f32, bloch[1] as f32, bloch[2] as f32);
         bloch::draw(
             p,
@@ -93,7 +95,13 @@ pub(super) fn build(
         );
         p.text(
             Vec2::new(sphere.center().x, sphere.max.y - 30.),
-            if !state.trails {
+            if state.bloch_mode == crate::model::bloch::BlochMode::Planar {
+                if sphere.width() < 230. {
+                    "Area = P(1) · hand = phase"
+                } else {
+                    "Area = P(1) · hand = phase / coherence"
+                }
+            } else if !state.trails {
                 if state.bloch_mode == crate::model::bloch::BlochMode::Spatial {
                     "3D sphere · enable Trails for history"
                 } else {

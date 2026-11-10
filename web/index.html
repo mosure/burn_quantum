@@ -138,6 +138,25 @@
 <script type="module">
   const names = {"bell": "Bell entanglement", "ghz": "GHZ correlations", "mixed": "Qubits & qutrits", "interference": "Phase interference", "qutrit": "Qutrit Fourier", "teleportation": "Quantum teleportation", "toffoli": "Toffoli / controlled X", "qft": "Quantum Fourier transform", "deutsch-jozsa": "Deutsch–Jozsa", "qpe": "Quantum phase estimation", "grover": "Grover search", "qaoa": "QAOA · MaxCut", "bit-flip": "Bit-flip error correction", "photonic": "Photonic routing", "optimization": "Quantum natural SPSA"};
   const experimentSelect = document.getElementById("experiment-select");
+  // View state is a compact, versioned Rust-generated query. Keep unrelated query
+  // keys and fragments (for embedding/analytics), and replace rather than append
+  // browser history entries while playback or camera gestures are in progress.
+  const viewKeys = new Set("v demo size layers variant draft_size draft_layers draft_variant view step frame tick wire gate node overview bloch plane trails playing speed yaw pitch zoom pan_x pan_y guides details settings source".split(" "));
+  const experimentKeys = "size layers variant draft_size draft_layers draft_variant step frame tick wire gate node playing source".split(" ");
+  const defaultViews = new Map([...document.querySelectorAll(".experiment")].map(link => [link.dataset.demo, new URL(link.href).searchParams.get("view")]));
+  function refreshExperimentLinks() {
+    for (const link of document.querySelectorAll(".experiment")) {
+      const target = new URL(location.href);
+      for (const key of experimentKeys) target.searchParams.delete(key);
+      target.searchParams.set("demo", link.dataset.demo);
+      target.searchParams.set("view", defaultViews.get(link.dataset.demo));
+      link.href = target;
+    }
+  }
+  refreshExperimentLinks();
+  // Back/Forward restores through the same validated initialization path, even
+  // when a host application uses pushState to navigate within this page.
+  window.addEventListener("popstate", () => location.reload());
   for (const link of document.querySelectorAll(".experiment")) {
     const option = new Option(names[link.dataset.demo], link.dataset.demo);
     experimentSelect.add(option);
@@ -148,19 +167,27 @@
   const params = new URLSearchParams(location.search);
   const requested = params.get("demo") || "bell";
   let demo = Object.hasOwn(names, requested) ? requested : "bell";
-  if (demo !== requested) { params.set("demo", demo); history.replaceState(null,"",`${location.pathname}?${params}`); }
+  if (demo !== requested) {
+    params.set("demo", demo);
+    const normalized = new URL(location.href); normalized.search = params.toString();
+    history.replaceState(null, "", normalized);
+  }
   experimentSelect.value = demo;
   document.title = `${names[demo]} — burn_quantum`;
   document.getElementById("experiment-title").textContent = names[demo];
   document.querySelector(`[data-demo="${demo}"]`).setAttribute("aria-current","page");
   const overlay = document.getElementById("overlay"), status = document.getElementById("status");
-  let phase = "checking", ready = false, api, diagnosticsTimer;
+  let phase = "checking", ready = false, initialized = false, api, diagnosticsTimer;
   // This reads the application's cached snapshot; it performs no simulation work.
   function syncDiagnostics() {
-    if (phase !== "ready" || typeof api?.diagnostics_json !== "function") return;
+    if (!initialized || !["loading", "ready", "awaiting-import"].includes(phase) || typeof api?.diagnostics_json !== "function") return;
     const text = api.diagnostics_json();
     if (!text) return;
     const snapshot = JSON.parse(text);
+    if (!snapshot.ready && /^(Could not simulate:|Import failed:)/.test(snapshot.status || "")) {
+      failure(snapshot.status); return;
+    }
+    if (phase !== "ready") return;
     if (!snapshot.ready || !Object.hasOwn(names, snapshot.demo)) return;
     demo = snapshot.demo;
     experimentSelect.value = demo;
@@ -172,11 +199,21 @@
       else link.removeAttribute("aria-current");
     }
     const current = new URL(location.href);
-    current.searchParams.set("demo", demo);
-    if (["state", "circuit", "fabric", "learning"].includes(snapshot.view)) current.searchParams.set("view", snapshot.view);
-    if (current.href !== location.href) history.replaceState(null, "", current);
+    if (typeof snapshot.query === "string") {
+      for (const key of viewKeys) current.searchParams.delete(key);
+      for (const [key, value] of new URLSearchParams(snapshot.query)) {
+        if (viewKeys.has(key)) current.searchParams.set(key, value);
+      }
+    }
+    if (current.href !== location.href) {
+      history.replaceState(null, "", current);
+      refreshExperimentLinks();
+    }
     window.__burnQuantumStatus = { state:"ready", demo, view:snapshot.view, title };
   }
+  // Allow Bevy's next frame to commit an interaction before copying its state.
+  for (const event of ["pointerup", "keyup"]) window.addEventListener(event, () => setTimeout(syncDiagnostics, 50), true);
+  document.addEventListener("visibilitychange", syncDiagnostics);
   const progress = (title, description, label) => {
     document.getElementById("loading-title").textContent = title;
     document.getElementById("loading-description").textContent = description;
@@ -207,7 +244,7 @@
       if (file.size > 16 * 1024 * 1024) throw new Error("Experiment JSON exceeds the 16 MiB input budget.");
       const text = new TextDecoder("utf-8", { fatal:true }).decode(await file.arrayBuffer());
       api.load_document_json(text);
-      notice("Validated experiment imported. The scene will update on its next frame.");
+      notice("Validated experiment imported. Its view settings are saved in the URL; share the exported JSON alongside the link to reproduce this custom experiment.");
       document.getElementById("experiment-title").textContent = "Imported experiment";
     } catch (error) { notice(`Import failed: ${error?.message || error}`, true); }
     finally { input.value = ""; }
@@ -250,7 +287,18 @@
     progress("Starting your experiment", "Preparing the quantum trace and graphics pipelines.", "Starting renderer");
     const slow = setTimeout(() => { if (!ready && phase !== "failed") document.getElementById("loading-description").textContent = "Initialization is taking longer than usual. This page is still waiting for the application's first frames."; }, 45000);
     await init({ module_or_path: new URL("./pkg/burn_quantum_visualization_bg.wasm", import.meta.url) });
+    initialized = true;
     if (ready) clearTimeout(slow);
+    else if (phase !== "failed") diagnosticsTimer = setInterval(syncDiagnostics, 250);
+    if (!ready && phase !== "failed" && params.get("source") === "imported") {
+      clearTimeout(slow);
+      phase = "awaiting-import";
+      status.dataset.state = "loading";
+      document.getElementById("orbit").hidden = true;
+      document.getElementById("import-button").disabled = false;
+      progress("Import the linked experiment", "This URL restores view settings for an imported document. Use Import JSON below with the accompanying file; scientific data are not embedded in the link.", "Waiting for JSON");
+      window.__burnQuantumStatus = { state:"awaiting-import", demo };
+    }
   } catch (error) { failure(error, phase === "checking"); }
 </script>
 </body>

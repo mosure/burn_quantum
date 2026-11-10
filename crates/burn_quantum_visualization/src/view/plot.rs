@@ -35,7 +35,7 @@ pub(super) struct PlotCache {
 }
 impl PlotCache {
     pub fn disc(&mut self, center: Vec2, radius: f32, color: Color, spatial: bool) {
-        if radius > 0. && self.discs.len() < 16 {
+        if radius > 0. && self.discs.len() < 32 {
             self.discs.push((
                 Rect::from_center_size(center, Vec2::splat(radius * 2.)),
                 color,
@@ -177,7 +177,7 @@ pub(super) fn rebuild(
             PlotEntity,
         ));
     }
-    for &(full, color, spatial) in &cache.discs {
+    for (layer, &(full, color, spatial)) in cache.discs.iter().enumerate() {
         let min = full.min.max(bounds.rect.min);
         let max = full.max.min(bounds.rect.max);
         if min.cmplt(max).all() {
@@ -198,7 +198,9 @@ pub(super) fn rebuild(
                     rect: Some(uv),
                     ..default()
                 },
-                Transform::from_translation(world(clipped.center()).extend(-1.)),
+                Transform::from_translation(
+                    world(clipped.center()).extend(-1. + layer as f32 * 0.001),
+                ),
                 PlotEntity,
             ));
         }
