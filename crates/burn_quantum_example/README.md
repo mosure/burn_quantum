@@ -204,3 +204,25 @@ also live in the core. Their examples contain only problem setup, training/study
 policy and independent acceptance checks. Complex MPS SVD, tableau/decoder work
 and classical scheduling remain host operations even when native numerical
 oracles/contractions run on the requested GPU.
+
+## Configurable canonical circuit examples
+
+Each algorithm has one executable file and reuses `burn_quantum::algorithms`.
+The optional positional size argument is qubits, controls, input/precision bits,
+code length, or independent transfers as documented at the top of each file.
+
+```sh
+cargo run -p burn_quantum_example --bin qft -- 8
+cargo run -p burn_quantum_example --bin deutsch_jozsa -- 8
+cargo run -p burn_quantum_example --bin phase_estimation -- 8
+cargo run -p burn_quantum_example --bin grover_search -- 8
+cargo run -p burn_quantum_example --bin toffoli -- 6
+cargo run -p burn_quantum_example --bin bit_flip_code -- 7
+cargo run -p burn_quantum_example --bin teleportation -- 2
+```
+
+The existing `qaoa_maxcut` training executable now uses the shared symbolic graph
+builder. All these programs honor `BURN_QUANTUM_DEVICE`, including explicit WGPU
+selection with `--features wgpu`. They report independent numerical acceptance
+criteria, and teleportation checks all measurement branches. Interactive versions
+are available in the visualization gallery, including configurable QAOA layers.

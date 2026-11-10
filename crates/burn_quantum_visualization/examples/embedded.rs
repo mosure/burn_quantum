@@ -31,5 +31,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         trace,
         fabric: None,
         optimization: vec![],
+        protocol: None,
     })
 }

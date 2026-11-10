@@ -53,6 +53,23 @@ pub(super) fn check(value: &Value) -> IoResult<()> {
     let operations = array(&circuit["operations"])?;
     bounded_size(operations.len(), limits.max_frames.saturating_sub(1))?;
     exact_size(&value["operation_labels"], operations.len())?;
+    if !value["protocol"].is_null() {
+        let protocol = &value["protocol"];
+        bounded_size(
+            array(&protocol["program"]["instructions"])?.len(),
+            limits.max_frames.saturating_sub(1),
+        )?;
+        bounded_size(array(&protocol["outcomes"])?.len(), limits.max_frames)?;
+        exact_size(&protocol["probabilities"], frames.len())?;
+        for instruction in array(&protocol["program"]["instructions"])? {
+            if !instruction["Gate"].is_null() {
+                bounded_size(
+                    array(&instruction["Gate"]["conditions"])?.len(),
+                    limits.max_frames,
+                )?;
+            }
+        }
+    }
     let mut work = 0usize;
     for operation in operations {
         let object = operation

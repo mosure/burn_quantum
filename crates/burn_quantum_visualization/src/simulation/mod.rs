@@ -1,9 +1,11 @@
 //! Bounded asynchronous Burn readback. Simulation is explicitly requested, never a render callback.
+mod protocol;
 use crate::model::*;
 use burn::tensor::{DType, Device, Tensor, TensorData};
 use burn_quantum::{
     Circuit, DenseSimulator, DensityMatrix, Error, Register, ResourceLimits, Result, StateVector,
 };
+pub use protocol::simulate_protocol;
 use serde::{Deserialize, Serialize};
 
 /// Preflight limits for interactive workloads and retained host snapshots.
@@ -278,10 +280,32 @@ pub async fn simulate(
             input_tensor.clone(),
         )?;
         snapshots.push(snapshot_pure(&state, i + 1, labels[i].clone(), limits).await?);
+        if i % 4 == 3 {
+            yield_to_browser().await;
+        }
     }
     Ok(ExperimentTrace {
         kind: TraceKind::Circuit,
         frames: snapshots,
         backend: format!("{device:?}"),
     })
+}
+
+// Yield a macrotask so large Flex traces do not monopolize the browser event loop.
+// Native tasks already run on Bevy's compute pool; scientific snapshots are unchanged.
+pub(super) async fn yield_to_browser() {
+    #[cfg(all(target_arch = "wasm32", feature = "viewer"))]
+    {
+        let promise = js_sys::Promise::new(&mut |resolve, _| {
+            let scheduled = web_sys::window().is_some_and(|window| {
+                window
+                    .set_timeout_with_callback_and_timeout_and_arguments_0(&resolve, 0)
+                    .is_ok()
+            });
+            if !scheduled {
+                let _ = resolve.call0(&wasm_bindgen::JsValue::NULL);
+            }
+        });
+        let _ = wasm_bindgen_futures::JsFuture::from(promise).await;
+    }
 }

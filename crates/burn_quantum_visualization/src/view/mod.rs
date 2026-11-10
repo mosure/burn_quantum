@@ -16,6 +16,7 @@ impl Plugin for ExplorerViewPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<plot::CanvasBounds>()
             .init_resource::<plot::PlotCache>()
+            .init_resource::<state::surface::BlochSurfaces>()
             .add_systems(Startup, ui::setup)
             .add_systems(
                 Update,
@@ -26,13 +27,14 @@ impl Plugin for ExplorerViewPlugin {
                     ui::sync_controls,
                     plot::rebuild,
                     plot::draw,
-                    diagnostics::update,
                 )
                     .chain(),
             )
             .add_systems(
                 PostUpdate,
-                plot::measure_canvas.after(bevy::ui::UiSystems::Layout),
+                (plot::measure_canvas, diagnostics::update)
+                    .chain()
+                    .after(bevy::ui::UiSystems::Layout),
             );
     }
 }

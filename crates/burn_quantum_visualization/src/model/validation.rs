@@ -27,7 +27,7 @@ impl VisualizationDocument {
     pub fn validate_with(&self, limits: TraceLimits) -> Result<()> {
         let reg = self.circuit.register();
         limits.check(reg, self.trace.frames.len())?;
-        if self.schema_version != 1
+        if ![1, 2].contains(&self.schema_version)
             || self.trace.frames.is_empty()
             || self.title.len() > 4096
             || self.description.len() > 32768
@@ -62,6 +62,54 @@ impl VisualizationDocument {
                 return Err(invalid());
             }
             _ => {}
+        }
+        if let Some(record) = &self.protocol {
+            use burn_quantum::protocol::Instruction;
+            let bits = record.program.validate(&self.circuit)?;
+            if self.schema_version != 2
+                || self.trace.kind != TraceKind::Protocol
+                || !self.optimization.is_empty()
+                || record.outcomes.len() != bits
+                || record.outcomes.iter().any(|v| *v > 1)
+                || record.program.instructions.len() + 1 != self.trace.frames.len()
+                || record.probabilities.len() != self.trace.frames.len()
+                || !close(record.probabilities[0], 1.)
+            {
+                return Err(invalid());
+            }
+            for (index, instruction) in record.program.instructions.iter().enumerate() {
+                let previous = record.probabilities[index];
+                let next = record.probabilities[index + 1];
+                if !next.is_finite() || next <= 0. || next > 1. + EPS {
+                    return Err(invalid());
+                }
+                let expected = match instruction {
+                    Instruction::Measure { wire, bit } => {
+                        let outcome = record.outcomes[*bit];
+                        let before = self.trace.frames[index]
+                            .subsystems
+                            .get(*wire)
+                            .ok_or_else(invalid)?;
+                        let after = self.trace.frames[index + 1]
+                            .subsystems
+                            .get(*wire)
+                            .ok_or_else(invalid)?;
+                        if before.probabilities.len() != 2
+                            || after.probabilities.len() != 2
+                            || !close(after.probabilities[outcome], 1.)
+                        {
+                            return Err(invalid());
+                        }
+                        previous * before.probabilities[outcome]
+                    }
+                    _ => previous,
+                };
+                if !close(next, expected) {
+                    return Err(invalid());
+                }
+            }
+        } else if self.trace.kind == TraceKind::Protocol {
+            return Err(invalid());
         }
         for (i, frame) in self.trace.frames.iter().enumerate() {
             if frame.step != i
@@ -263,6 +311,53 @@ impl FabricSnapshot {
                 || e.ticks == 0
                 || !transmission(e.transmission)
             {
+                return Err(invalid());
+            }
+        }
+        if !self.resources.is_empty() {
+            if self.resources.len() != self.resource_count {
+                return Err(invalid());
+            }
+            let mut owned = vec![false; self.photon_count];
+            for r in &self.resources {
+                if r.source >= self.nodes.len()
+                    || r.photons.is_empty()
+                    || r.photons.len() > 64
+                    || r.edges.len() > 4096
+                    || r.hadamards.len() > r.photons.len()
+                {
+                    return Err(invalid());
+                }
+                for &photon in &r.photons {
+                    if photon >= owned.len() || owned[photon] {
+                        return Err(invalid());
+                    }
+                    owned[photon] = true;
+                }
+                if r.edges.iter().enumerate().any(|(i, &(a, b))| {
+                    a >= r.photons.len()
+                        || b >= r.photons.len()
+                        || a >= b
+                        || r.edges[..i].contains(&(a, b))
+                }) || r
+                    .hadamards
+                    .iter()
+                    .enumerate()
+                    .any(|(i, &w)| w >= r.photons.len() || r.hadamards[..i].contains(&w))
+                {
+                    return Err(invalid());
+                }
+                for route in self
+                    .routes
+                    .iter()
+                    .filter(|route| r.photons.contains(&route.photon))
+                {
+                    if route.from != r.source {
+                        return Err(invalid());
+                    }
+                }
+            }
+            if owned.iter().any(|v| !*v) {
                 return Err(invalid());
             }
         }

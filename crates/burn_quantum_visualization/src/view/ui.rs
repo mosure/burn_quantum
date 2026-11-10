@@ -1,7 +1,8 @@
 use super::{plot::PlotCache, theme::*};
+use crate::model::bloch::BlochMode;
 use crate::{
     app::{Experiment, Explorer, ViewMode},
-    demo::DemoKind,
+    demo::{DemoConfig, DemoKind},
 };
 use bevy::{
     feathers::{
@@ -28,6 +29,20 @@ pub(super) enum Responsive {
     Footer,
     Description,
     Note,
+    StateTools,
+    FocusOnly,
+    OverviewGroups,
+    Configuration,
+    DepthSetting,
+    VariantSetting,
+    SettingsPanel,
+    StateToolbar,
+    FocusToggle,
+    Title,
+    SmallNavigation,
+    ViewTab(ViewMode),
+    PlaneSetting,
+    BlochTools,
 }
 #[derive(Component)]
 pub(super) struct BrandTitle;
@@ -43,6 +58,13 @@ pub(super) enum Field {
     Step,
     ViewNote,
     Stats,
+    OverviewGroup,
+    ConfigSize,
+    ConfigDepth,
+    ConfigVariant,
+    ConfigNote,
+    PlaneName,
+    ViewSummary,
 }
 #[derive(Component, Clone, Copy, Debug)]
 pub(super) enum Action {
@@ -56,6 +78,16 @@ pub(super) enum Action {
     Grid,
     NextDemo,
     Inspect,
+    StateGroup(i32),
+    Size(i32),
+    Depth(i32),
+    Variant,
+    Run,
+    Settings,
+    ToggleFocus,
+    BlochMode(BlochMode),
+    Plane,
+    Trails,
 }
 fn text(
     commands: &mut Commands,
@@ -93,8 +125,11 @@ fn button(
     width: Val,
 ) -> Entity {
     let tab = matches!(action, Action::View(_));
+    let navigation = matches!(action, Action::Demo(_));
     let border = if tab {
         UiRect::bottom(px(2))
+    } else if navigation {
+        UiRect::ZERO
     } else {
         UiRect::all(px(1))
     };
@@ -178,7 +213,7 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         },
         None,
     );
-    button(
+    let next_demo = button(
         &mut commands,
         headright,
         "Next experiment".into(),
@@ -186,6 +221,9 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         false,
         Val::Auto,
     );
+    commands
+        .entity(next_demo)
+        .insert(Responsive::SmallNavigation);
     let status = text(
         &mut commands,
         headright,
@@ -213,6 +251,7 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         &mut commands,
         body,
         Node {
+            overflow: Overflow::scroll_y(),
             width: px(218),
             min_width: px(218),
             padding: UiRect::all(px(18)),
@@ -223,9 +262,11 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         },
         Some(PANEL),
     );
-    commands
-        .entity(sidebar)
-        .insert((Responsive::Sidebar, BorderColor::all(BORDER)));
+    commands.entity(sidebar).insert((
+        Responsive::Sidebar,
+        BorderColor::all(BORDER),
+        bevy::ui_widgets::ScrollArea,
+    ));
     text(
         &mut commands,
         sidebar,
@@ -303,7 +344,9 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         TEXT,
         font.clone(),
     );
-    commands.entity(title).insert(Field::Title);
+    commands
+        .entity(title)
+        .insert((Field::Title, Responsive::Title));
     let description = text(
         &mut commands,
         titles,
@@ -315,6 +358,116 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
     commands
         .entity(description)
         .insert((Field::Description, Responsive::Description));
+    let settings = node(
+        &mut commands,
+        main,
+        Node {
+            flex_direction: FlexDirection::Column,
+            row_gap: px(4),
+            ..default()
+        },
+        None,
+    );
+    commands.entity(settings).insert(Responsive::Configuration);
+    text(
+        &mut commands,
+        settings,
+        "EXPERIMENT",
+        11.,
+        MUTED,
+        mono.clone(),
+    );
+    let settings_row = node(
+        &mut commands,
+        settings,
+        Node {
+            flex_wrap: FlexWrap::Wrap,
+            column_gap: px(6),
+            row_gap: px(4),
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        None,
+    );
+    button(
+        &mut commands,
+        settings_row,
+        "−".into(),
+        Action::Size(-1),
+        false,
+        Val::Auto,
+    );
+    let size_label = text(&mut commands, settings_row, "", 12., TEXT, mono.clone());
+    commands.entity(size_label).insert(Field::ConfigSize);
+    button(
+        &mut commands,
+        settings_row,
+        "+".into(),
+        Action::Size(1),
+        false,
+        Val::Auto,
+    );
+    let depth = node(
+        &mut commands,
+        settings_row,
+        Node {
+            column_gap: px(5),
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        None,
+    );
+    commands.entity(depth).insert(Responsive::DepthSetting);
+    button(
+        &mut commands,
+        depth,
+        "− Layer".into(),
+        Action::Depth(-1),
+        false,
+        Val::Auto,
+    );
+    let depth_label = text(&mut commands, depth, "", 12., TEXT, mono.clone());
+    commands.entity(depth_label).insert(Field::ConfigDepth);
+    button(
+        &mut commands,
+        depth,
+        "+ Layer".into(),
+        Action::Depth(1),
+        false,
+        Val::Auto,
+    );
+    let variant = node(
+        &mut commands,
+        settings_row,
+        Node {
+            column_gap: px(5),
+            align_items: AlignItems::Center,
+            flex_wrap: FlexWrap::Wrap,
+            ..default()
+        },
+        None,
+    );
+    commands.entity(variant).insert(Responsive::VariantSetting);
+    button(
+        &mut commands,
+        variant,
+        "Variant".into(),
+        Action::Variant,
+        false,
+        Val::Auto,
+    );
+    let variant_label = text(&mut commands, variant, "", 11., MUTED, font.clone());
+    commands.entity(variant_label).insert(Field::ConfigVariant);
+    button(
+        &mut commands,
+        settings_row,
+        "Run".into(),
+        Action::Run,
+        true,
+        Val::Auto,
+    );
+    let config_note = text(&mut commands, settings, "", 11., MUTED, font.clone());
+    commands.entity(config_note).insert(Field::ConfigNote);
     let tabs = node(
         &mut commands,
         main,
@@ -327,7 +480,7 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         None,
     );
     for mode in ViewMode::ALL {
-        button(
+        let tab = button(
             &mut commands,
             tabs,
             mode.title().into(),
@@ -335,10 +488,52 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
             mode == ViewMode::State,
             Val::Auto,
         );
+        commands.entity(tab).insert(Responsive::ViewTab(mode));
     }
-    let compact = node(
+    button(
+        &mut commands,
+        tabs,
+        "Settings".into(),
+        Action::Settings,
+        false,
+        Val::Auto,
+    );
+    let details = button(
+        &mut commands,
+        tabs,
+        "Details".into(),
+        Action::Inspect,
+        false,
+        Val::Auto,
+    );
+    commands.entity(details).insert(Responsive::CompactToolbar);
+    let view_tools = node(
         &mut commands,
         main,
+        Node {
+            flex_wrap: FlexWrap::Wrap,
+            column_gap: px(10),
+            row_gap: px(6),
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        None,
+    );
+    commands.entity(view_tools).insert(Responsive::StateToolbar);
+    let focus = button(
+        &mut commands,
+        view_tools,
+        "Focus".into(),
+        Action::ToggleFocus,
+        false,
+        Val::Auto,
+    );
+    commands.entity(focus).insert(Responsive::FocusToggle);
+    let summary = text(&mut commands, view_tools, "", 11., MUTED, mono.clone());
+    commands.entity(summary).insert(Field::ViewSummary);
+    let state_tools = node(
+        &mut commands,
+        view_tools,
         Node {
             flex_wrap: FlexWrap::Wrap,
             column_gap: px(6),
@@ -347,15 +542,109 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         },
         None,
     );
-    commands.entity(compact).insert(Responsive::CompactToolbar);
+    commands.entity(state_tools).insert(Responsive::StateTools);
+    text(
+        &mut commands,
+        state_tools,
+        "Projection",
+        12.,
+        MUTED,
+        font.clone(),
+    );
+    let mode_tools = node(
+        &mut commands,
+        state_tools,
+        Node {
+            flex_wrap: FlexWrap::Wrap,
+            column_gap: px(4),
+            row_gap: px(4),
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        None,
+    );
+    commands.entity(mode_tools).insert(Responsive::BlochTools);
+    for (label, mode) in [("3D", BlochMode::Spatial), ("2D", BlochMode::Planar)] {
+        button(
+            &mut commands,
+            mode_tools,
+            label.into(),
+            Action::BlochMode(mode),
+            mode == BlochMode::Spatial,
+            Val::Auto,
+        );
+    }
+    let plane = node(
+        &mut commands,
+        mode_tools,
+        Node {
+            column_gap: px(4),
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        None,
+    );
+    commands.entity(plane).insert(Responsive::PlaneSetting);
     button(
         &mut commands,
-        compact,
-        "Next qubit".into(),
+        plane,
+        "Plane".into(),
+        Action::Plane,
+        false,
+        Val::Auto,
+    );
+    let plane_name = text(&mut commands, plane, "", 11., MUTED, mono.clone());
+    commands.entity(plane_name).insert(Field::PlaneName);
+    let groups = node(
+        &mut commands,
+        view_tools,
+        Node {
+            column_gap: px(6),
+            align_items: AlignItems::Center,
+            ..default()
+        },
+        None,
+    );
+    commands.entity(groups).insert(Responsive::OverviewGroups);
+    button(
+        &mut commands,
+        groups,
+        "←".into(),
+        Action::StateGroup(-1),
+        false,
+        Val::Auto,
+    );
+    let group_label = text(&mut commands, groups, "", 11., MUTED, mono.clone());
+    commands.entity(group_label).insert(Field::OverviewGroup);
+    button(
+        &mut commands,
+        groups,
+        "→".into(),
+        Action::StateGroup(1),
+        false,
+        Val::Auto,
+    );
+    let compact = node(
+        &mut commands,
+        view_tools,
+        Node {
+            flex_wrap: FlexWrap::Wrap,
+            column_gap: px(6),
+            row_gap: px(4),
+            ..default()
+        },
+        None,
+    );
+
+    let next_wire = button(
+        &mut commands,
+        view_tools,
+        "Next subsystem".into(),
         Action::Wire(1),
         false,
         Val::Auto,
     );
+    commands.entity(next_wire).insert(Responsive::FocusOnly);
     button(
         &mut commands,
         compact,
@@ -372,11 +661,20 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         false,
         Val::Auto,
     );
+    let trails = button(
+        &mut commands,
+        compact,
+        "Trails".into(),
+        Action::Trails,
+        false,
+        Val::Auto,
+    );
+    commands.entity(trails).insert(Responsive::StateTools);
     button(
         &mut commands,
         compact,
-        "Details".into(),
-        Action::Inspect,
+        "Playback speed".into(),
+        Action::Speed,
         false,
         Val::Auto,
     );
@@ -392,6 +690,42 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         },
         None,
     );
+    let options = node(
+        &mut commands,
+        work,
+        Node {
+            position_type: PositionType::Absolute,
+            top: px(0),
+            left: px(0),
+            width: percent(100),
+            height: percent(100),
+            min_height: px(0),
+            overflow: Overflow::scroll_y(),
+            flex_direction: FlexDirection::Column,
+            padding: UiRect::all(px(20)),
+            row_gap: px(18),
+            border: UiRect::all(px(1)),
+            border_radius: BorderRadius::all(px(10)),
+            ..default()
+        },
+        Some(PANEL),
+    );
+    commands.entity(options).insert((
+        Responsive::SettingsPanel,
+        bevy::ui_widgets::ScrollArea,
+        BorderColor::all(BORDER),
+    ));
+    text(
+        &mut commands,
+        options,
+        "VIEW SETTINGS",
+        11.,
+        MUTED,
+        mono.clone(),
+    );
+    commands.entity(state_tools).insert(ChildOf(options));
+    commands.entity(compact).insert(ChildOf(options));
+    commands.entity(settings).insert(ChildOf(options));
     let canvas = node(
         &mut commands,
         work,
@@ -471,59 +805,10 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         None,
     );
     commands.entity(extras).insert(Responsive::InspectorExtras);
-    let wires = node(
-        &mut commands,
-        extras,
-        Node {
-            column_gap: px(7),
-            ..default()
-        },
-        None,
-    );
-    button(
-        &mut commands,
-        wires,
-        "← Qubit".into(),
-        Action::Wire(-1),
-        false,
-        Val::Auto,
-    );
-    button(
-        &mut commands,
-        wires,
-        "Qubit →".into(),
-        Action::Wire(1),
-        false,
-        Val::Auto,
-    );
     text(
         &mut commands,
         extras,
-        "VIEW CONTROLS",
-        11.,
-        MUTED,
-        mono.clone(),
-    );
-    button(
-        &mut commands,
-        extras,
-        "Reset view  ·  R".into(),
-        Action::Reset,
-        false,
-        percent(100),
-    );
-    button(
-        &mut commands,
-        extras,
-        "Toggle guides  ·  G".into(),
-        Action::Grid,
-        false,
-        percent(100),
-    );
-    text(
-        &mut commands,
-        extras,
-        "Drag to orbit the sphere.\nDrag to pan other views.\nScroll to zoom.\nSpace to play · ← → to step.",
+        "3D: drag to orbit.\nFocus / diagrams: drag to pan.\nScroll to zoom.\nSpace to play · ← → to step.",
         12.,
         MUTED,
         font.clone(),
@@ -580,14 +865,6 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
     button(
         &mut commands,
         controls,
-        "|←".into(),
-        Action::Step(i32::MIN),
-        false,
-        Val::Auto,
-    );
-    button(
-        &mut commands,
-        controls,
         "←".into(),
         Action::Step(-1),
         false,
@@ -610,14 +887,6 @@ pub(super) fn setup(mut commands: Commands, assets: Res<AssetServer>) {
         false,
         Val::Auto,
     );
-    button(
-        &mut commands,
-        controls,
-        "Speed".into(),
-        Action::Speed,
-        false,
-        Val::Auto,
-    );
     let timeline = text(&mut commands, controls, "Step 0 / 0", 13., TEXT, mono);
     commands.entity(timeline).insert(Field::Step);
     commands.spawn_scene(bsn!{@FeathersSlider{@min:0.,@max:1.} Node{width:percent(100),height:px(22)} SliderPrecision(0) SliderStep(1.) Scrubber ChildOf(footer) on(scrub)});
@@ -627,20 +896,91 @@ fn activate(
     actions: Query<&Action>,
     mut state: ResMut<Explorer>,
     experiment: Res<Experiment>,
+    cache: Res<PlotCache>,
 ) {
     if let Ok(action) = actions.get(event.entity) {
-        apply(*action, &mut state, &experiment);
+        apply(*action, &mut state, &experiment, cache.overview_capacity);
     }
 }
-pub(super) fn apply(action: Action, state: &mut Explorer, experiment: &Experiment) {
+pub(super) fn apply(
+    action: Action,
+    state: &mut Explorer,
+    experiment: &Experiment,
+    capacity: usize,
+) {
     match action {
+        Action::Settings => {
+            state.show_settings = !state.show_settings;
+            state.show_details = false;
+            state.touch();
+        }
+        Action::ToggleFocus => {
+            state.state_overview = !state.state_overview;
+            state.reset_camera();
+        }
+        Action::BlochMode(mode) => {
+            state.bloch_mode = mode;
+            state.touch();
+        }
+        Action::Plane => {
+            state.bloch_plane = state.bloch_plane.next();
+            state.touch();
+        }
+        Action::Trails => {
+            state.trails = !state.trails;
+            state.touch();
+        }
+        Action::Size(delta) => {
+            let (min, max, step) = DemoConfig::range(state.demo);
+            state.config.size = state
+                .config
+                .size
+                .saturating_add_signed(delta as isize * step as isize)
+                .clamp(min, max);
+            state.preview_config();
+        }
+        Action::Depth(delta) => {
+            state.config.depth = state
+                .config
+                .depth
+                .saturating_add_signed(delta as isize)
+                .clamp(1, 6);
+            state.preview_config();
+        }
+        Action::Variant => {
+            state.config.variant = (state.config.variant + 1) % DemoConfig::variants(state.demo);
+            state.preview_config();
+        }
+        Action::Run => {
+            if state.config_valid {
+                state.requested = true;
+                state.show_settings = false;
+                state.frame = 0;
+                state.show_details = false;
+                state.touch();
+            }
+        }
+        Action::StateGroup(delta) => {
+            if let Some(doc) = &experiment.document {
+                let capacity = capacity.max(1);
+                let pages = doc.circuit.register().wires().div_ceil(capacity);
+                state.wire = ((state.wire / capacity) as i32 + delta).rem_euclid(pages as i32)
+                    as usize
+                    * capacity;
+                state.touch();
+            }
+        }
         Action::Inspect => {
             state.show_details = !state.show_details;
+            state.show_settings = false;
             state.touch();
         }
         Action::Demo(kind) => {
             state.show_details = false;
+            state.show_settings = false;
             state.demo = kind;
+            state.config = DemoConfig::for_demo(kind);
+            state.preview_config();
             state.requested = true;
             state.frame = 0;
             state.tick = 0.;
@@ -650,6 +990,7 @@ pub(super) fn apply(action: Action, state: &mut Explorer, experiment: &Experimen
         }
         Action::View(mode) => {
             state.show_details = false;
+            state.show_settings = false;
             state.view = mode;
             state.playing = false;
             state.reset_camera();
@@ -708,6 +1049,7 @@ pub(super) fn apply(action: Action, state: &mut Explorer, experiment: &Experimen
                 Action::Demo(all[(current + 1) % all.len()]),
                 state,
                 experiment,
+                capacity,
             );
         }
     }
@@ -744,6 +1086,8 @@ pub(super) fn seek(state: &mut Explorer, doc: &crate::model::VisualizationDocume
 pub(super) fn responsive(
     window: Single<&Window>,
     state: Res<Explorer>,
+    experiment: Res<Experiment>,
+    cache: Res<PlotCache>,
     mut nodes: Query<(&Responsive, &mut Node)>,
     mut brands: Query<&mut TextFont, With<BrandTitle>>,
 ) {
@@ -761,15 +1105,85 @@ pub(super) fn responsive(
             | Responsive::NarrowHide
             | Responsive::CompactToolbar
             | Responsive::Description
-            | Responsive::Note => {
+            | Responsive::Note
+            | Responsive::StateTools
+            | Responsive::FocusOnly
+            | Responsive::OverviewGroups
+            | Responsive::Configuration
+            | Responsive::DepthSetting
+            | Responsive::VariantSetting
+            | Responsive::SettingsPanel
+            | Responsive::StateToolbar
+            | Responsive::FocusToggle
+            | Responsive::Title
+            | Responsive::SmallNavigation
+            | Responsive::ViewTab(_)
+            | Responsive::PlaneSetting
+            | Responsive::BlochTools => {
                 let visible = match kind {
+                    Responsive::FocusToggle => {
+                        state.view == ViewMode::State
+                            && experiment
+                                .document
+                                .as_ref()
+                                .is_some_and(|d| d.circuit.register().wires() > 1)
+                    }
+                    Responsive::SettingsPanel => state.show_settings,
+                    Responsive::StateToolbar => !state.show_settings && !state.show_details,
+                    Responsive::Title => !cfg!(target_arch = "wasm32"),
+                    Responsive::SmallNavigation => width < 780. || height < 700.,
+                    Responsive::ViewTab(mode) => match mode {
+                        ViewMode::Fabric => experiment
+                            .document
+                            .as_ref()
+                            .is_some_and(|d| d.fabric.is_some()),
+                        ViewMode::Learning => experiment
+                            .document
+                            .as_ref()
+                            .is_some_and(|d| !d.optimization.is_empty()),
+                        _ => true,
+                    },
+                    Responsive::BlochTools => experiment
+                        .document
+                        .as_ref()
+                        .is_some_and(|d| d.circuit.register().dimensions().contains(&2)),
+                    Responsive::PlaneSetting => state.bloch_mode == BlochMode::Planar,
+                    Responsive::Configuration => {
+                        DemoConfig::range(state.demo).0 != DemoConfig::range(state.demo).1
+                            && !state.show_details
+                            && state.show_settings
+                    }
+                    Responsive::DepthSetting => state.demo == DemoKind::Qaoa,
+                    Responsive::VariantSetting => DemoConfig::variants(state.demo) > 1,
+                    Responsive::StateTools => {
+                        state.view == ViewMode::State
+                            && experiment
+                                .document
+                                .as_ref()
+                                .is_some_and(|d| d.circuit.register().dimensions().contains(&2))
+                    }
+                    Responsive::FocusOnly => {
+                        state.view == ViewMode::Circuit
+                            || (state.view == ViewMode::State && !state.state_overview)
+                    }
+                    Responsive::OverviewGroups => {
+                        state.state_overview
+                            && cache.overview_capacity > 0
+                            && experiment.document.as_ref().is_some_and(|d| {
+                                d.circuit.register().wires() > cache.overview_capacity
+                            })
+                    }
                     Responsive::Sidebar => {
                         width >= 780. && height >= 700. && !cfg!(target_arch = "wasm32")
                     }
-                    Responsive::Inspector => inspector_visible || state.show_details,
+                    Responsive::Inspector => {
+                        !state.show_settings && (inspector_visible || state.show_details)
+                    }
                     Responsive::InspectorExtras => inspector_visible,
                     Responsive::CompactContext => !inspector_visible,
-                    Responsive::Plot => inspector_visible || !state.show_details,
+                    Responsive::Plot => {
+                        !state.show_settings && (inspector_visible || !state.show_details)
+                    }
                     Responsive::NarrowHide => width >= 1050.,
                     Responsive::CompactToolbar => !inspector_visible,
                     Responsive::Description => width >= 540. && height >= 760.,
@@ -873,8 +1287,18 @@ pub(super) fn sync_controls(
         Field::Step=>{let count=doc.map(|d|timeline_len(&state,d)).unwrap_or(1);format!("{} {} / {}   ·   {}   ·   ×{}",if state.view==ViewMode::Fabric{"Schedule tick"}else{"Step"},cursor(&state),count.saturating_sub(1),if state.playing{"Playing"}else{"Paused"},state.speed)},
         Field::Inspection=>super::inspection::describe(&state,doc),
         Field::Context=>doc.map(|d|format!("CONTEXT\n\n{}",d.description)).unwrap_or_default(),
-        Field::ViewNote=>match state.view{ViewMode::State=>"Length encodes local purity. A mixed reduced state lies inside the Bloch sphere; probability is separate from phase.",ViewMode::Circuit=>if doc.is_some_and(|d|d.trace.kind==crate::model::TraceKind::Optimization){"Parameterized ansatz at the selected optimizer iterate. Click a gate to inspect its actual parameter binding."}else{"Read left to right. The highlighted prefix has already executed. Click a gate to inspect and seek; drag to pan."},ViewMode::Fabric=>"Physical schedule time is independent of the circuit prefix. Moving dots follow compiled routes; links show rail transmission.",ViewMode::Learning=>"Actual parameter iterates, objective values and evaluation costs. Scrub to compare the current iterate with its history."}.into(),
+        Field::ViewNote=>match state.view{ViewMode::State=>"Each panel is a reduced subsystem. Qubits show Bloch vectors; qudits show level populations. Focus reveals joint probabilities.",ViewMode::Circuit=>if doc.is_some_and(|d|d.trace.kind==crate::model::TraceKind::Optimization){"Parameterized ansatz at the selected optimizer iterate. Click a gate to inspect its actual parameter binding."}else{"Read left to right. The highlighted prefix has already executed. Click a gate to inspect and seek; drag to pan."},ViewMode::Fabric=>"Physical schedule time is independent of the circuit prefix. Moving dots follow compiled routes; links show rail transmission.",ViewMode::Learning=>"Actual parameter iterates, objective values and evaluation costs. Scrub to compare the current iterate with its history."}.into(),
         Field::Stats=>cache.description.clone(),
+        Field::ViewSummary=>match state.view {
+            ViewMode::State=>format!("{} · {}",if state.state_overview { "Register".into() } else { format!("q{}",state.wire) }, if doc.is_some_and(|d|d.circuit.register().dimensions().contains(&2)) { match state.bloch_mode {BlochMode::Spatial=>"3D spheres".into(),BlochMode::Planar=>format!("2D {}",state.bloch_plane.axes()[..2].join("").to_uppercase())} } else {"Populations".into()}),
+            _=>"Drag to pan · scroll to zoom".into(),
+        },
+        Field::PlaneName=>state.bloch_plane.axes()[..2].join("").to_uppercase(),
+        Field::ConfigSize=>format!("{} {}",state.config.size,DemoConfig::size_label(state.demo)),
+        Field::ConfigDepth=>state.config.depth.to_string(),
+        Field::ConfigVariant=>state.config.variant_label(state.demo),
+        Field::ConfigNote=>format!("{} · {}",state.config_note,if state.config_valid{"edit settings, then Run"}else{"Run unavailable"}),
+        Field::OverviewGroup=>{let cap=cache.overview_capacity.max(1);format!("{} / {}",state.wire/cap+1,doc.map(|d|d.circuit.register().wires().div_ceil(cap)).unwrap_or(1))},
     };
         if text.0 != next {
             text.0 = next;
@@ -886,14 +1310,23 @@ pub(super) fn sync_controls(
             Action::View(v) => *v == state.view,
             Action::Play => state.playing,
             Action::Inspect => state.show_details,
+            Action::ToggleFocus => !state.state_overview,
+            Action::Grid => state.grid,
+            Action::BlochMode(mode) => *mode == state.bloch_mode,
+            Action::Trails => state.trails,
+            Action::Settings => state.show_settings,
             _ => false,
         };
-        let next = ButtonVariant::selected(selected);
+        let next = if !selected && matches!(action, Action::Demo(_) | Action::View(_)) {
+            ButtonVariant::Plain
+        } else {
+            ButtonVariant::selected(selected)
+        };
         if *variant != next {
             *variant = next;
         }
         let color = if matches!(action, Action::View(_)) {
-            if selected { ACCENT } else { BORDER }
+            if selected { ACCENT } else { Color::NONE }
         } else if selected {
             ACCENT_LINE
         } else {

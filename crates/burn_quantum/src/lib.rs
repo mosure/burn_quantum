@@ -17,6 +17,7 @@
 //! # Ok::<(), burn_quantum::Error>(())
 //! ```
 
+pub mod algorithms;
 pub mod backend;
 pub mod circuit;
 pub mod complex;
@@ -30,6 +31,7 @@ pub mod observable;
 pub mod optim;
 pub mod photonic;
 mod precision;
+pub mod protocol;
 pub mod qml;
 pub mod quantum_module;
 pub mod sampling;

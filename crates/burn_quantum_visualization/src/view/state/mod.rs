@@ -1,3 +1,7 @@
+mod bloch;
+mod overview;
+pub(crate) mod surface;
+
 use super::{
     plot::{Hit, PlotCache},
     theme::*,
@@ -16,6 +20,10 @@ pub(super) fn build(
     let Some(frame) = doc.trace.frames.get(state.frame) else {
         return;
     };
+    if state.state_overview && frame.subsystems.len() > 1 {
+        overview::build(p, bounds, state, doc);
+        return;
+    }
     let Some(q) = frame.subsystems.get(state.wire) else {
         return;
     };
@@ -59,64 +67,20 @@ pub(super) fn build(
     if let Some(bloch) = q.bloch {
         let radius = (sphere.width().min(sphere.height() - 95.) * 0.36 * state.zoom).max(25.);
         let center = sphere.center() + Vec2::new(0., -12.) + state.pan;
-        let project = |v: Vec3| {
-            let v = Quat::from_rotation_x(state.pitch) * (Quat::from_rotation_z(state.yaw) * v);
-            center + Vec2::new(v.x, -v.z) * radius
-        };
-        if state.grid {
-            for axis in 0..3 {
-                let mut last = None;
-                for i in 0..=96 {
-                    let a = i as f32 * std::f32::consts::TAU / 96.;
-                    let v = match axis {
-                        0 => Vec3::new(a.cos(), a.sin(), 0.),
-                        1 => Vec3::new(a.cos(), 0., a.sin()),
-                        _ => Vec3::new(0., a.cos(), a.sin()),
-                    };
-                    let pt = project(v);
-                    if let Some(a) = last {
-                        p.line(a, pt, GUIDE);
-                    }
-                    last = Some(pt);
-                }
-            }
-        }
-        p.circle(center, radius, GUIDE);
-        for (axis, label, color) in [
-            (Vec3::Z, "|0>", TEXT),
-            (-Vec3::Z, "|1>", MUTED),
-            (Vec3::X, "x", MUTED),
-            (Vec3::Y, "y", MUTED),
-        ] {
-            let end = project(axis);
-            if state.grid {
-                p.line(center, end, GUIDE);
-            }
-            p.text(center + (end - center) * 1.12, label, 14., color);
-        }
-        let trace = doc
-            .trace
-            .frames
-            .iter()
-            .take(state.frame + 1)
-            .rev()
-            .take(64)
-            .collect::<Vec<_>>();
-        let mut last = None;
-        for f in trace.iter().rev() {
-            if let Some(v) = f.subsystems.get(state.wire).and_then(|q| q.bloch) {
-                let pt = project(Vec3::new(v[0] as f32, v[1] as f32, v[2] as f32));
-                if let Some(a) = last {
-                    p.line(a, pt, CYAN.with_alpha(0.24));
-                }
-                last = Some(pt);
-            }
-        }
         let v = Vec3::new(bloch[0] as f32, bloch[1] as f32, bloch[2] as f32);
-        let tip = project(v);
-        p.arrow(center, tip, CYAN);
-        p.dot(tip, 5., CYAN);
-        p.dot(center, 2., MUTED);
+        bloch::draw(
+            p,
+            q.wire,
+            state,
+            doc,
+            bloch::Style {
+                center,
+                radius,
+                color: CYAN,
+                axes: true,
+                trail: if state.trails { 64 } else { 0 },
+            },
+        );
         p.text(
             Vec2::new(sphere.center().x, sphere.max.y - 53.),
             if sphere.width() < 230. {
@@ -129,7 +93,13 @@ pub(super) fn build(
         );
         p.text(
             Vec2::new(sphere.center().x, sphere.max.y - 30.),
-            if sphere.width() < 230. {
+            if !state.trails {
+                if state.bloch_mode == crate::model::bloch::BlochMode::Spatial {
+                    "3D sphere · enable Trails for history"
+                } else {
+                    "2D projection · omitted axis labeled"
+                }
+            } else if sphere.width() < 230. {
                 "Faint trail: prior states"
             } else if v.length() < 0.02 {
                 "Center = mixed state · faint trail = earlier states"

@@ -1,4 +1,6 @@
 //! Renderer-independent, owned scientific records. No tensors or UI state are retained.
+pub mod bloch;
+pub mod diagram;
 mod fabric;
 mod validation;
 use burn_quantum::{Circuit, Error, Result};
@@ -64,6 +66,8 @@ pub enum TraceKind {
     Circuit,
     /// Initial state followed by actual optimizer iterates.
     Optimization,
+    /// Actual unitary, projective measurement and classical feed-forward steps.
+    Protocol,
 }
 /// One measured optimizer iterate. Evaluation counts are cumulative.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -85,10 +89,20 @@ pub struct OptimizationPoint {
     /// Number of squared-overlap evaluations.
     pub fidelity_evaluations: usize,
 }
+/// One explicit measurement branch. Probabilities include the input and every instruction.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ProtocolRecord {
+    /// Validated dynamic instruction sequence referencing the document circuit.
+    pub program: burn_quantum::protocol::Protocol,
+    /// Selected outcomes in measurement order; no random shot is implied.
+    pub outcomes: Vec<usize>,
+    /// Cumulative branch likelihood after each timeline frame.
+    pub probabilities: Vec<f64>,
+}
 /// Portable experiment plus computed evidence. Inputs/outputs are the first/last frames.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct VisualizationDocument {
-    /// Current format is version one.
+    /// Version two adds explicit measurement protocols; version one remains readable.
     pub schema_version: u32,
     /// Experiment title.
     pub title: String,
@@ -108,6 +122,9 @@ pub struct VisualizationDocument {
     pub fabric: Option<FabricSnapshot>,
     /// Actual optimizer iterates, empty for nontraining experiments.
     pub optimization: Vec<OptimizationPoint>,
+    /// Explicit measurement branch; only present with Protocol timelines in schema two.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub protocol: Option<ProtocolRecord>,
 }
 
 /// One probability bucket; adjacent basis states are aggregated without losing mass.

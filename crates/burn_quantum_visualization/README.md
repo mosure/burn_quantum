@@ -23,16 +23,17 @@ To embed the viewer, add `burn_quantum_visualization = "0.3.0"` to your dependen
 
 ## Explore
 
-Six canonical experiments cover Bell/GHZ entanglement, phase interference,
-qutrit Fourier gates, compiled photonic routing and quantum natural SPSA.
+Fifteen experiments cover Bell/GHZ states, mixed qubit/qutrit registers, interference,
+teleportation, Toffoli, QFT, Deutsch–Jozsa, QPE, Grover, QAOA MaxCut, bit-flip
+correction, compiled photonic routing and quantum natural SPSA.
 Each experiment is built once through core Burn APIs. Changing views or scrubbing
 a cached timeline does not rerun its simulation.
 
 | View | Meaning |
 | --- | --- |
-| State | Exact local partial traces, qubit Bloch ball, purity, computational-basis probability and complex phase |
-| Circuit | Ordered mixed-radix wires and operations, selected gate and execution prefix |
-| Photonic fabric | Resource nodes, dual-rail transmission, compiled routes and independent physical schedule time |
+| State | Parallel reduced-state panels, direct subsystem selection, qudit populations; focused joint probabilities and complex phase |
+| Circuit | Semantic gate symbols, conservative parallel columns, SWAPs, control levels, measurement and double classical wires |
+| Photonic fabric | Resource ownership, held outputs, paired optical rails, switches, destructive fusion analyzers and per-photon travel/wait timelines |
 | Learning | Actual QN-SPSA parameter iterates, objective history and cumulative probe costs |
 
 Entangled qubits can lie inside the Bloch sphere. Qudits use populations instead
@@ -41,7 +42,17 @@ bins retain all mass; aggregation does not pretend to retain one complex phase.
 The photonic demo separates resource preparation from physical routing: moving
 dots show scheduled travel, not sampled photon detection or a successful fusion.
 
-Use the view tabs, experiment selector, qubit selector and timeline. Click the
+Use the view tabs, experiment selector, directly clickable subsystem panels and timeline.
+Register overview displays many states together and provides groups when a small
+viewport cannot fit them legibly. Focus retains joint probabilities.
+Shared orbit/zoom and playback update all visible states together. The tighter
+register grid centers compact tiles instead of stretching large boxes. **3D** uses
+an orthographic sphere with shaded surfaces, depth-cued great circles and orbit;
+**2D** uses selectable XY/XZ/YZ projection disks and labels the omitted coordinate.
+A short projected vector need not be mixed: use the full purity/hidden component.
+**Settings** contains projection modes, planes, guides, trails, playback speed and experiment configuration. **Focus** toggles the selected subsystem and joint probabilities. The default toolbar shows only the relevant views and primary actions. **Trails** enables history explicitly. Qudit population panels retain their meaning
+in either mode. Two shared analytic surface textures are uploaded once; no
+per-qubit render targets, cameras or tensor readbacks are introduced. Click the
 plot to use global keyboard shortcuts; focused Feathers widgets retain their
 normal keyboard behavior. Space toggles
 playback, left/right arrows step, R resets the view and G toggles guides. Drag the
@@ -56,6 +67,51 @@ hover, pressed, disabled and keyboard-focus states; [`web/index.html`](https://g
 mirrors the surface and accent tokens. Scientific plots retain separate cyan,
 amber and blue series and a cyclic phase legend. Plot guides use a brighter
 neutral than panel borders so fine geometry remains visible.
+
+
+## Configurable algorithms
+
+Open **Settings**, use the size/variant controls (and layers for QAOA), inspect the resource preview,
+then press **Run**. Editing settings does not recompute the displayed experiment.
+The preview rejects excessive wire, frame and retained-state budgets before any
+state allocation. Native and browser defaults use the same portable budgets;
+applications can supply their own `TraceLimits` based on measured device resources.
+The UI does not guess available VRAM or silently reduce a requested circuit.
+
+```sh
+cargo run -p burn_quantum_visualization --bin quantum_explorer -- --demo ghz --size 12 --step 12
+cargo run -p burn_quantum_visualization --bin quantum_explorer -- --demo mixed --step 6 --bloch 2d --plane xy
+cargo run -p burn_quantum_visualization --bin quantum_explorer -- --demo qpe --size 6 --variant 1 --view circuit
+cargo run -p burn_quantum_visualization --bin quantum_explorer -- --demo qaoa --size 8 --layers 3 --view circuit
+```
+
+Browser links accept the same settings, for example
+[twelve qubits in 3D](https://mosure.github.io/burn_quantum/?demo=ghz&size=12&step=12)
+or [a mixed register in 2D](https://mosure.github.io/burn_quantum/?demo=mixed&step=6&bloch=2d&plane=xy).
+
+Browser links accept the same `demo`, `size`, `layers`, `variant`, `view` and `step`
+query parameters. `bloch=2d&plane=xy&trails=1` selects a planar presentation;
+native equivalents are `--bloch 2d --plane xy --trails`. `demo::build_configured` and `demo::preview` expose the catalog
+without UI boilerplate. Algorithm definitions live in `burn_quantum::algorithms`;
+`burn_quantum::protocol::BranchExecution` supplies real projective collapse and
+classical feed-forward. Teleportation displays an explicitly selected branch and
+its likelihood, and tests check every outcome for one/two parallel transfers.
+QAOA displays a fixed-angle ansatz evaluation; the examples crate separately trains
+MaxCut with the same builder. Bit-flip correction uses a coherent majority decoder,
+retaining syndrome qubits, rather than claiming repeated noisy syndrome extraction.
+
+Circuit boxes are classified from operations/matrices, independent of educational
+labels. Ordered multi-wire operators get one box with local port indices. QFT
+includes bit-reversal SWAPs; all register/readout ordering is big-endian. Dynamic
+protocol JSON uses document schema 2; schema 1 remains readable.
+
+The fabric diagram distinguishes graph-resource connections from physical rails.
+Unconsumed outputs remain at their actual source buffers. Photon packets pause at
+routing/synchronization waits and disappear after destructive measurement. Link
+loss labels show mean rail intensity loss; the inspector retains both rail values
+and route transmission. The analyzer icon is schematic, not a claimed optical
+component decomposition. Neither routing animation nor loss metadata asserts a
+sampled fusion outcome.
 
 ## Integrate an experiment
 

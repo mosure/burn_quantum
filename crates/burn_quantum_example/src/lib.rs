@@ -122,3 +122,44 @@ pub fn accuracy(probabilities: Tensor<2>, targets: Tensor<2>) -> ExampleResult<f
         .count();
     Ok(correct as f64 / batch as f64)
 }
+
+/// Read a bounded optional first CLI size argument for the canonical circuit examples.
+pub fn algorithm_size(default: usize, min: usize, max: usize) -> ExampleResult<usize> {
+    let size = std::env::args()
+        .nth(1)
+        .map(|s| s.parse::<usize>())
+        .transpose()?
+        .unwrap_or(default);
+    ensure(
+        (min..=max).contains(&size),
+        "example size is outside its documented range",
+    )?;
+    Ok(size)
+}
+/// Execute a reusable algorithm with its bindings and a bounded dense state on the requested backend.
+pub fn algorithm_state(
+    algorithm: &burn_quantum::algorithms::AlgorithmCircuit,
+) -> ExampleResult<burn_quantum::StateVector> {
+    use burn_quantum::QuantumBackend;
+    let device = execution_device()?;
+    let parameters = (!algorithm.parameters.is_empty()).then(|| {
+        Tensor::from_data(
+            burn::tensor::TensorData::new(
+                algorithm.parameters.clone(),
+                [algorithm.parameters.len()],
+            ),
+            (&device, burn::tensor::DType::F32),
+        )
+    });
+    let engine = burn_quantum::DenseSimulator::new(burn_quantum::ResourceLimits {
+        max_state_elements: 65536,
+        ..Default::default()
+    });
+    ensure(
+        algorithm.protocol.is_none(),
+        "dynamic protocols require the measurement executor",
+    )?;
+    let state = engine.execute(&algorithm.circuit, parameters, None, 1, &device)?;
+    state.validate(5e-5)?;
+    Ok(state)
+}

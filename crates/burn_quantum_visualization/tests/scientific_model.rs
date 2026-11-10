@@ -299,3 +299,54 @@ fn heterogeneous_endianness_input_bindings_and_nonpositive_imports_are_checked()
         assert!(aggregate_probabilities(&[f64::MAX, f64::MAX], 1).is_err());
     });
 }
+
+#[test]
+fn fabric_locations_include_waiting_destructive_consumption_and_held_outputs() {
+    use burn_quantum_visualization::model::PhotonLocation;
+    pollster::block_on(async {
+        let doc = demo::build(
+            DemoKind::PhotonicRouting,
+            &Device::flex(),
+            TraceLimits::default(),
+        )
+        .await
+        .unwrap();
+        let f = doc.fabric.as_ref().unwrap();
+        assert_eq!(f.resources.len(), 2);
+        for r in &f.routes {
+            for h in &r.hops {
+                assert_eq!(
+                    f.photon_location(r.photon, h.departure as f64 + 0.5),
+                    Some(PhotonLocation::Link {
+                        link: h.link,
+                        progress: 0.5 / (h.arrival - h.departure) as f32
+                    })
+                );
+            }
+            let event = f
+                .fusions
+                .iter()
+                .find(|e| e.photons.contains(&r.photon))
+                .unwrap();
+            assert_eq!(
+                f.photon_location(r.photon, event.tick as f64),
+                Some(PhotonLocation::Node(event.node))
+            );
+            assert_eq!(
+                f.photon_location(r.photon, (event.tick + 1) as f64),
+                Some(PhotonLocation::Consumed)
+            );
+        }
+        assert_eq!(
+            f.photon_location(0, f.finish_tick as f64),
+            Some(PhotonLocation::Node(0))
+        );
+        assert_eq!(
+            f.photon_location(3, f.finish_tick as f64),
+            Some(PhotonLocation::Node(1))
+        );
+        let mut bad = doc.clone();
+        bad.fabric.as_mut().unwrap().resources[0].photons[0] = 3;
+        assert!(bad.validate().is_err());
+    });
+}

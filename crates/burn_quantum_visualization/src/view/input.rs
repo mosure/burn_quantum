@@ -36,7 +36,7 @@ pub(super) fn pointer_keyboard(
         if keys.just_pressed(key)
             && (focus.get().is_none() || matches!(key, KeyCode::KeyR | KeyCode::KeyG))
         {
-            ui::apply(action, &mut state, &experiment);
+            ui::apply(action, &mut state, &experiment, cache.overview_capacity);
         }
     }
     if touches.iter().next().is_some() {
@@ -63,7 +63,10 @@ pub(super) fn pointer_keyboard(
     {
         let delta = now - last;
         if delta.length_squared() > 0. {
-            if state.view == ViewMode::State && buttons.pressed(MouseButton::Left) {
+            if state.view == ViewMode::State
+                && state.bloch_mode == crate::model::bloch::BlochMode::Spatial
+                && buttons.pressed(MouseButton::Left)
+            {
                 state.yaw += delta.x * 0.008;
                 state.pitch = (state.pitch + delta.y * 0.008).clamp(-1.25, 1.25);
             } else {
@@ -101,7 +104,7 @@ fn select(position: Vec2, cache: &PlotCache, state: &mut Explorer, experiment: &
             Hit::Gate(gate) => {
                 state.gate = Some(gate);
                 if let Some(doc) = &experiment.document
-                    && doc.trace.kind == crate::model::TraceKind::Circuit
+                    && doc.trace.kind != crate::model::TraceKind::Optimization
                 {
                     state.seek(gate + 1, doc.trace.frames.len());
                 }
@@ -182,7 +185,9 @@ pub(super) fn touch(
         } else {
             let delta = current[0].1 - gesture.last[0].1;
             if delta.length_squared() > 0. {
-                if state.view == ViewMode::State {
+                if state.view == ViewMode::State
+                    && state.bloch_mode == crate::model::bloch::BlochMode::Spatial
+                {
                     state.yaw += delta.x * 0.008;
                     state.pitch = (state.pitch + delta.y * 0.008).clamp(-1.25, 1.25);
                 } else {

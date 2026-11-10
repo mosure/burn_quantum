@@ -67,6 +67,18 @@ pub struct FusionEvent {
     /// Consumed photon IDs.
     pub photons: [usize; 2],
 }
+/// A supplied small resource, retaining stable photon ownership and its graph recipe.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ResourceView {
+    /// Fabric source node.
+    pub source: usize,
+    /// Stable photon IDs in local resource order.
+    pub photons: Vec<usize>,
+    /// Local graph edges before local Hadamards; these are entanglement, not optical links.
+    pub edges: Vec<(usize, usize)>,
+    /// Local graph vertices with a Hadamard after graph-state preparation.
+    pub hadamards: Vec<usize>,
+}
 /// Exact compiled physical plan. This is scheduling evidence, not a fusion outcome trajectory.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FabricSnapshot {
@@ -86,11 +98,31 @@ pub struct FabricSnapshot {
     pub resource_count: usize,
     /// Number of supplied photons, including consumed photons.
     pub photon_count: usize,
+    /// Resource ownership/recipes. Older schema-one imports may omit this information.
+    #[serde(default)]
+    pub resources: Vec<ResourceView>,
 }
 impl FabricSnapshot {
     /// Copy an already checked compiled plan; drawing coordinates do not modify physics.
     pub fn from_compiled(plan: &CompiledFusionNetwork) -> Self {
+        let mut offset = 0;
+        let resources = plan
+            .program()
+            .resources()
+            .iter()
+            .map(|r| {
+                let photons = (offset..offset + r.state.qubits()).collect();
+                offset += r.state.qubits();
+                ResourceView {
+                    source: r.source.0,
+                    photons,
+                    edges: r.state.edges().to_vec(),
+                    hadamards: r.state.hadamards().to_vec(),
+                }
+            })
+            .collect();
         Self {
+            resources,
             nodes: plan
                 .fabric()
                 .nodes()
@@ -102,11 +134,21 @@ impl FabricSnapshot {
                         NodeKind::Fusion => 3.,
                         _ => 0.,
                     };
+                    let same_role = plan
+                        .fabric()
+                        .nodes()
+                        .iter()
+                        .filter(|n| n.kind == node.kind)
+                        .count();
+                    let rank = plan.fabric().nodes()[..id]
+                        .iter()
+                        .filter(|n| n.kind == node.kind)
+                        .count();
                     FabricNodeView {
                         id,
                         label: format!("{:?} {id}", node.kind),
                         kind: format!("{:?}", node.kind),
-                        position: [x, 1.5 - id as f32, 0.],
+                        position: [x, (rank as f32 - (same_role - 1) as f32 * 0.5) * 2.2, 0.],
                         storage: node.storage.values(),
                     }
                 })
@@ -159,6 +201,62 @@ impl FabricSnapshot {
             finish_tick: plan.finish_tick(),
             resource_count: plan.program().resources().len(),
             photon_count: plan.program().num_photons(),
+        }
+    }
+}
+
+/// Scheduled photon location. This describes occupancy reservations, not a sampled survival event.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum PhotonLocation {
+    /// At a source, buffer or analyzer, including waiting between hops.
+    Node(usize),
+    /// On an actual link, with fraction of the reserved travel interval elapsed.
+    Link {
+        /// Link ID.
+        link: usize,
+        /// Fraction in [0,1).
+        progress: f32,
+    },
+    /// The destructive measurement interval has finished.
+    Consumed,
+}
+impl FabricSnapshot {
+    /// Locate a scheduled photon, including source storage, routing waits and final synchronization.
+    /// None means an older import did not retain source ownership for an unrouted output.
+    pub fn photon_location(&self, photon: usize, tick: f64) -> Option<PhotonLocation> {
+        if photon >= self.photon_count || !tick.is_finite() || tick < 0. {
+            return None;
+        }
+        if self
+            .fusions
+            .iter()
+            .any(|f| f.photons.contains(&photon) && tick >= f.tick as f64 + 1.)
+        {
+            return Some(PhotonLocation::Consumed);
+        }
+        if let Some(route) = self.routes.iter().find(|r| r.photon == photon) {
+            let mut node = route.from;
+            for hop in &route.hops {
+                if tick < hop.departure as f64 {
+                    return Some(PhotonLocation::Node(node));
+                }
+                let link = self.links.get(hop.link)?;
+                if tick < hop.arrival as f64 {
+                    return Some(PhotonLocation::Link {
+                        link: hop.link,
+                        progress: ((tick - hop.departure as f64)
+                            / (hop.arrival - hop.departure) as f64)
+                            as f32,
+                    });
+                }
+                node = link.to;
+            }
+            Some(PhotonLocation::Node(node))
+        } else {
+            self.resources
+                .iter()
+                .find(|r| r.photons.contains(&photon))
+                .map(|r| PhotonLocation::Node(r.source))
         }
     }
 }

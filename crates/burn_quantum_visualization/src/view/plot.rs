@@ -30,8 +30,20 @@ pub(super) struct PlotCache {
     labels: Vec<Label>,
     pub hits: Vec<(Rect, Hit)>,
     pub description: String,
+    pub overview_capacity: usize,
+    discs: Vec<(Rect, Color, bool)>,
 }
 impl PlotCache {
+    pub fn disc(&mut self, center: Vec2, radius: f32, color: Color, spatial: bool) {
+        if radius > 0. && self.discs.len() < 16 {
+            self.discs.push((
+                Rect::from_center_size(center, Vec2::splat(radius * 2.)),
+                color,
+                spatial,
+            ));
+        }
+    }
+
     pub fn line(&mut self, a: Vec2, b: Vec2, color: Color) {
         if self.lines.len() >= 8192 {
             return;
@@ -110,6 +122,7 @@ pub(super) fn measure_canvas(
         }
     }
 }
+#[allow(clippy::too_many_arguments)] // Independent cache, geometry, asset and UI resources.
 pub(super) fn rebuild(
     mut commands: Commands,
     state: Res<Explorer>,
@@ -118,6 +131,7 @@ pub(super) fn rebuild(
     mut cache: ResMut<PlotCache>,
     old: Query<Entity, With<PlotEntity>>,
     assets: Res<AssetServer>,
+    surfaces: Res<super::state::surface::BlochSurfaces>,
 ) {
     if cache.revision == state.revision && cache.bounds == *bounds {
         return;
@@ -129,9 +143,11 @@ pub(super) fn rebuild(
     cache.boxes.clear();
     cache.labels.clear();
     cache.hits.clear();
+    cache.discs.clear();
     cache.revision = state.revision;
     cache.bounds = *bounds;
     cache.description = String::new();
+    cache.overview_capacity = 0;
     if bounds.rect.width() < 10. || bounds.rect.height() < 10. {
         return;
     }
@@ -161,6 +177,32 @@ pub(super) fn rebuild(
             PlotEntity,
         ));
     }
+    for &(full, color, spatial) in &cache.discs {
+        let min = full.min.max(bounds.rect.min);
+        let max = full.max.min(bounds.rect.max);
+        if min.cmplt(max).all() {
+            let clipped = Rect::from_corners(min, max);
+            let uv = Rect::from_corners(
+                (clipped.min - full.min) / full.size() * super::state::surface::SIZE,
+                (clipped.max - full.min) / full.size() * super::state::surface::SIZE,
+            );
+            commands.spawn((
+                Sprite {
+                    image: if spatial {
+                        surfaces.sphere.clone()
+                    } else {
+                        surfaces.disk.clone()
+                    },
+                    color,
+                    custom_size: Some(clipped.size()),
+                    rect: Some(uv),
+                    ..default()
+                },
+                Transform::from_translation(world(clipped.center()).extend(-1.)),
+                PlotEntity,
+            ));
+        }
+    }
     for label in &cache.labels {
         commands.spawn((
             Text2d::new(&label.text),
@@ -174,13 +216,6 @@ pub(super) fn rebuild(
             PlotEntity,
         ));
     }
-    let count = cache.lines.len();
-    cache.description = format!(
-        "{}\n{} line segments · {} labels",
-        cache.description,
-        count,
-        cache.labels.len()
-    );
 }
 pub(super) fn draw(mut gizmos: Gizmos, cache: Res<PlotCache>) {
     let world = |p: Vec2| {

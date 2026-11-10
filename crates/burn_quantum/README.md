@@ -93,3 +93,18 @@ and [changelog](https://github.com/mosure/burn_quantum/blob/main/CHANGELOG.md).
 ## License
 
 MIT OR Apache-2.0. Both license texts are included in this package.
+
+## Canonical algorithms and dynamic protocols
+
+`algorithms` supplies reusable QFT/inverse QFT, phase estimation, Deutsch–Jozsa
+parity oracles, single-target Grover, generalized Toffoli, graph MaxCut QAOA,
+teleportation and coherent odd-repetition recovery. Builders retain the ordinary
+`Circuit`, symbolic bindings and operation labels. `append_qft` composes with an
+existing circuit; all wires follow the register's big-endian convention.
+
+`protocol::Protocol` references ordinary circuit operations and explicitly adds
+projective measurements and initialized classical conditions. `BranchExecution`
+executes a supplied outcome branch incrementally, reports its cumulative
+probability, and normalizes the actually collapsed state. Impossible branches are
+errors. This is explicit branch execution, not random shot sampling or a claim
+that requested measurement outcomes occur deterministically.

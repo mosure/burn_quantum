@@ -20,6 +20,8 @@ See [Burn's migration guide](https://burn.dev/books/burn/migrating-to-0.22.html)
 - Local Hermitian expectations, variances, Hamiltonian sums and marginals.
 - Arbitrary validated Kraus channels, amplitude damping, phase flip and depolarization.
 - Versioned serializable circuits with shared parameters and batched input encoding.
+- Canonical algorithm builders and explicit measurement/feed-forward branches,
+  including differentiable normalization of a fixed conditional state.
 - Native reverse-mode gradients and correct occurrence-wise parameter-shift
   references for both qubit and embedded qudit rotations.
 - `QuantumLayerConfig` / `QuantumLayer` using Burn `Config`, `Module`, `Param`,
@@ -39,12 +41,14 @@ See [Burn's migration guide](https://burn.dev/books/burn/migrating-to-0.22.html)
 
 ## Interactive quantum explorer
 
-Open the [live quantum explorer](https://mosure.github.io/burn_quantum/) to inspect
-Bell/GHZ entanglement, interference, qutrits, photonic routing and quantum natural
-SPSA. The [`burn_quantum_visualization`](crates/burn_quantum_visualization/README.md)
-crate shares a Bevy/Feathers interface between native and WebGPU browsers: Bloch
-balls, circuit diagrams, physical routing, optimizer history and a synchronized
-timeline. Validated JSON documents connect your own experiments to the same views.
+Open the [live quantum explorer](https://mosure.github.io/burn_quantum/) for fifteen
+experiments, from Bell/GHZ entanglement and mixed qubit/qudit registers to
+teleportation, QFT, QPE, Grover, QAOA, error correction and photonic routing.
+The [`burn_quantum_visualization`](crates/burn_quantum_visualization/README.md)
+crate shares a Bevy/Feathers interface between native and WebGPU browsers:
+compact parallel Bloch panels with 2D/3D modes, canonical circuit diagrams,
+physical routing, optimizer history and a synchronized timeline. Configure
+algorithm size before running, or import validated JSON from your own experiment.
 
 ```sh
 cargo install burn_quantum_visualization --version 0.3.0 --locked
@@ -67,6 +71,8 @@ with one complete source file per implementation: **VQE**, **QAOA MaxCut**,
 **variational classification**, **quantum-kernel classification**, a **Born
 machine**, **hybrid regression**, **qutrit multiclass classification**,
 **Grover SAT search**, **quantum natural SPSA VQE**, and **lossy photonic Bell swapping**.
+Additional configurable examples cover **teleportation**, **Toffoli**, **QFT**,
+**Deutsch–Jozsa**, **phase estimation**, **Grover search** and the **bit-flip code**.
 Each has an explicit problem, execution or training procedure, numerical
 acceptance criteria, a test, and a JSON result report.
 

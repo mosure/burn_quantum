@@ -17,7 +17,22 @@ pub(super) fn describe(state: &Explorer, document: Option<&VisualizationDocument
                 return "INITIAL STATE\n\nThe register starts before\nany operation is applied."
                     .into();
             };
-            let Some(op) = doc.circuit.operations().get(index) else {
+            let op_index = if let Some(record) = &doc.protocol {
+                match record.program.instructions.get(index) {
+                    Some(burn_quantum::protocol::Instruction::Measure { wire, bit }) => {
+                        return format!(
+                            "PROJECTIVE MEASUREMENT\n\nq{wire} → c{bit}={}\n\nCumulative branch probability {:.6}\n\nThe state is collapsed and normalized. Classical bits control Bob's corrections.",
+                            record.outcomes[*bit],
+                            record.probabilities[(index + 1).min(record.probabilities.len() - 1)]
+                        );
+                    }
+                    Some(burn_quantum::protocol::Instruction::Gate { operation, .. }) => *operation,
+                    None => return "Select a protocol step.".into(),
+                }
+            } else {
+                index
+            };
+            let Some(op) = doc.circuit.operations().get(op_index) else {
                 return "Select a circuit gate.".into();
             };
             let parameters = doc
@@ -61,7 +76,7 @@ pub(super) fn describe(state: &Explorer, document: Option<&VisualizationDocument
                 "GATE {:02}\n\n{}\n\n{operation}\n\nNorm {:.6}",
                 index + 1,
                 doc.operation_labels
-                    .get(index)
+                    .get(op_index)
                     .map(String::as_str)
                     .unwrap_or("Unlabeled operation"),
                 frame.norm
@@ -75,13 +90,48 @@ pub(super) fn describe(state: &Explorer, document: Option<&VisualizationDocument
                 .node
                 .and_then(|id| fabric.nodes.iter().find(|n| n.id == id))
             {
+                let resources = fabric
+                    .resources
+                    .iter()
+                    .filter(|r| r.source == node.id)
+                    .map(|r| {
+                        format!(
+                            "Photons {:?}\nGraph edges {:?}\nLocal H {:?}",
+                            r.photons, r.edges, r.hadamards
+                        )
+                    })
+                    .collect::<Vec<_>>()
+                    .join("\n");
+                let routes = fabric
+                    .routes
+                    .iter()
+                    .filter(|r| {
+                        r.from == node.id
+                            || r.to == node.id
+                            || r.hops.iter().any(|h| {
+                                fabric.links[h.link].from == node.id
+                                    || fabric.links[h.link].to == node.id
+                            })
+                    })
+                    .take(6)
+                    .map(|r| {
+                        format!(
+                            "p{}: t{} → {}\nRoute rails {:.2}% / {:.2}%",
+                            r.photon,
+                            r.release,
+                            r.arrival,
+                            r.transmission[0] * 100.,
+                            r.transmission[1] * 100.
+                        )
+                    })
+                    .collect::<Vec<_>>()
+                    .join("\n\n");
                 format!(
-                    "{}\n\n{}\n\nStorage transmission / tick\nRail 0  {:.1}%\nRail 1  {:.1}%\n\n{} schedule ticks\n\nSchedule metadata does not\napply a quantum loss channel.",
+                    "{}\n\n{}\n\n{resources}\n\n{routes}\n\nStorage / tick\nRail 0 {:.2}% · Rail 1 {:.2}%\n\nRoute transmission includes links and intervening waits. It excludes analyzer/detector loss. Outputs are held at their sources. No fusion outcome is inferred.",
                     node.label,
                     node.kind,
                     node.storage[0] * 100.,
-                    node.storage[1] * 100.,
-                    fabric.finish_tick
+                    node.storage[1] * 100.
                 )
             } else {
                 format!(

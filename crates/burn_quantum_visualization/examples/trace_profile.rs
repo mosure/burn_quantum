@@ -44,6 +44,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 trace,
                 fabric: None,
                 optimization: Vec::new(),
+                protocol: None,
             };
             std::fs::write(
                 path,

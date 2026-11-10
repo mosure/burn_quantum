@@ -1,7 +1,10 @@
 //! Native/WASM application, asynchronous document loading and interaction state.
 use crate::{
-    demo::{self, DemoKind},
-    model::VisualizationDocument,
+    demo::{self, DemoConfig, DemoKind},
+    model::{
+        VisualizationDocument,
+        bloch::{BlochMode, BlochPlane},
+    },
     simulation::TraceLimits,
     view,
 };
@@ -28,9 +31,9 @@ impl ViewMode {
     pub(crate) const ALL: [Self; 4] = [Self::State, Self::Circuit, Self::Fabric, Self::Learning];
     pub(crate) fn title(self) -> &'static str {
         match self {
-            Self::State => "Quantum state",
+            Self::State => "State",
             Self::Circuit => "Circuit",
-            Self::Fabric => "Photonic fabric",
+            Self::Fabric => "Fabric",
             Self::Learning => "Learning",
         }
     }
@@ -47,9 +50,16 @@ impl ViewMode {
 #[derive(Resource)]
 pub(crate) struct Explorer {
     pub demo: DemoKind,
+    pub config: DemoConfig,
+    pub config_note: String,
+    pub config_valid: bool,
     pub view: ViewMode,
     pub frame: usize,
     pub wire: usize,
+    pub state_overview: bool,
+    pub bloch_mode: BlochMode,
+    pub bloch_plane: BlochPlane,
+    pub trails: bool,
     pub gate: Option<usize>,
     pub node: Option<usize>,
     pub tick: f32,
@@ -62,6 +72,7 @@ pub(crate) struct Explorer {
     pub pan: Vec2,
     pub grid: bool,
     pub show_details: bool,
+    pub show_settings: bool,
     pub revision: u64,
     pub requested: bool,
     pub status: String,
@@ -70,9 +81,16 @@ impl Default for Explorer {
     fn default() -> Self {
         Self {
             demo: DemoKind::Bell,
+            config: DemoConfig::for_demo(DemoKind::Bell),
+            config_note: String::new(),
+            config_valid: true,
             view: ViewMode::State,
             frame: 0,
             wire: 0,
+            state_overview: true,
+            bloch_mode: BlochMode::Spatial,
+            bloch_plane: BlochPlane::Xz,
+            trails: false,
             gate: None,
             node: None,
             tick: 0.,
@@ -85,6 +103,7 @@ impl Default for Explorer {
             pan: Vec2::ZERO,
             grid: true,
             show_details: false,
+            show_settings: false,
             revision: 1,
             requested: true,
             status: "Preparing the experiment…".into(),
@@ -92,6 +111,29 @@ impl Default for Explorer {
     }
 }
 impl Explorer {
+    pub fn preview_config(&mut self) {
+        match demo::preview(self.demo, self.config, TraceLimits::default()) {
+            Ok(Some(p)) => {
+                self.config_valid = true;
+                self.config_note = format!(
+                    "{} qubits · {} states · {} steps · {:.1} MiB numeric snapshots",
+                    p.wires,
+                    p.dimension,
+                    p.steps,
+                    p.snapshot_bytes as f64 / 1048576.
+                );
+            }
+            Ok(None) => {
+                self.config_valid = true;
+                self.config_note = "Fixed-size foundational experiment".into();
+            }
+            Err(e) => {
+                self.config_valid = false;
+                self.config_note = format!("Budget check: {e}. Reduce size or depth.");
+            }
+        }
+        self.touch();
+    }
     pub fn touch(&mut self) {
         self.revision = self.revision.wrapping_add(1);
     }
@@ -148,11 +190,42 @@ pub fn run() {
                 "--demo" => {
                     if let Some(v) = args.next() {
                         explorer.demo = parse_demo(&v);
+                        explorer.config = DemoConfig::for_demo(explorer.demo);
                     }
                 }
                 "--view" => {
                     if let Some(v) = args.next() {
                         explorer.view = ViewMode::parse(&v);
+                    }
+                }
+                "--bloch" => {
+                    explorer.bloch_mode = if args.next().as_deref() == Some("2d") {
+                        BlochMode::Planar
+                    } else {
+                        BlochMode::Spatial
+                    };
+                }
+                "--plane" => {
+                    explorer.bloch_plane = match args.next().as_deref() {
+                        Some("xy") => BlochPlane::Xy,
+                        Some("yz") => BlochPlane::Yz,
+                        _ => BlochPlane::Xz,
+                    };
+                }
+                "--trails" => explorer.trails = true,
+                "--size" => {
+                    if let Some(n) = args.next().and_then(|v| v.parse().ok()) {
+                        explorer.config.size = n;
+                    }
+                }
+                "--layers" => {
+                    if let Some(n) = args.next().and_then(|v| v.parse().ok()) {
+                        explorer.config.depth = n;
+                    }
+                }
+                "--variant" => {
+                    if let Some(n) = args.next().and_then(|v| v.parse().ok()) {
+                        explorer.config.variant = n;
                     }
                 }
                 "--step" => launch.step = args.next().and_then(|s| s.parse().ok()),
@@ -184,15 +257,37 @@ pub fn run() {
                 if let Ok(params) = web_sys::UrlSearchParams::new_with_str(&search) {
                     if let Some(v) = params.get("demo") {
                         explorer.demo = parse_demo(&v);
+                        explorer.config = DemoConfig::for_demo(explorer.demo);
                     }
                     if let Some(v) = params.get("view") {
                         explorer.view = ViewMode::parse(&v);
                     }
+                    if let Some(n) = params.get("size").and_then(|v| v.parse().ok()) {
+                        explorer.config.size = n;
+                    }
+                    if let Some(n) = params.get("layers").and_then(|v| v.parse().ok()) {
+                        explorer.config.depth = n;
+                    }
+                    if let Some(n) = params.get("variant").and_then(|v| v.parse().ok()) {
+                        explorer.config.variant = n;
+                    }
+                    explorer.bloch_mode = if params.get("bloch").as_deref() == Some("2d") {
+                        BlochMode::Planar
+                    } else {
+                        BlochMode::Spatial
+                    };
+                    explorer.bloch_plane = match params.get("plane").as_deref() {
+                        Some("xy") => BlochPlane::Xy,
+                        Some("yz") => BlochPlane::Yz,
+                        _ => BlochPlane::Xz,
+                    };
+                    explorer.trails = params.get("trails").as_deref() == Some("1");
                     launch.step = params.get("step").and_then(|v| v.parse().ok());
                 }
             }
         }
     }
+    explorer.preview_config();
     App::new()
         .insert_resource(ClearColor(view::theme::BACKGROUND))
         .insert_resource(explorer)
@@ -240,14 +335,7 @@ fn report_render_error(
     (bevy::render::error_handler::RenderErrorHandler::default().0)(error, main_world, render_world)
 }
 fn parse_demo(value: &str) -> DemoKind {
-    match value {
-        "ghz" => DemoKind::Ghz,
-        "interference" => DemoKind::Interference,
-        "qutrit" => DemoKind::Qutrit,
-        "photonic" | "photonic-routing" => DemoKind::PhotonicRouting,
-        "optimization" => DemoKind::Optimization,
-        _ => DemoKind::Bell,
-    }
+    DemoKind::from_id(value).unwrap_or(DemoKind::Bell)
 }
 struct UiMainThread(std::marker::PhantomData<std::rc::Rc<()>>);
 fn load_documents(
@@ -282,9 +370,10 @@ fn load_documents(
         return;
     }
     let kind = state.demo;
+    let config = state.config;
     experiment.task = Some(AsyncComputeTaskPool::get().spawn(async move {
         let device = burn::tensor::Device::flex();
-        demo::build(kind, &device, TraceLimits::default())
+        demo::build_configured(kind, config, &device, TraceLimits::default())
             .await
             .map_err(|e| e.to_string())
     }));
@@ -318,6 +407,11 @@ fn accept_document(
     state.tick = 0.;
     state.node = None;
     let initial = launch.step.take().unwrap_or(0);
+    if (state.view == ViewMode::Fabric && document.fabric.is_none())
+        || (state.view == ViewMode::Learning && document.optimization.is_empty())
+    {
+        state.view = ViewMode::State;
+    }
     if state.view == ViewMode::Fabric {
         state.tick = initial.min(
             document
@@ -333,6 +427,7 @@ fn accept_document(
         initial.min(document.trace.frames.len().saturating_sub(1))
     };
     state.wire = 0;
+    state.state_overview = true;
     state.gate = state.frame.checked_sub(1);
     state.status = document.trace.backend.clone();
     state.elapsed = 0.;

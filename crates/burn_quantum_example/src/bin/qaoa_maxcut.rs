@@ -3,9 +3,7 @@
 //! U_B(beta) = exp(-i beta sum X). Maximize the expected cut by minimizing its negative.
 use burn::optim::{AdamConfig, GradientsParams};
 use burn::tensor::{Tensor, TensorData};
-use burn_quantum::{
-    Angle, Circuit, QuantumLayerConfig, Register, Rotation, Samples, Unitary, gate::Axis,
-};
+use burn_quantum::{QuantumLayerConfig, Samples, algorithms::qaoa_maxcut};
 use burn_quantum_example::{ExampleResult, Report, ensure, execution_device, values};
 
 const SEED: u64 = 11;
@@ -21,38 +19,7 @@ fn cut(index: usize) -> f64 {
 
 fn run() -> ExampleResult<Report> {
     let device = execution_device()?.autodiff();
-    let mut circuit = Circuit::new(Register::qubits(3)?, 2, 0);
-    for w in 0..3 {
-        circuit.unitary(vec![w], Unitary::h())?;
-    }
-    for (a, b) in EDGES {
-        circuit.unitary(vec![a, b], Unitary::cnot())?;
-        circuit.rotate(
-            b,
-            Rotation::qubit(
-                Axis::Z,
-                Angle::Parameter {
-                    index: 0,
-                    scale: -1.,
-                    offset: 0.,
-                },
-            ),
-        )?;
-        circuit.unitary(vec![a, b], Unitary::cnot())?;
-    }
-    for w in 0..3 {
-        circuit.rotate(
-            w,
-            Rotation::qubit(
-                Axis::X,
-                Angle::Parameter {
-                    index: 1,
-                    scale: 2.,
-                    offset: 0.,
-                },
-            ),
-        )?;
-    }
+    let circuit = qaoa_maxcut(3, &EDGES, &[(0.4, 0.2)])?.circuit;
     let mut model = QuantumLayerConfig::new(circuit, vec![], vec![0.4, 0.2]).init(&device)?;
     let costs: Vec<f64> = (0..8).map(cut).collect();
     let optimum = costs.iter().copied().fold(f64::NEG_INFINITY, f64::max);

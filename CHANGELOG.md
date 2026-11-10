@@ -4,7 +4,18 @@
 
 - Publish `burn_quantum_visualization`: a reusable Bevy/Feathers native and WebGPU
   workbench with Bloch spheres, circuit/fabric diagrams, optimization histories,
-  bounded timelines, validated JSON interchange and six executable experiments.
+  bounded timelines, validated JSON interchange and fifteen executable experiments.
+- Add compact parallel qubit/qudit state panels, direct selection, responsive groups,
+  shaded/orbitable 3D spheres and labeled 2D coordinate projections.
+  Consolidate secondary controls in Settings, use contextual view tabs and a
+  mobile experiment selector, and keep playback to three primary buttons.
+  Add configurable canonical algorithms, resource previews, semantic circuit
+  symbols and actual measurement/feed-forward timelines with schema-two records.
+- Add reusable QFT, QPE, Deutsch–Jozsa, Grover, Toffoli, QAOA, teleportation and
+  coherent repetition-code builders, single-file executable examples and
+  independent mathematical/CPU/WGPU checks.
+- Redraw photonic fabrics with resource photon ownership, held outputs, paired
+  rails, routing waits, destructive analyzers and per-photon schedule strips.
 - Add optional shared Burn/Bevy WGPU buffer leases, with actual GPU-rendering and
   CPU/GPU numerical-parity validation. The gallery uses cached CPU traces.
 - Deploy the interactive gallery to GitHub Pages with build provenance. Match the

@@ -28,6 +28,8 @@ pub(super) fn update(
         &UiGlobalTransform,
         Option<&super::ui::Action>,
         Option<&super::ui::Scrubber>,
+        Has<bevy::ui::Pressed>,
+        Has<bevy::ui::InteractionDisabled>,
     )>,
     scrolls: Query<
         (&ComputedNode, &UiGlobalTransform, &ScrollPosition),
@@ -44,10 +46,10 @@ pub(super) fn update(
     }
     clock.1 = now;
     clock.2 = state.revision;
-    let controls=controls.iter().filter_map(|(node,transform,action,slider)|{
+    let controls=controls.iter().filter_map(|(node,transform,action,slider,pressed,disabled)|{
         let size=node.size()*node.inverse_scale_factor();if size.x<1. || size.y<1. || (action.is_none() && slider.is_none()){return None;}
         let center=transform.affine().translation*node.inverse_scale_factor();let rect=Rect::from_center_size(center,size);
-        Some(serde_json::json!({"action":action.map(|a|format!("{a:?}")).unwrap_or_else(||"Scrubber".into()),"rect":[rect.min.x,rect.min.y,rect.max.x,rect.max.y]}))
+        Some(serde_json::json!({"pressed":pressed,"disabled":disabled,"action":action.map(|a|format!("{a:?}")).unwrap_or_else(||"Scrubber".into()),"rect":[rect.min.x,rect.min.y,rect.max.x,rect.max.y]}))
     }).collect::<Vec<_>>();
     let scroll_regions=scrolls.iter().filter_map(|(node,transform,offset)|{
         let scale=node.inverse_scale_factor();let size=node.size()*scale;
@@ -62,11 +64,20 @@ pub(super) fn update(
         "app_frames":clock.0,"frame_time_seconds":time.delta_secs_f64(),
         "rendering_adapter":adapter.as_ref().map(|a|serde_json::json!({"name":a.name,"backend":format!("{:?}",a.backend),"device_type":format!("{:?}",a.device_type)})),
         "demo": state.demo.id(),
+        "config": state.config,
+        "config_valid":state.config_valid,
+        "config_note":state.config_note,
         "view": match state.view {ViewMode::State=>"state",ViewMode::Circuit=>"circuit",ViewMode::Fabric=>"fabric",ViewMode::Learning=>"learning"},
         "ready": experiment.document.is_some(),
         "frame": state.frame,
         "tick": state.tick,
         "qubit": state.wire,
+        "state_overview": state.state_overview,
+        "bloch_mode":state.bloch_mode,
+        "bloch_plane":state.bloch_plane,
+        "trails":state.trails,
+        "show_settings":state.show_settings,
+        "overview_capacity": cache.overview_capacity,
         "gate": state.gate,
         "node": state.node,
         "playing": state.playing,

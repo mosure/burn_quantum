@@ -15,6 +15,7 @@ cuda = ["burn_quantum/cuda", "burn/cuda"]
 fusion = ["burn_quantum/fusion", "burn/fusion"]
 
 [dependencies]
+pollster = "0.4"
 burn_quantum.workspace = true
 burn = { workspace = true, features = ["flex", "autodiff", "optim"] }
 serde.workspace = true
