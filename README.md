@@ -15,14 +15,15 @@ See [Burn's migration guide](https://burn.dev/books/burn/migrating-to-0.22.html)
 
 ```toml
 [dependencies]
-burn_quantum = "0.4.0"
+burn_quantum = "0.5.0"
 burn = { version = "~0.22.1", default-features = false, features = ["std", "flex"] }
 ```
 
 The core crate is available on [crates.io](https://crates.io/crates/burn_quantum).
 The `burn_quantum_example` workspace package is run from a repository checkout.
-See the [changelog](CHANGELOG.md) for release and migration notes. Version 0.4
-updates the visualization API; the core quantum API is unchanged from 0.3.
+Version 0.5 adds amplitude amplification, benchmark applications, and a Results
+view for comparing simulations with reference values. See the [changelog](CHANGELOG.md)
+for migration notes.
 
 ```rust
 use burn::tensor::Device;
@@ -102,7 +103,7 @@ quantum/fabric time, selections, camera, playback and display settings. Imported
 experiments require their exported JSON alongside the link.
 
 ```sh
-cargo install burn_quantum_visualization --version 0.4.0 --locked
+cargo install burn_quantum_visualization --version 0.5.0 --locked
 quantum_explorer
 # Or run the viewer and embedding example from this workspace:
 cargo run --locked -p burn_quantum_visualization --bin quantum_explorer

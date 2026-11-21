@@ -11,7 +11,7 @@ using supported Burn devices. The public API accepts native `Tensor<D>` and
 
 ```toml
 [dependencies]
-burn_quantum = "0.4.0"
+burn_quantum = "0.5.0"
 burn = { version = "~0.22.1", default-features = false, features = ["std", "flex"] }
 ```
 

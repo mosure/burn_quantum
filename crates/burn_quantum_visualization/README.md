@@ -6,14 +6,14 @@ runtimes. Open the [live explorer](https://mosure.github.io/burn_quantum/) or
 install the native application:
 
 ```sh
-cargo install burn_quantum_visualization --version 0.4.0 --locked
+cargo install burn_quantum_visualization --version 0.5.0 --locked
 quantum_explorer
 quantum_explorer --demo mixed --step 6 --bloch 2d
 ```
 
 This crate requires Rust 1.97.1, including builds without the viewer. The separate
 `burn_quantum` core crate supports Rust 1.95. To embed the workbench, add
-`burn_quantum_visualization = "0.4.0"` to your dependencies.
+`burn_quantum_visualization = "0.5.0"` to your dependencies.
 
 From a repository checkout:
 
@@ -213,7 +213,7 @@ provenance of an externally supplied trace.
 For analysis and interchange without a renderer:
 
 ```toml
-burn_quantum_visualization = { version = "0.4.0", default-features = false }
+burn_quantum_visualization = { version = "0.5.0", default-features = false }
 ```
 
 The browser's Import/Export buttons exchange validated JSON. Native equivalents:

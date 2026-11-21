@@ -1,12 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.5.0 — 2026-11-21
 
 - Add generalized amplitude amplification for arbitrary preparations and bit
   oracles, fixed-point Chebyshev schedules, and bounded exponential search shared
   with the SAT solver. Add a configurable fault-pattern example and a gallery
   comparison with measured round-by-round probabilities.
-
 - Add real UCI Wine classification with 4–8 entangling qubits, all thirteen
   measured features, train-only preprocessing, validation checkpoint selection,
   held-out predictions/confusion and majority/linear-ridge controls. Bundle the
@@ -23,6 +22,13 @@
   loss/fusion/delivery accounting. Keep simulator, scaling and QPU claims distinct.
 - Add circuit hover explanations for gates, control/target symbols, measurements,
   classical feedback and wires, with bounded tooltips shared by native and WebGPU.
+
+### Migration from 0.4
+
+- When constructing a `VisualizationDocument` directly, set `study` to `None`
+  or supply a `StudyReport`. Existing JSON documents load with `study` set to `None`.
+- Update exhaustive matches on `ViewMode` for `Results` and on `DemoKind` for
+  `WineClassifier`, `ThreeSat`, `Vqe`, and `AmplitudeAmplification`.
 
 ## 0.4.0 — 2026-11-10
 
