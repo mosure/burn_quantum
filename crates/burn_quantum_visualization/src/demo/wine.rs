@@ -56,6 +56,7 @@ pub(super) async fn build(
             format!("State and circuit views show source row {} (zero-based) throughout training. Basis probabilities describe this quantum encoding, not the three class probabilities. The final timeline frame is the last iterate, not necessarily the selected checkpoint.",run.probe_id),
             "Exact simulator expectations and autodiff, Adam, 64 updates; no finite-shot noise. Training cost grows exponentially with qubits and linearly with dataset rows. The classical baseline is an essential comparison; this is no claim of quantum advantage.".into(),
         ],
+        amplification: None,
         classification:Some(ClassificationSummary {classes:vec!["Cultivar 1".into(),"Cultivar 2".into(),"Cultivar 3".into()],confusion:run.test.confusion.iter().map(|r|r.to_vec()).collect(),split_sizes:[run.split.train.len(),run.split.validation.len(),run.split.test.len()],selected_iteration:run.selected_iteration,validation_loss}),
         sat:None,photonic:None,
     };

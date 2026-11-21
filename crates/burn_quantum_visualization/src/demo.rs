@@ -1,4 +1,5 @@
 //! Small, actual experiments with explicit scientific scope and cached trajectories.
+mod amplification;
 mod catalog;
 mod optimization;
 mod photonic;
@@ -50,6 +51,8 @@ pub enum DemoKind {
     Qpe,
     /// Grover search.
     Grover,
+    /// Selective phase schedules on a biased many-pattern event distribution.
+    AmplitudeAmplification,
     /// QAOA · MaxCut.
     Qaoa,
     /// Bit-flip error correction.
@@ -76,6 +79,7 @@ impl DemoKind {
             Self::DeutschJozsa,
             Self::Qpe,
             Self::Grover,
+            Self::AmplitudeAmplification,
             Self::Qaoa,
             Self::BitFlip,
             Self::Optimization,
@@ -99,6 +103,7 @@ impl DemoKind {
             Self::DeutschJozsa => "deutsch-jozsa",
             Self::Qpe => "qpe",
             Self::Grover => "grover",
+            Self::AmplitudeAmplification => "amplification",
             Self::Qaoa => "qaoa",
             Self::BitFlip => "bit-flip",
             Self::Optimization => "optimization",
@@ -126,6 +131,7 @@ impl DemoKind {
             Self::DeutschJozsa => "Deutsch–Jozsa",
             Self::Qpe => "Quantum phase estimation",
             Self::Grover => "Grover search",
+            Self::AmplitudeAmplification => "Amplitude amplification",
             Self::Qaoa => "QAOA · MaxCut",
             Self::BitFlip => "Bit-flip error correction",
             Self::Optimization => "Quantum natural SPSA",
@@ -178,6 +184,9 @@ impl DemoKind {
             }
             Self::Grover => {
                 "Uniform preparation, a single marked-state phase oracle and diffusion amplify one target. Compare near-optimal iterations with over-rotation; this simulator remains exponential."
+            }
+            Self::AmplitudeAmplification => {
+                "Amplify odd-parity fault patterns in a coherent model of independent events. Change the number of data qubits and compare phase schedules by their measured success after each round."
             }
             Self::Qaoa => {
                 "Parameterized cost and mixer layers for a ring graph. Inspect the circuit and measured cut expectation as graph size and depth grow; angles are fixed, not trained in this example."

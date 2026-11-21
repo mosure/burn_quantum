@@ -87,6 +87,7 @@ pub(super) async fn build(
             "The one-round reference is sin²(3 asin(sqrt(M/2^n))), with M from the independent classical count. These bounded fixtures illustrate amplification and verification; no quantum speedup or practical SAT scaling is claimed.".into(),
             "Dense simulation stores 2^(variables + clauses) complex amplitudes per frame. Structured controlled gates avoid dense oracle matrices, but do not remove exponential state storage. Gallery: 3–5 variables; CLI: 3–6 variables; custom CNF uses the core GroverSat solver.".into(),
         ],
+        amplification: None,
         classification: None,
         sat: Some(SatSummary {
             variables: readout.variables,

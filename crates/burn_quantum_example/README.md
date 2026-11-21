@@ -4,7 +4,7 @@ Executable quantum AI/ML, search and photonic implementations using Burn's nativ
 tensors, optimizers and the `burn_quantum` simulator. Each executable lives in one
 file under `src/bin/`, with its configuration, independent evaluation, `main` and
 acceptance tests. Reusable circuits, quantum operations and application pipelines
-shared with the explorer live in the core crate. This package has 47 executables
+shared with the explorer live in the core crate. This package has 48 executables
 and is an unpublished workspace member; run it from a repository checkout.
 
 ## Examples
@@ -17,6 +17,7 @@ and is an unpublished workspace member; run it from a repository checkout.
 | [`deutsch_jozsa`](src/bin/deutsch_jozsa.rs) | Constant-one and balanced parity promise oracles | Probability of the all-zero input register |
 | [`phase_estimation`](src/bin/phase_estimation.rs) | QPE of eigenphase 3/8, most-significant precision bit first | Exact expected phase peak |
 | [`grover_search`](src/bin/grover_search.rs) | Single-target amplitude amplification | Analytic Grover success probability |
+| [`amplitude_amplification`](src/bin/amplitude_amplification.rs) | Biased fault patterns on 3–10 data qubits, a reversible parity oracle, known-mass and fixed-point schedules, and BBHT search | Measured good mass against rotation/Chebyshev laws, a clean flag, and independently verified sampled witnesses |
 | [`toffoli`](src/bin/toffoli.rs) | Generalized controlled-X with superposed controls | Target/control correlation probability |
 | [`bit_flip_code`](src/bin/bit_flip_code.rs) | Coherent odd-repetition recovery after an injected X fault | Recovered logical Bloch vector |
 | [`teleportation`](src/bin/teleportation.rs) | Projective teleportation with classical feed-forward | Every measurement branch, its probability, and output state |
@@ -135,6 +136,7 @@ cargo run --locked -p burn_quantum_example --bin qft -- 8
 cargo run --locked -p burn_quantum_example --bin deutsch_jozsa -- 8
 cargo run --locked -p burn_quantum_example --bin phase_estimation -- 8
 cargo run --locked -p burn_quantum_example --bin grover_search -- 8
+cargo run --locked -p burn_quantum_example --bin amplitude_amplification -- 5 0.04 0.08 0.01 7
 cargo run --locked -p burn_quantum_example --bin toffoli -- 6
 cargo run --locked -p burn_quantum_example --bin bit_flip_code -- 7
 cargo run --locked -p burn_quantum_example --bin teleportation -- 2

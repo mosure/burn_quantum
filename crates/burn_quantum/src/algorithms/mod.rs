@@ -1,5 +1,6 @@
 //! Reusable canonical circuit constructions. All wires use big-endian register order.
 //! These are dense-simulation-sized templates, not claims of classical quantum speedup.
+pub mod amplification;
 mod deutsch_jozsa;
 mod grover;
 mod phase_estimation;

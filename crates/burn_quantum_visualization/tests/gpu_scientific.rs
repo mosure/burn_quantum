@@ -104,6 +104,8 @@ fn expanded_configurations_match_cpu_on_real_wgpu() {
             (DemoKind::Qft, 8, 1, 1),
             (DemoKind::Qpe, 6, 1, 1),
             (DemoKind::Grover, 8, 1, 1),
+            (DemoKind::AmplitudeAmplification, 8, 1, 0),
+            (DemoKind::AmplitudeAmplification, 5, 1, 2),
             (DemoKind::Qaoa, 8, 3, 0),
             (DemoKind::BitFlip, 7, 1, 3),
             (DemoKind::Teleportation, 2, 1, 3),

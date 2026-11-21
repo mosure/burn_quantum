@@ -44,6 +44,18 @@ impl Circuit {
     pub fn operations(&self) -> &[Operation] {
         &self.operations
     }
+    /// Invert the circuit, retaining the same register, parameter indices and input bindings.
+    pub fn adjoint(&self) -> Self {
+        Self {
+            operations: self
+                .operations
+                .iter()
+                .rev()
+                .map(Operation::adjoint)
+                .collect(),
+            ..Self::new(self.register.clone(), self.parameters, self.inputs)
+        }
+    }
     /// Append an instruction after validation; failure leaves the circuit unchanged.
     pub fn push(&mut self, operation: Operation) -> Result<&mut Self> {
         self.validate_operation(&operation)?;

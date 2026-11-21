@@ -1,30 +1,10 @@
 //! Bounded unknown-solution-count search and verified logical outcomes.
 use super::GroverSat;
+pub use crate::algorithms::amplification::SearchConfig;
+use crate::algorithms::amplification::exponential_search;
 use crate::{Result, Samples};
 use burn::tensor::Device;
-use rand::{Rng, SeedableRng};
-use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
-
-/// Reproducible limits for randomized search with an unknown solution count.
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
-pub struct SearchConfig {
-    /// Maximum preparations/measurements. Zero permits only trivial logical results.
-    pub max_trials: usize,
-    /// Total Grover oracle applications across all trials; zero permits uniform sampling.
-    pub max_oracle_calls: usize,
-    /// Seed for iteration selection and terminal measurement, independent of Burn's RNG.
-    pub seed: u64,
-}
-impl Default for SearchConfig {
-    fn default() -> Self {
-        Self {
-            max_trials: 64,
-            max_oracle_calls: 4096,
-            seed: 0,
-        }
-    }
-}
 
 /// A verified witness, a trivial contradiction, or an exhausted search budget.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -81,28 +61,25 @@ impl GroverSat {
             return Ok(report);
         }
         let uniform = self.initial_state(device)?;
-        let mut rng = ChaCha8Rng::seed_from_u64(config.seed);
-        let mut window = 1.0f64;
-        let cap = (2.0f64).powf(self.formula().num_variables() as f64 / 2.0);
-        for _ in 0..config.max_trials {
-            let iterations = rng.random_range(0..window.ceil() as usize);
-            if iterations > config.max_oracle_calls - report.oracle_calls {
-                break;
-            }
-            let state = self.iterate(uniform.clone(), iterations)?;
-            report.oracle_calls += iterations;
-            let samples = Samples::from_state(&state, 1, rng.random(), 1)?;
-            report.trials += 1;
-            let digits = state.register().decode(samples.outcomes[0][0])?;
-            let assignment: Vec<bool> = digits[..self.formula().num_variables()]
-                .iter()
-                .map(|&x| x == 1)
-                .collect();
-            if self.formula().evaluate(&assignment)? {
-                report.outcome = SatOutcome::Satisfiable { assignment };
-                return Ok(report);
-            }
-            window = (window * 1.2).min(cap);
+        let variables = self.formula().num_variables();
+        let search = exponential_search(
+            Some(1. / (1usize << variables) as f64),
+            config,
+            |rounds, seed| {
+                let state = self.iterate(uniform.clone(), rounds)?;
+                let samples = Samples::from_state(&state, 1, seed, 1)?;
+                let digits = state.register().decode(samples.outcomes[0][0])?;
+                Ok(digits[..variables]
+                    .iter()
+                    .map(|&x| x == 1)
+                    .collect::<Vec<bool>>())
+            },
+            |assignment| self.formula().evaluate(assignment),
+        )?;
+        report.trials = search.trials;
+        report.oracle_calls = search.oracle_calls;
+        if let Some(assignment) = search.witness {
+            report.outcome = SatOutcome::Satisfiable { assignment };
         }
         Ok(report)
     }

@@ -283,6 +283,7 @@ pub(super) async fn build(
             "Dual-rail photonic hardware encodes a qubit in two modes; the optional vacuum level is simulator bookkeeping. PsiQuantum describes this qubit encoding publicly: https://www.psiquantum.com/quantum-computing . This example is a generic fusion-network model, not an implementation of a provider-specific device.".into(),
             "Scale resources from 2 to 6. The explicit logical statevector has 2^(2R) amplitudes and the vacuum encoding has 3^(2R); default retained-trace limits allow up to R=4 in vacuum mode. Stabilizer transport/fusion sampling uses polynomial tableau storage. Growing an unencoded serial chain lowers yield exponentially: scalable fault tolerance requires multiplexing, encoding and decoding, not simply more photons.".into(),
         ],
+        amplification: None,
         classification: None, sat: None,
         photonic: Some(PhotonicSummary {
             logical_qubits: 2 * config.size,

@@ -93,13 +93,18 @@ const report = {url:base, timestamp:new Date().toISOString(), demos:[], interact
    assert.deepEqual(persistentState(await diag()),before,`${label}: copied URL restores complete paused view state`);
    (report.url_round_trips??=[]).push({label,url,state:before});
   }
-  const cases=[['wine','results',53],['three-sat','results',46],['vqe','learning',80],['bell','state',2],['ghz','state',6],['mixed','state',6],['teleportation','circuit',10],['toffoli','circuit',3],['qft','circuit',0],['deutsch-jozsa','circuit',0],['qpe','circuit',0],['grover','state',5],['qaoa','circuit',0],['bit-flip','circuit',0],['interference','state',2],['qutrit','state',2],['photonic','fabric',0],['optimization','learning',16]];
+  const cases=[['wine','results',53],['three-sat','results',46],['vqe','learning',80],['bell','state',2],['ghz','state',6],['mixed','state',6],['teleportation','circuit',10],['toffoli','circuit',3],['qft','circuit',0],['deutsch-jozsa','circuit',0],['qpe','circuit',0],['grover','state',5],['amplification','results',0],['qaoa','circuit',0],['bit-flip','circuit',0],['interference','state',2],['qutrit','state',2],['photonic','fabric',0],['optimization','learning',16]];
   for (const [demo,view,step] of cases) {
    const start=Date.now();await page.goto(`${base}?demo=${demo}&view=${view}&step=${step}`);await ready();
    const d=await diag();assert.equal(d.demo,demo);assert.equal(d.view,view);
    if(demo==='bell'){assert.ok(d.controls.length<=10,'default toolbar stays compact');assert.ok(!d.controls.some(c=>['Grid','Trails','Reset','BlochMode(Planar)'].includes(c.action)),'secondary controls are disclosed in Settings');}
    const document=await page.evaluate(async()=>JSON.parse((await import('./pkg/burn_quantum_visualization.js')).export_document_json()));
    assert.ok(document.trace.frames.length>1);assert.ok(document.trace.frames.every(f=>Math.abs(f.norm-1)<5e-4));
+   if(demo==='amplification') {
+    const curve=document.study.amplification.round_success;
+    assert.equal(curve.length,6);assert.ok(curve[0]<0.18 && curve.at(-1)>=0.99);
+    assert.ok(d.hover_regions.some(h=>h.title==='Round 5'),'final measured point has a tooltip');
+   }
    const b=await page.locator('canvas').boundingBox();
    assert.ok(d.canvas[3]<=b.height,`plot exceeds canvas in ${demo}`);
    if(view!=='results')assert.ok(d.controls.some(c=>c.action==='Scrubber' && c.rect[3]<=b.height),`timeline clipped in ${demo}`);

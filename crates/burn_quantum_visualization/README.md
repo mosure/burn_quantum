@@ -21,15 +21,17 @@ From a repository checkout:
 cargo run --locked -p burn_quantum_visualization --bin quantum_explorer
 cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --demo photonic --view fabric
 cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --demo optimization --view learning
+cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --demo amplification --view results
 cargo run --locked -p burn_quantum_visualization --example embedded
 ```
 
 ## Explore
 
-Eighteen experiments cover Bell/GHZ states, mixed qubit/qutrit registers, interference,
+Nineteen experiments cover Bell/GHZ states, mixed qubit/qutrit registers, interference,
 teleportation, Toffoli, QFT, Deutsch–Jozsa, QPE, Grover, QAOA MaxCut, bit-flip
 correction, compiled photonic routing, quantum natural SPSA, real UCI Wine
-classification, multi-spin Ising VQE and exact-3SAT constraints.
+classification, multi-spin Ising VQE, exact-3SAT constraints and fixed-point
+amplitude amplification of odd-parity fault patterns.
 Each loaded configuration is simulated once through core Burn APIs. Changing
 views or scrubbing a cached timeline does not rerun its simulation.
 
@@ -39,6 +41,7 @@ views or scrubbing a cached timeline does not rerun its simulation.
 | Circuit | Semantic gate symbols, conservative parallel columns, SWAPs, control levels, measurement and double classical wires |
 | Photonic fabric | Resource ownership, held outputs, paired optical rails, switches, destructive fusion analyzers and per-photon travel/wait timelines |
 | Learning | Actual Adam or QN-SPSA iterates, objective history, independent evaluation and stated costs |
+| Results | Task metrics and references, including measured odd-parity probability at each amplification round |
 
 Entangled qubits can lie inside the Bloch sphere. Qudits use populations instead
 of a misleading three-dimensional qubit representation. Adjacent probability

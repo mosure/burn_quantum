@@ -64,6 +64,9 @@ const report = {url:base, timestamp:new Date().toISOString(), cases:[], errors:[
    await page.waitForTimeout(200);
   }
   const cases=[
+   ['amplification-fixed-point',1600,1200,'demo=amplification&view=results'],
+   ['amplification-known-mass',1600,1200,'demo=amplification&variant=1&view=results'],
+   ['amplification-ordinary-mobile',390,1000,'demo=amplification&variant=2&view=results'],
    ['wine-results-desktop',1600,1200,'demo=wine&view=results'],
    ['sat-results-desktop',1600,1200,'demo=three-sat&view=results'],
    ['photonic-results-desktop',1600,1200,'demo=photonic&view=results'],
@@ -106,6 +109,18 @@ const report = {url:base, timestamp:new Date().toISOString(), cases:[], errors:[
      assert.equal(p.logical_qubits,12);assert.equal(p.includes_vacuum,false);
      assert.ok(doc.trace.frames.at(-1).subsystems.every(q=>Array.isArray(q.bloch)));
     }
+   }
+   if(doc.study.amplification) {
+    const points=doc.study.amplification.round_success, last=points.length-1;
+    assert.ok(Math.abs(points[0]-(1-0.92**5)/2)<2e-5);
+    if(name==='amplification-fixed-point') {
+     assert.equal(last,5);assert.ok(points[last]>=0.99);
+    } else {
+     assert.equal(last,name==='amplification-known-mass'?1:5);
+     points.forEach((p,j)=>assert.ok(Math.abs(p-Math.sin((2*j+1)*Math.asin(Math.sqrt(points[0])))**2)<2e-5));
+    }
+    assert.equal(d.drawing_dropped_lines,0);
+    assert.ok(d.hover_regions.some(h=>h.title===`Round ${last}`),'last plotted measurement is visible');
    }
    const samples=await page.evaluate(()=>window.__qaHeartbeat);
    const loading=samples.filter(s=>s.ready===false&&s.app_frames>0);

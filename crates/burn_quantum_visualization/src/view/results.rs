@@ -49,6 +49,8 @@ pub(super) fn build(p: &mut PlotCache, bounds: Rect, _: &Explorer, doc: &Visuali
             satisfiability(p, body, sat);
         } else if let Some(photonic) = &study.photonic {
             photons(p, body, photonic);
+        } else if let Some(curve) = &study.amplification {
+            amplification(p, body, &curve.round_success);
         } else {
             // VQE and other studies can use the same view without a new UI schema.
             for metric in study
@@ -79,6 +81,60 @@ pub(super) fn build(p: &mut PlotCache, bounds: Rect, _: &Explorer, doc: &Visuali
         "{} metrics · explicit task readouts\nResults are independent of the selected display frame",
         study.metrics.len()
     );
+}
+
+fn amplification(p: &mut PlotCache, area: Rect, probabilities: &[f64]) {
+    p.text(
+        Vec2::new(area.center().x, area.min.y + 7.),
+        "Odd-parity probability by round",
+        13.,
+        TEXT,
+    );
+    let graph = Rect::from_corners(
+        area.min + Vec2::new(45., 28.),
+        area.max - Vec2::new(16., 29.),
+    );
+    for percent in [0, 50, 100] {
+        let y = graph.max.y - graph.height() * percent as f32 / 100.;
+        p.line(Vec2::new(graph.min.x, y), Vec2::new(graph.max.x, y), BORDER);
+        p.text(
+            Vec2::new(graph.min.x - 22., y),
+            format!("{percent}%"),
+            10.,
+            MUTED,
+        );
+    }
+    let last = probabilities.len() - 1;
+    let position = |i: usize, prob: f64| {
+        Vec2::new(
+            graph.min.x + graph.width() * i as f32 / last.max(1) as f32,
+            graph.max.y - graph.height() * prob.clamp(0., 1.) as f32,
+        )
+    };
+    let tick_stride =
+        (probabilities.len() as f32 / (graph.width() / 50.).clamp(2., 20.)).ceil() as usize;
+    for (i, &prob) in probabilities.iter().enumerate() {
+        let point = position(i, prob);
+        if i > 0 {
+            p.line(position(i - 1, probabilities[i - 1]), point, ACCENT);
+        }
+        if probabilities.len() <= 20 || i == last || i.is_multiple_of(tick_stride) {
+            p.dot(point, 3.5, ACCENT);
+            p.hover(
+                Rect::from_center_size(point, Vec2::splat(18.)),
+                format!("Round {i}"),
+                format!("{:.3}% odd-parity probability", 100. * prob),
+            );
+        }
+        if i == last || i.is_multiple_of(tick_stride) {
+            p.text(
+                Vec2::new(point.x, graph.max.y + 14.),
+                i.to_string(),
+                11.,
+                MUTED,
+            );
+        }
+    }
 }
 
 fn metric_card(p: &mut PlotCache, rect: Rect, metric: &StudyMetric, primary: bool) {

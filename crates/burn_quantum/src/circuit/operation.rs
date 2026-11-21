@@ -119,3 +119,30 @@ pub enum Operation {
         controls: Vec<(usize, usize)>,
     },
 }
+
+impl Operation {
+    /// Hermitian adjoint, including the sign of both terms of an affine rotation angle.
+    pub fn adjoint(&self) -> Self {
+        match self {
+            Self::Unitary { wires, gate } => Self::Unitary {
+                wires: wires.clone(),
+                gate: gate.adjoint(),
+            },
+            Self::Rotate { wire, rotation } => {
+                let mut rotation = rotation.clone();
+                match &mut rotation.angle {
+                    Angle::Constant(value) => *value = -*value,
+                    Angle::Parameter { scale, offset, .. } | Angle::Input { scale, offset, .. } => {
+                        *scale = -*scale;
+                        *offset = -*offset;
+                    }
+                }
+                Self::Rotate {
+                    wire: *wire,
+                    rotation,
+                }
+            }
+            Self::ControlledX { .. } | Self::PhaseFlip { .. } => self.clone(),
+        }
+    }
+}

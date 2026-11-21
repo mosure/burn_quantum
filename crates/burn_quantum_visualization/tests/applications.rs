@@ -141,3 +141,63 @@ fn task_reports_reject_false_witnesses_and_impossible_yield_counts() {
         assert!(photonic.validate().is_err());
     });
 }
+#[test]
+fn amplification_gallery_uses_actual_round_boundaries_and_survives_export() {
+    pollster::block_on(async {
+        let kind = DemoKind::AmplitudeAmplification;
+        assert_eq!(DemoKind::from_id("amplification"), Some(kind));
+        let initial = (1. - 0.92_f64.powi(5)) / 2.;
+        for (variant, rounds) in [(0, 5), (1, 1), (2, 5)] {
+            let config = DemoConfig {
+                variant,
+                ..DemoConfig::for_demo(kind)
+            };
+            let limits = TraceLimits::default();
+            let preview = demo::preview(kind, config, limits).unwrap().unwrap();
+            let document = demo::build_configured(kind, config, &Device::flex(), limits)
+                .await
+                .unwrap();
+            let mut document = io::parse_document(&io::document_json(&document).unwrap()).unwrap();
+            assert_eq!(document.trace.frames.len(), preview.steps + 1);
+            let curve = &mut document
+                .study
+                .as_mut()
+                .unwrap()
+                .amplification
+                .as_mut()
+                .unwrap()
+                .round_success;
+            assert_eq!(curve.len(), rounds + 1);
+            for (j, &value) in curve.iter().enumerate() {
+                // Five preparation gates, then 24 gates per complete round.
+                let frame = &document.trace.frames[5 + 24 * j];
+                let odd: f64 = frame
+                    .probabilities
+                    .iter()
+                    .enumerate()
+                    .filter(|(index, _)| (index / 2).count_ones() % 2 == 1)
+                    .map(|(_, p)| p)
+                    .sum();
+                let total = frame.probabilities.iter().sum::<f64>();
+                assert!((total - 1.).abs() < 5e-5);
+                assert!((value - odd / total).abs() < 1e-8);
+                if variant != 0 || j == 0 {
+                    assert!(
+                        (value - ((2 * j + 1) as f64 * initial.sqrt().asin()).sin().powi(2)).abs()
+                            < 2e-5
+                    );
+                }
+            }
+            if variant == 0 {
+                assert!(curve[rounds] >= 0.99);
+            }
+            curve[0] = -0.1;
+            assert!(document.validate().is_err());
+            let tiny = TraceLimits {
+                max_frames: 16,
+                ..limits
+            };
+            assert!(demo::preview(kind, config, tiny).is_err());
+        }
+    });
+}

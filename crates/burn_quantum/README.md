@@ -77,6 +77,13 @@ teleportation and coherent odd-repetition recovery. Builders retain the ordinary
 `Circuit`, symbolic bindings and operation labels. `append_qft` composes with an
 existing circuit; all wires follow the register's big-endian convention.
 
+`algorithms::amplification` accepts mixed-radix, parameterized preparations and
+reversible Boolean oracles. `AmplitudeAmplifier::compile` turns standard,
+Yoder–Low–Chuang fixed-point or custom phase pairs into an ordinary circuit with
+one clean flag. `AmplitudeAmplifier::search` runs seeded BBHT trials and returns
+the first classically verified sample. The fixed-point constructor takes a lower
+bound on good probability and an upper bound on final failure probability.
+
 `protocol::Protocol` references ordinary circuit operations and explicitly adds
 projective measurements and initialized classical conditions. `BranchExecution`
 executes a supplied outcome branch incrementally, reports its cumulative

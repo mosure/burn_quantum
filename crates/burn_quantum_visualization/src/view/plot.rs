@@ -322,6 +322,7 @@ mod tests {
                 summary: String::new(),
                 metrics: vec![],
                 notes: vec![],
+                amplification: None,
                 classification: Some(ClassificationSummary {
                     classes: vec!["A".into(), "B".into()],
                     confusion: vec![vec![1, 0], vec![0, 1]],

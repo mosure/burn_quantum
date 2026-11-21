@@ -1,6 +1,6 @@
 # Configurable quantum experiment catalog
 
-The catalog combines eighteen scientific experiments with parallel subsystem
+The catalog combines nineteen scientific experiments with parallel subsystem
 views and configurable algorithm complexity. Release qualification covers the
 delivery gates below.
 
@@ -38,6 +38,7 @@ delivery gates below.
 | Deutsch–Jozsa | Input width and oracle class | Constant versus balanced input-register readout |
 | Phase estimation | Counting precision | Exact binary phases and off-grid probability distribution |
 | Grover search | Search width and iteration count | Analytic marked-state success probability |
+| Amplitude amplification | 3–8 biased data qubits and one clean flag, fixed-point or ordinary phases | Measured odd-parity curve, Grover and Chebyshev probability laws, and fixed-point final failure guarantee |
 | QAOA MaxCut | Graph size and ansatz layers | Independently evaluated cut expectation and parameter bindings |
 | Bit-flip code | Code size and injected error | Logical recovery, syndrome and failure assumptions |
 | Wine classification | 4–8 qubits, 1–3 reuploading layers | Real held-out cultivars, train-only preprocessing, validation selection and linear-ridge / majority controls |

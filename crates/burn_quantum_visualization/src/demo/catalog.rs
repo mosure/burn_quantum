@@ -24,7 +24,7 @@ impl DemoConfig {
                 DemoKind::Teleportation => 1,
                 DemoKind::BitFlip => 3,
                 DemoKind::Qft | DemoKind::DeutschJozsa | DemoKind::Qpe => 4,
-                DemoKind::Grover => 5,
+                DemoKind::Grover | DemoKind::AmplitudeAmplification => 5,
                 DemoKind::Qaoa => 6,
                 _ => 1,
             },
@@ -44,6 +44,7 @@ impl DemoConfig {
             DemoKind::Qft => (2, 16, 1),
             DemoKind::DeutschJozsa | DemoKind::Qpe => (2, 15, 1),
             DemoKind::Grover => (2, 10, 1),
+            DemoKind::AmplitudeAmplification => (3, 8, 1),
             DemoKind::Qaoa => (3, 14, 1),
             DemoKind::BitFlip => (3, 9, 2),
             _ => (1, 1, 1),
@@ -53,6 +54,7 @@ impl DemoConfig {
     pub fn size_label(kind: DemoKind) -> &'static str {
         match kind {
             DemoKind::ThreeSat => "Boolean variables",
+            DemoKind::AmplitudeAmplification => "data qubits",
             DemoKind::PhotonicRouting => "Bell resources",
             DemoKind::Teleportation => "transfers",
             DemoKind::Toffoli => "controls",
@@ -66,6 +68,7 @@ impl DemoConfig {
         match kind {
             DemoKind::ThreeSat | DemoKind::PhotonicRouting => 2,
             DemoKind::Teleportation => 4,
+            DemoKind::AmplitudeAmplification => 3,
             DemoKind::Toffoli
             | DemoKind::Qft
             | DemoKind::DeutschJozsa
@@ -78,6 +81,12 @@ impl DemoConfig {
     /// Label for the selected variant, independent of simulation output.
     pub fn variant_label(self, kind: DemoKind) -> String {
         match kind {
+            DemoKind::AmplitudeAmplification => [
+                "Fixed point · lower bound",
+                "Grover · known mass",
+                "Grover · fixed-point round count",
+            ][self.variant.min(2)]
+            .into(),
             DemoKind::ThreeSat => if self.variant == 0 {
                 "Satisfiable constraints"
             } else {
@@ -256,17 +265,22 @@ fn preview_algorithm(a: &AlgorithmCircuit, limits: TraceLimits) -> Result<Previe
         .as_ref()
         .map(|p| p.instructions.len())
         .unwrap_or(a.circuit.operations().len());
-    limits.check(a.circuit.register(), steps + 1)?;
-    let dimension = a.circuit.register().size();
-    let local: usize = a
-        .circuit
-        .register()
+    preview_register(a.circuit.register(), steps, limits)
+}
+pub(super) fn preview_register(
+    register: &Register,
+    steps: usize,
+    limits: TraceLimits,
+) -> Result<Preview> {
+    limits.check(register, steps + 1)?;
+    let dimension = register.size();
+    let local: usize = register
         .dimensions()
         .iter()
         .map(|d| 16 * d * d + 8 * d + 32)
         .sum();
     Ok(Preview {
-        wires: a.circuit.register().wires(),
+        wires: register.wires(),
         dimension,
         steps,
         snapshot_bytes: (24 * dimension + local) * (steps + 1),
@@ -276,6 +290,9 @@ fn preview_algorithm(a: &AlgorithmCircuit, limits: TraceLimits) -> Result<Previe
 pub fn preview(kind: DemoKind, config: DemoConfig, limits: TraceLimits) -> Result<Option<Preview>> {
     config.validate(kind)?;
     match kind {
+        DemoKind::AmplitudeAmplification => {
+            return super::amplification::preview(config, limits).map(Some);
+        }
         DemoKind::WineClassifier => return super::wine::preview(config, limits).map(Some),
         DemoKind::ThreeSat => return super::sat::preview(config, limits).map(Some),
         DemoKind::Vqe => return super::vqe::preview(config, limits).map(Some),
@@ -295,6 +312,9 @@ pub async fn build_configured(
 ) -> Result<VisualizationDocument> {
     config.validate(kind)?;
     match kind {
+        DemoKind::AmplitudeAmplification => {
+            return super::amplification::build(config, device, limits).await;
+        }
         DemoKind::WineClassifier => return super::wine::build(config, device, limits).await,
         DemoKind::ThreeSat => return super::sat::build(config, device, limits).await,
         DemoKind::Vqe => return super::vqe::build(config, device, limits).await,

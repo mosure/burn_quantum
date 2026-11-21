@@ -1,12 +1,74 @@
 # Application benchmarks and scaling examples
 
 The workspace combines small teaching circuits with inspectable application
-pipelines. The eighteen-entry explorer includes real chemical classification,
+pipelines. The nineteen-entry explorer includes real chemical classification,
 multi-spin energy minimization, exact-3SAT constraints and a lossy photonic
-resource chain. The examples crate contains 47 single-file executables, including
+resource chain, plus the amplitude-amplification study below. The examples crate contains 48 single-file executables, including
 tensor-network workloads with much larger registers. These are local simulator
 experiments with explicit assumptions and reference checks, not quantum advantage
 or hardware qualification claims.
+
+## Amplifying odd-parity fault patterns
+
+Five independent data bits each have a 4% event probability. An Ry preparation
+encodes their biased joint distribution coherently. A reversible parity check
+uses five controlled-X gates to flag all 16 odd-weight labels. These labels
+carry just 17.05% of the initial mass. The flag is uncomputed after marking, so
+interference changes the chance of drawing an odd pattern while preserving the
+relative probabilities of patterns within that subspace.
+
+| Information supplied to the strategy | Default result on Flex CPU |
+| --- | --- |
+| Known initial good mass | One standard round gives 91.60% success. The independent reference is `sin²((2j+1) asin(sqrt(a)))`. |
+| Lower bound of 8%, final failure budget of 1% | Five Yoder–Low–Chuang rounds give 99.26% success, above the 99% guarantee. The bound applies to the completed schedule. |
+| Classical verifier, trial budget and oracle-call budget | With seed 7, BBHT finds and verifies `00010` on the fourth fresh measurement. Those trials execute one amplification round in total. |
+
+For a minimum good mass b and a final failure budget ε, the fixed-point planner
+chooses the smallest odd degree L satisfying
+`tanh²(acosh(1/sqrt(ε)) / L) ≤ b` and executes (L−1)/2 rounds. Individual
+rounds can decrease success. The guarantee covers the full interval from b to 1
+once the entire phase sequence has run.
+
+Run all three strategies or inspect the circuit and its measured success curve.
+The CLI arguments are the data-qubit count, per-wire event probability, promised
+minimum good mass, maximum failure probability and seed, in that order.
+
+```sh
+cargo run --locked -p burn_quantum_example --bin amplitude_amplification
+BURN_QUANTUM_DEVICE=wgpu cargo run --locked -p burn_quantum_example --features wgpu --bin amplitude_amplification -- 8 0.04 0.08 0.01 7
+cargo run --locked -p burn_quantum_visualization --bin quantum_explorer -- --demo amplification --view results
+cargo test --locked -p burn_quantum --test amplification
+BURN_QUANTUM_DEVICE=wgpu cargo test --locked -p burn_quantum --features wgpu --test amplification
+```
+
+The conformance tests compare complete complex amplitudes against an independent
+projector calculation on a mixed qubit–qutrit register, verify the Chebyshev law
+below and above its promised interval, and differentiate through the preparation
+and its inverse. Across five F32 CLI configurations spanning 3–10 data qubits,
+Flex CPU and an RTX PRO 6000 Blackwell Vulkan GPU differed by at most 2.57e-7 in
+reported probabilities. The executable also checks the raw state norm before
+dividing each measured probability mass by the total Born weight.
+
+The explorer compares fixed-point phases, standard phases at the known first
+peak, and standard phases at the same round count as the fixed-point circuit.
+The CLI reports both good-space phases and reversible bit-oracle executions.
+Each phase uses two executions to compute and uncompute the predicate. Each
+adaptive trial has one additional classical verification. A trial budget can
+end with an inconclusive result. A uniform N-candidate search can cap its random
+window at sqrt(N). The general search lets the window grow within its budget
+because even a single qubit can carry arbitrarily small good mass.
+Dense simulation of n data qubits plus the
+flag uses 2^(n+1) complex amplitudes. Applying these reflections requires coherent
+access to the model preparation and its inverse.
+
+For another task, pass a preparation and reversible flag circuit to
+`algorithms::amplification::AmplitudeAmplifier::new`, or use `from_marked` for
+an explicit set of mixed-radix labels. The compiled circuit retains its Burn
+parameter and batched-input bindings. The standard law, fixed-point phase
+ordering and unknown-count search follow the original papers.
+[Brassard et al.](https://arxiv.org/abs/quant-ph/0005055) ·
+[Yoder, Low and Chuang](https://arxiv.org/abs/1409.3305) ·
+[Boyer et al.](https://arxiv.org/abs/quant-ph/9605034).
 
 ## Real data: wine cultivar classification
 

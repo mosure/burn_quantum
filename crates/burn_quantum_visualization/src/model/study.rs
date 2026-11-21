@@ -66,6 +66,12 @@ pub struct PhotonicSummary {
     /// Attempts with photon loss/erasure.
     pub erased: usize,
 }
+/// Measurements at the boundaries of a coherent amplification schedule.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct AmplificationSummary {
+    /// Measured good-subspace probabilities after preparation and each complete round.
+    pub round_success: Vec<f64>,
+}
 /// Task context, independent references and resource costs for the Results view.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct StudyReport {
@@ -86,6 +92,9 @@ pub struct StudyReport {
     /// Logical-versus-loss bookkeeping interpretation, when applicable.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub photonic: Option<PhotonicSummary>,
+    /// Completed-round good-space measurements, when the experiment uses amplification.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub amplification: Option<AmplificationSummary>,
 }
 impl StudyReport {
     /// Check bounded sizes, finite metrics, confusion counts and SAT witnesses.
@@ -121,6 +130,13 @@ impl StudyReport {
             {
                 return Err(invalid());
             }
+        }
+        if let Some(a) = &self.amplification
+            && (a.round_success.is_empty()
+                || a.round_success.len() > frames.min(257)
+                || a.round_success.iter().any(|v| !(0. ..=1.0005).contains(v)))
+        {
+            return Err(invalid());
         }
         if let Some(s) = &self.sat {
             if !(3..=12).contains(&s.variables)

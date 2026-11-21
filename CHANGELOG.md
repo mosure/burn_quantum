@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add generalized amplitude amplification for arbitrary preparations and bit
+  oracles, fixed-point Chebyshev schedules, and bounded exponential search shared
+  with the SAT solver. Add a configurable fault-pattern example and a gallery
+  comparison with measured round-by-round probabilities.
+
 - Add real UCI Wine classification with 4–8 entangling qubits, all thirteen
   measured features, train-only preprocessing, validation checkpoint selection,
   held-out predictions/confusion and majority/linear-ridge controls. Bundle the
@@ -12,7 +17,7 @@
   reversible work qubits, analytic amplification and verified witnesses.
 - Make the MPS QAOA executable configurable from 4 to 256 qubits, retaining
   analytic cut checks, explicit host-SVD work and bounded approximation/storage.
-- Expand the explorer to eighteen experiments with structured study results and
+- Expand the explorer with structured study results and
   actual optimization histories. Default photonic resources to logical dual-rail
   qubits; retain optional vacuum levels, configurable Bell chains and unconditional
   loss/fusion/delivery accounting. Keep simulator, scaling and QPU claims distinct.
